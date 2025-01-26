@@ -75,5 +75,6 @@ jobs:
       - name: Linter
         run: npm run lint
 
-      - name: Run Tests
-        run: npm run test
+      # TODO: Uncomment this when we have tests
+      # - name: Run Tests
+      #   run: npm run test
