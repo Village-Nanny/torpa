@@ -15,8 +15,7 @@ export default function Home() {
           {/* Heading */}
           <div className="space-y-4">
             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-              Build something{' '}
-              <span className="text-blue-600">amazing</span>
+              Build something <span className="text-blue-600">amazing</span>
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               A production-ready starter template with authentication, state management, and a modern design system.
@@ -25,19 +24,10 @@ export default function Home() {
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="bg-blue-600 hover:bg-blue-700"
-              asChild
-            >
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
               <Link href="/login">Get Started</Link>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-blue-200 hover:border-blue-300"
-              asChild
-            >
+            <Button size="lg" variant="outline" className="border-blue-200 hover:border-blue-300" asChild>
               <Link href="/register">Create account</Link>
             </Button>
           </div>
@@ -45,19 +35,12 @@ export default function Home() {
           {/* Features */}
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow"
-              >
+              <div key={index} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4">
                   <feature.icon className="w-6 h-6 text-blue-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {feature.name}
-                </h3>
-                <p className="text-gray-500 text-sm">
-                  {feature.description}
-                </p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.name}</h3>
+                <p className="text-gray-500 text-sm">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -78,8 +61,7 @@ const features = [
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        {...props}
-      >
+        {...props}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -98,8 +80,7 @@ const features = [
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        {...props}
-      >
+        {...props}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -118,8 +99,7 @@ const features = [
         viewBox="0 0 24 24"
         strokeWidth={1.5}
         stroke="currentColor"
-        {...props}
-      >
+        {...props}>
         <path
           strokeLinecap="round"
           strokeLinejoin="round"

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/src/services/firebase';
-import { RootState } from '@/src/lib/store';
+import { RootState } from '@/src/store';
 import { Button } from '@/src/components/ui/button';
 import { toast } from 'sonner';
 

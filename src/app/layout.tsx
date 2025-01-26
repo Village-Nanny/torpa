@@ -1,4 +1,4 @@
-import './globals.css';
+import '../styles/globals.css';
 import type { Metadata } from 'next';
 import React from 'react';
 import { Inter } from 'next/font/google';
@@ -12,11 +12,7 @@ export const metadata: Metadata = {
   description: 'A production-ready starter template for Next.js applications',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
