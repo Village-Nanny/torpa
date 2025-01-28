@@ -8,13 +8,7 @@ export default function LandingPage() {
     <div className="min-h-screen font-sans bg-gray-100 overflow-x-hidden">
       {/* Background pattern - added bg-gray-100 to match parent */}
       <div className="fixed inset-0 bg-gray-100">
-        <DotPattern
-          color="text-green-400" // Now using text color class that inherits through fill-current
-          opacity={0.15}
-          size={3}
-          spacing={40}
-          rotation={30}
-        />
+        <DotPattern color="text-green-400" opacity={0.15} size={3} spacing={40} rotation={30} />
       </div>
 
       {/* Page Layout - removed min-h-screen as it's on parent */}
@@ -24,7 +18,6 @@ export default function LandingPage() {
           <Header />
         </div>
 
-        {/* Main content area - added pt-24 to account for fixed header height */}
         <main className="flex-grow container mx-auto px-8 pb-20 ">
           <div className="mt-48">
             {/* Hero Section */}
