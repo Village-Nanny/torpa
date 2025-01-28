@@ -19,10 +19,13 @@ export default function LandingPage() {
 
       {/* Page Layout - removed min-h-screen as it's on parent */}
       <div className="relative z-10 flex flex-col">
-        <Header />
+        {/* Fixed Header */}
+        <div className="fixed top-0 left-0 right-0 z-50 bg-gray-100/80 backdrop-blur-sm">
+          <Header />
+        </div>
 
-        {/* Main content area - adjusted spacing */}
-        <main className="flex-grow container mx-auto px-8 pb-20">
+        {/* Main content area - added pt-24 to account for fixed header height */}
+        <main className="flex-grow container mx-auto px-8 pb-20 ">
           <div className="mt-48">
             {/* Hero Section */}
             <section>
