@@ -90,11 +90,11 @@ export default function LandingPage() {
                       </div>
                       <h2 className="text-4xl font-bold text-gray-800 mb-6">Meet Our Lovable Characters</h2>
                       <p className="text-xl text-gray-600 mb-8">
-                        Join Phonix the Fox, Leta the Lion, and their friends on an exciting journey through the world
-                        of sounds and letters.
+                        Join Francine the Frog , Lulu the Ladybug and embark on an exciting journey through the world of
+                        sounds and letters.
                       </p>
                       <div className="flex gap-4">
-                        {['Phonix', 'Leta', 'Ziggy'].map(name => (
+                        {['Francine', 'Lulu'].map(name => (
                           <div key={name} className="bg-green-100 px-4 py-2 rounded-full text-green-700 font-medium">
                             {name}
                           </div>
@@ -196,7 +196,7 @@ export default function LandingPage() {
 function FeatureItem({ icon, title, description }) {
   return (
     <div className="flex items-start group hover:transform hover:translate-x-2 transition-transform duration-200">
-      <div className="bg-green-100 p-3 rounded-xl mr-4 flex-shrink-0 group-hover:bg-green-200 transition-colors duration-200">
+      <div className="bg-green-300 p-3 rounded-xl mr-4 flex-shrink-0 group-hover:bg-green-500 transition-colors duration-200">
         {icon}
       </div>
       <div>
