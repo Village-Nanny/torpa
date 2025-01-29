@@ -1,17 +1,15 @@
+import React from 'react';
 import Header from '../components/ui/custom/Header';
 import Image from 'next/image';
 import { ArrowRight, BarChart, Heart, Star, Users, Lightbulb, Smartphone, Sparkles } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { DotPattern } from '../components/ui/atoms/dot-pattern';
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen font-sans bg-gray-100 overflow-x-hidden">
-      {/* Background pattern - added bg-gray-100 to match parent */}
-      <div className="fixed inset-0 bg-gray-100">
-        <DotPattern color="text-green-400" opacity={0.15} size={3} spacing={40} rotation={30} />
-      </div>
+      <DotPattern className="fixed inset-0 bg-gray-100 text-green-400" />
 
-      {/* Page Layout - removed min-h-screen as it's on parent */}
       <div className="relative z-10 flex flex-col">
         {/* Fixed Header */}
         <div className="fixed top-0 left-0 right-0 z-50 bg-gray-100/80 backdrop-blur-sm">
@@ -25,15 +23,7 @@ export default function LandingPage() {
               <div className="w-full flex flex-col md:flex-row shadow-xl rounded-3xl relative overflow-hidden bg-gradient-to-br from-green-400 to-green-500">
                 {/* Left Content */}
                 <div className="flex-1 p-12 md:p-16 flex flex-col items-start relative">
-                  <div className="absolute top-4 right-4 text-green-300 animate-bounce">
-                    <Sparkles size={24} />
-                  </div>
-                  <div className="absolute bottom-4 left-4 text-green-300 animate-pulse">
-                    <Sparkles size={20} />
-                  </div>
-                  <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 text-left drop-shadow-md">
-                    PhonemiKids
-                  </h1>
+                  <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 text-left drop-shadow-md">Torpa</h1>
                   <p className="text-xl text-white mb-8 text-left leading-relaxed">
                     Embark on a fun-filled journey of early literacy with our interactive phonemic awareness app.
                   </p>
@@ -41,7 +31,6 @@ export default function LandingPage() {
                     Designed for young minds, built for curious learners.
                   </p>
                 </div>
-
                 {/* Right Content */}
                 <div className="flex-1 bg-white p-12 md:p-16 rounded-3xl rounded-t-none md:rounded-l-none md:rounded-r-3xl">
                   <h2 className="text-3xl font-bold text-gray-800 mb-8">Designed for Young Minds</h2>
@@ -186,7 +175,7 @@ export default function LandingPage() {
   );
 }
 
-function FeatureItem({ icon, title, description }) {
+function FeatureItem({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
     <div className="flex items-start group hover:transform hover:translate-x-2 transition-transform duration-200">
       <div className="bg-green-300 p-3 rounded-xl mr-4 flex-shrink-0 group-hover:bg-green-500 transition-colors duration-200">
@@ -197,32 +186,5 @@ function FeatureItem({ icon, title, description }) {
         <p className="text-sm text-gray-600">{description}</p>
       </div>
     </div>
-  );
-}
-
-interface DotPatternProps {
-  color: string; // Should be a Tailwind fill color class
-  opacity: number;
-  size: number;
-  spacing: number;
-  rotation: number;
-}
-
-function DotPattern({ color, opacity, size, spacing, rotation }: DotPatternProps) {
-  return (
-    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-      <pattern
-        id="dotPattern"
-        x="0"
-        y="0"
-        width={spacing}
-        height={spacing}
-        patternUnits="userSpaceOnUse"
-        patternTransform={`rotate(${rotation})`}>
-        {/* Use fill-current to inherit color from parent */}
-        <circle cx={size} cy={size} r={size} className={`${color} fill-current`} />
-      </pattern>
-      <rect width="100%" height="100%" fill="url(#dotPattern)" className={`opacity-${opacity}`} />
-    </svg>
   );
 }
