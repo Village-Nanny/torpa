@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, BarChart, Heart, Star, Users, Lightbulb, Smartphone, Sparkles } from 'lucide-react';
+import { BarChart, Heart, Users, Lightbulb, Smartphone } from 'lucide-react';
 
 import { LandingTemplate } from '../components/ui/templates/landing-template';
 

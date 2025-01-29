@@ -1,6 +1,5 @@
 import { Header } from '../molecules/header';
 import { DotPattern } from '../atoms/dot-pattern';
-import { Button } from '../atoms/button';
 import React from 'react';
 import Link from 'next/link';
 
