@@ -19,7 +19,7 @@ export function DotPattern({ className }: { className?: string }) {
         patternTransform="rotate(30)">
         <circle cx="3" cy="3" r="3" className="fill-current" />
       </pattern>
-      <rect width="100%" height="100%" fill="url(#dotPattern)" className="opacity-15" />
+      <rect width="100%" height="100%" fill="url(#dotPattern)" className="opacity-20" />
     </svg>
   );
 }

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/src/services/firebase';
-import { Button } from '@/src/components/ui/button';
+import { Button } from '@/src/components/ui/atoms/button';
 import { Input } from '@/src/components/ui/input';
 import { toast } from 'sonner';
 
