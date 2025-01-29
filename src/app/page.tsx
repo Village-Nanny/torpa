@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowRight, BarChart, Heart, Star, Users, Lightbulb, Smartphone, Sparkles } from 'lucide-react';
 
-import { LandingTemplate } from '../components/templates/landing-template';
+import { LandingTemplate } from '../components/ui/templates/landing-template';
 
 export default function LandingPage() {
   return (
