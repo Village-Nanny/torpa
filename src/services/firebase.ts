@@ -6,6 +6,8 @@ import { getFunctions } from 'firebase/functions';
 import { getMessaging } from 'firebase/messaging';
 import { getAnalytics } from 'firebase/analytics';
 
+console.log('hello');
+
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -16,10 +18,12 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
+console.log(firebaseConfig['apiKey']);
+
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db = getFirestore(app, 'development'); // oh wow here you have to specify the firestore db name. Makes sense in retrospect.
 const storage = getStorage(app);
 const functions = getFunctions(app);
 const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;

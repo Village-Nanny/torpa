@@ -19,7 +19,7 @@ export default function LandingPage() {
         <main className="flex-grow container mx-auto px-8 pb-20">
           <div className="mt-48">
             <section>
-              <div className="w-full flex flex-col md:flex-row shadow-xl rounded-3xl relative overflow-hidden bg-gradient-to-br from-green-400 to-green-500">
+              <div className="w-full flex flex-col md:flex-row shadow-xl rounded-3xl relative overflow-hidden bg-gradient-to-br from-green-500 to-green-600">
                 <div className="flex-1 p-12 md:p-16 flex flex-col items-start relative">
                   <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 text-left drop-shadow-md">Torpa</h1>
                   <p className="text-xl text-white mb-8 text-left leading-relaxed">
@@ -29,7 +29,7 @@ export default function LandingPage() {
                     Designed for young minds, built for curious learners.
                   </p>
                   <Link
-                    href="/signup"
+                    href="/register"
                     className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-white text-green-500 hover:bg-green-50 hover:text-green-600 shadow-lg transition-colors duration-200 h-11 px-8">
                     Get Started
                   </Link>
