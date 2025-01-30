@@ -1,111 +1,173 @@
 import React from 'react';
+import { BarChart, Heart, Users, Lightbulb, Smartphone } from 'lucide-react';
+import { Header } from '../components/ui/molecules/header';
+import { DotPattern } from '../components/ui/atoms/dot-pattern';
 import Link from 'next/link';
-import { Button } from '@/src/components/ui/button';
+import { FeatureItem } from '../components/ui/atoms/feature-item';
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-24">
-        <div className="text-center space-y-8">
-          {/* Badge */}
-          <div className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-600 ring-1 ring-inset ring-blue-600/20">
-            <span className="font-medium">New Release</span>
-          </div>
+    <div className="min-h-screen font-sans bg-gray-100 overflow-x-hidden">
+      <DotPattern className="fixed inset-0 bg-gray-100 text-green-400 " />
 
-          {/* Heading */}
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-              Build something <span className="text-blue-600">amazing</span>
-            </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              A production-ready starter template with authentication, state management, and a modern design system.
-            </p>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700" asChild>
-              <Link href="/login">Get Started</Link>
-            </Button>
-            <Button size="lg" variant="outline" className="border-blue-200 hover:border-blue-300" asChild>
-              <Link href="/register">Create account</Link>
-            </Button>
-          </div>
-
-          {/* Features */}
-          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center mb-4">
-                  <feature.icon className="w-6 h-6 text-blue-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.name}</h3>
-                <p className="text-gray-500 text-sm">{feature.description}</p>
-              </div>
-            ))}
-          </div>
+      <div className="relative z-10 flex flex-col">
+        {/* Fixed Header */}
+        <div className="fixed top-0 left-0 right-0 z-50 bg-gray-100/80 backdrop-blur-sm">
+          <Header />
         </div>
+
+        <main className="flex-grow container mx-auto px-8 pb-20">
+          <div className="mt-48">
+            <section>
+              <div className="w-full flex flex-col md:flex-row shadow-xl rounded-3xl relative overflow-hidden bg-gradient-to-br from-green-400 to-green-500">
+                <div className="flex-1 p-12 md:p-16 flex flex-col items-start relative">
+                  <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 text-left drop-shadow-md">Torpa</h1>
+                  <p className="text-xl text-white mb-8 text-left leading-relaxed">
+                    Embark on a fun-filled journey of early literacy with our interactive phonemic awareness app.
+                  </p>
+                  <p className="text-lg text-white text-left font-medium mb-8">
+                    Designed for young minds, built for curious learners.
+                  </p>
+                  <Link
+                    href="/signup"
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-white text-green-500 hover:bg-green-50 hover:text-green-600 shadow-lg transition-colors duration-200 h-11 px-8">
+                    Get Started
+                  </Link>
+                </div>
+                <div className="flex-1 bg-white p-12 md:p-16 rounded-3xl rounded-t-none md:rounded-l-none md:rounded-r-3xl">
+                  <h2 className="text-3xl font-bold text-gray-800 mb-8">Designed for Young Minds</h2>
+                  <div className="space-y-8 mb-8">
+                    <FeatureItem
+                      icon={<Lightbulb size={24} />}
+                      title="Age-Appropriate Learning"
+                      description="Tailored activities for 2.5 to 3.5 year olds"
+                    />
+                    <FeatureItem
+                      icon={<BarChart size={24} />}
+                      title="Progress Tracking"
+                      description="Visualize your child's phonemic growth"
+                    />
+                    <FeatureItem
+                      icon={<Smartphone size={24} />}
+                      title="Multi-Device Access"
+                      description="Learn seamlessly across all devices"
+                    />
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Content Sections */}
+            <div className="space-y-20 py-20">
+              {/* Characters Section */}
+              <section>
+                <div className="bg-white rounded-3xl shadow-lg p-12 transform hover:scale-[1.02] transition-transform duration-300">
+                  <div className="flex flex-col md:flex-row items-center gap-12">
+                    <div className="flex-1">
+                      <div className="inline-block bg-red-100 p-3 rounded-2xl mb-6">
+                        <Heart className="text-red-500 w-8 h-8" />
+                      </div>
+                      <h2 className="text-4xl font-bold text-gray-800 mb-6">Meet Our Lovable Characters</h2>
+                      <p className="text-xl text-gray-600 mb-8">
+                        Join Francine the Frog, Lulu the Ladybug and embark on an exciting journey through the world of
+                        sounds and letters.
+                      </p>
+                      <div className="flex gap-4">
+                        {['Francine', 'Lulu'].map(name => (
+                          <div key={name} className="bg-green-100 px-4 py-2 rounded-full text-green-700 font-medium">
+                            {name}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex-1 relative h-80">
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl">
+                        <div className="h-full flex items-center justify-center text-gray-400">
+                          Character Illustrations
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Progress Section */}
+              <section>
+                <div className="bg-white rounded-3xl shadow-lg p-12 transform hover:scale-[1.02] transition-transform duration-300">
+                  <div className="flex flex-col md:flex-row items-center gap-12">
+                    <div className="flex-1">
+                      <div className="inline-block bg-blue-100 p-3 rounded-2xl mb-6">
+                        <BarChart className="text-blue-500 w-8 h-8" />
+                      </div>
+                      <h2 className="text-4xl font-bold text-gray-800 mb-6">Track Your Child's Journey</h2>
+                      <p className="text-xl text-gray-600 mb-8">
+                        Watch your child's progress in real-time with our intuitive tracking system. Celebrate every
+                        milestone along the way!
+                      </p>
+                      <div className="grid grid-cols-3 gap-4">
+                        {[
+                          { name: 'Phonemic Awareness', value: '98%' },
+                          { name: 'Letter Recognition', value: '98%' },
+                          { name: 'Sound Blending', value: '98%' },
+                        ].map(stat => (
+                          <div key={stat.name} className="bg-blue-50 p-4 rounded-xl">
+                            <div className="font-medium text-blue-700 text-sm">{stat.name}</div>
+                            <div className="text-2xl font-bold text-blue-800 mt-1">{stat.value}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex-1 relative h-80">
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl">
+                        <div className="h-full flex items-center justify-center text-gray-400">
+                          Progress Illustration
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Community Section */}
+              <section>
+                <div className="bg-white rounded-3xl shadow-lg p-12 transform hover:scale-[1.02] transition-transform duration-300">
+                  <div className="flex flex-col md:flex-row items-center gap-12">
+                    <div className="flex-1">
+                      <div className="inline-block bg-yellow-100 p-3 rounded-2xl mb-6">
+                        <Users className="text-yellow-500 w-8 h-8" />
+                      </div>
+                      <h2 className="text-4xl font-bold text-gray-800 mb-6">Join Our Growing Community</h2>
+                      <p className="text-xl text-gray-600 mb-8">
+                        Connect with other parents, share experiences, and get expert tips from our community of
+                        educators and learning specialists.
+                      </p>
+                      <div className="flex items-center gap-8">
+                        {[
+                          { label: 'Active Users', value: '10k+' },
+                          { label: 'Average Rating', value: '4.9' },
+                          { label: 'Expert Teachers', value: '50+' },
+                        ].map(metric => (
+                          <div key={metric.label} className="text-center">
+                            <div className="text-3xl font-bold text-yellow-600">{metric.value}</div>
+                            <div className="text-gray-600">{metric.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex-1 relative h-80">
+                      <div className="absolute inset-0 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-2xl">
+                        <div className="h-full flex items-center justify-center text-gray-400">
+                          Community Illustration
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );
 }
-
-const features = [
-  {
-    name: 'Authentication Ready',
-    description: 'Secure authentication system with Firebase, including login, registration, and password reset.',
-    icon: (props: React.SVGProps<SVGSVGElement>) => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        {...props}>
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: 'Modern Design System',
-    description: 'Beautiful, responsive components built with Tailwind CSS and Radix UI primitives.',
-    icon: (props: React.SVGProps<SVGSVGElement>) => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        {...props}>
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: 'State Management',
-    description: 'Efficient state management with Redux Toolkit for predictable state updates.',
-    icon: (props: React.SVGProps<SVGSVGElement>) => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        {...props}>
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"
-        />
-      </svg>
-    ),
-  },
-];

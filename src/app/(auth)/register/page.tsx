@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/src/services/firebase';
-import { Button } from '@/src/components/ui/button';
+import { Button } from '@/src/components/ui/atoms/button';
 import { Input } from '@/src/components/ui/input';
 import { toast } from 'sonner';
 
