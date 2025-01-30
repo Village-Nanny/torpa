@@ -7,10 +7,10 @@ import { FeatureItem } from '../components/ui/atoms/feature-item';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen font-sans bg-gray-100 overflow-x-hidden">
-      <DotPattern className="fixed inset-0 bg-gray-100 text-green-400 " />
+    <div className="min-h-screen font-sans bg-gray-100">
+      <DotPattern className="fixed inset-0 bg-gray-100 text-green-400" />
 
-      <div className="relative z-10 flex flex-col">
+      <div className="relative z-10 flex flex-col overflow-x-hidden">
         {/* Fixed Header */}
         <div className="fixed top-0 left-0 right-0 z-50 bg-gray-100/80 backdrop-blur-sm">
           <Header />

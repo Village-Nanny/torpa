@@ -15,6 +15,7 @@ export interface FormData {
   childDateOfBirth: Date | null;
   childGender: 'male' | 'female' | 'other';
   password: string;
+  confirmPassword: string;
 }
 
 export interface FormErrors {
@@ -26,6 +27,7 @@ export interface FormErrors {
   childDateOfBirth?: string;
   childGender?: string;
   password?: string;
+  confirmPassword?: string;
 }
 
 interface RegistrationFormProps {
@@ -128,6 +130,16 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({
         value={formData.password}
         onChange={e => onFieldChange('password', e.target.value)}
         error={errors.password}
+        required
+      />
+
+      <Input
+        label="Confirm Password"
+        name="confirmPassword"
+        type="password"
+        value={formData.confirmPassword}
+        onChange={e => onFieldChange('confirmPassword', e.target.value)}
+        error={errors.confirmPassword}
         required
       />
 

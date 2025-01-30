@@ -68,6 +68,9 @@ const config: Config = {
       scale: {
         '102': '1.02',
       },
+      maxWidth: {
+        'form-xl': '45rem',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

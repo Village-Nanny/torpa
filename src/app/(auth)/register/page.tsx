@@ -8,6 +8,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { UserDocument } from '@/src/types/user';
 import { useRouter } from 'next/navigation';
+import { Header } from '@/src/components/ui/molecules/header';
 
 const RegisterPage: React.FC = () => {
   const router = useRouter();
@@ -20,6 +21,7 @@ const RegisterPage: React.FC = () => {
     childDateOfBirth: null,
     childGender: 'male',
     password: '',
+    confirmPassword: '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -62,6 +64,12 @@ const RegisterPage: React.FC = () => {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
     }
 
     setErrors(newErrors);
@@ -131,14 +139,16 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-white p-6 overflow-hidden">
+    <div className="relative min-h-screen flex font-sans bg-gray-100 items-center justify-center overflow-hidden">
       {/* Background Patterns */}
-      <div className="absolute inset-0 z-0">
-        <DotPattern className="absolute inset-0 bg-green-600 text-gray-200" />
-      </div>
-      <div className="absolute inset-0 " />
+      <DotPattern className="absolute inset-0 bg-green-600 text-gray-200" />
 
-      <div className="relative w-full max-w-xl">
+      <div className="absolute inset-0 " />
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gray-100/80 backdrop-blur-sm">
+        <Header />
+      </div>
+
+      <div className="relative w-full max-w-form-xl">
         <div className="relative bg-gray-100 rounded-3xl shadow-2xl p-12 space-y-10 border border-gray-100">
           <div className="space-y-4 text-center">
             <h1 className="text-5xl font-bold text-gray-900">Join Torpa</h1>
