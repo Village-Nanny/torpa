@@ -41,16 +41,16 @@ export default function ForgotPasswordPage() {
           <div className="space-y-4 text-center">
             <h1 className="text-5xl font-bold text-gray-900">Reset Password</h1>
             <p className="text-lg text-gray-600">
-              Enter your email address and we'll send you a link to reset your password
+              Enter your email address and we&apos;ll send you a link to reset your password
             </p>
           </div>
 
           <ForgotPasswordForm onSubmit={handleResetPassword} loading={loading} email={email} onEmailChange={setEmail} />
 
           <p className="text-center text-lg text-gray-600">
-            Remember your password?{' '}
-            <Link href="/login" className="text-gray-900 hover:underline font-medium text-lg">
-              Sign in
+            Don&apos;t have an account?{' '}
+            <Link href="/register" className="text-gray-900 hover:underline font-medium text-lg">
+              Sign up
             </Link>
           </p>
         </div>

@@ -12,6 +12,7 @@ export default function LandingPage() {
 
       <div className="relative z-10 flex flex-col overflow-x-hidden">
         {/* Fixed Header */}
+
         <div className="fixed top-0 left-0 right-0 z-50 bg-gray-100/80 backdrop-blur-sm">
           <Header />
         </div>
@@ -99,10 +100,10 @@ export default function LandingPage() {
                       <div className="inline-block bg-blue-100 p-3 rounded-2xl mb-6">
                         <BarChart className="text-blue-500 w-8 h-8" />
                       </div>
-                      <h2 className="text-4xl font-bold text-gray-800 mb-6">Track Your Child's Journey</h2>
+                      <h2 className="text-4xl font-bold text-gray-800 mb-6">Track Your Child&apos;s Journey</h2>
                       <p className="text-xl text-gray-600 mb-8">
-                        Watch your child's progress in real-time with our intuitive tracking system. Celebrate every
-                        milestone along the way!
+                        Watch your child&apos;s progress in real-time with our intuitive tracking system. Celebrate
+                        every milestone along the way!
                       </p>
                       <div className="grid grid-cols-3 gap-4">
                         {[

@@ -69,7 +69,14 @@ const config: Config = {
         '102': '1.02',
       },
       maxWidth: {
-        'form-xl': '45rem',
+        'form-xl': '30%',
+        content: '85%',
+        section: '90%',
+      },
+      width: {
+        card: '45%',
+        form: '40%',
+        content: '85%',
       },
     },
   },

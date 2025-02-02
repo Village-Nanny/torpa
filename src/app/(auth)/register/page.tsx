@@ -9,6 +9,8 @@ import { doc, setDoc } from 'firebase/firestore';
 import { UserDocument } from '@/src/types/user';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/src/components/ui/molecules/header';
+import { FirebaseError } from 'firebase/app';
+import Link from 'next/link';
 
 const RegisterPage: React.FC = () => {
   const router = useRouter();
@@ -104,19 +106,21 @@ const RegisterPage: React.FC = () => {
       console.log('User document craeted in Firestore');
 
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error: FirebaseError | unknown) {
       console.error('Registration failed:', error);
       let errorMessage = 'Registration failed. Please try again.';
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          errorMessage = 'This email is already registered.';
-          break;
-        case 'auth/weak-password':
-          errorMessage = 'Password should be at least 6 characters.';
-          break;
-        case 'auth/invalid-email':
-          errorMessage = 'Please enter a valid email address.';
-          break;
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            errorMessage = 'This email is already registered.';
+            break;
+          case 'auth/weak-password':
+            errorMessage = 'Password should be at least 6 characters.';
+            break;
+          case 'auth/invalid-email':
+            errorMessage = 'Please enter a valid email address.';
+            break;
+        }
       }
       setErrors({ parentEmail: errorMessage });
     } finally {
@@ -139,18 +143,17 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen flex font-sans bg-gray-100 items-center justify-center overflow-hidden">
-      {/* Background Patterns */}
+    <div className="relative min-h-screen flex font-sans bg-gray-100 items-center justify-center overflow-hidden pt-[80px]">
       <DotPattern className="absolute inset-0 bg-green-600 text-gray-200" />
 
-      <div className="absolute inset-0 " />
+      <div className="absolute inset-0" />
       <div className="fixed top-0 left-0 right-0 z-50 bg-gray-100/80 backdrop-blur-sm">
         <Header />
       </div>
 
-      <div className="relative w-full max-w-form-xl">
-        <div className="relative bg-gray-100 rounded-3xl shadow-2xl p-12 space-y-10 border border-gray-100">
-          <div className="space-y-4 text-center">
+      <div className="relative w-content max-w-form-xl min-w-[280px]">
+        <div className="relative bg-gray-100 rounded-3xl shadow-2xl p-[5%] space-y-[3%] border border-gray-100 min-h-[50vh]">
+          <div className="space-y-[2%] text-center">
             <h1 className="text-5xl font-bold text-gray-900">Join Torpa</h1>
             <p className="text-lg text-gray-600">Create an account to get started</p>
           </div>
@@ -166,9 +169,9 @@ const RegisterPage: React.FC = () => {
 
           <p className="text-center text-lg text-gray-600">
             Already have an account?{' '}
-            <a href="/login" className="text-gray-900 hover:underline font-medium text-lg">
+            <Link href="/login" className="text-gray-900 hover:underline font-medium text-lg">
               Sign in
-            </a>
+            </Link>
           </p>
         </div>
       </div>

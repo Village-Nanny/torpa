@@ -8,6 +8,7 @@ import { Header } from '@/src/components/ui/molecules/header';
 import { DotPattern } from '@/src/components/ui/atoms/dot-pattern';
 import LoginForm, { LoginFormData, LoginFormErrors } from '@/src/components/ui/organisms/login-form';
 import Link from 'next/link';
+import { FirebaseError } from 'firebase/app';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -44,17 +45,19 @@ export default function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error: FirebaseError | unknown) {
       console.error('Login failed:', error);
       let errorMessage = 'Login failed. Please try again.';
-      switch (error.code) {
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-          errorMessage = 'Invalid email or password';
-          break;
-        case 'auth/invalid-email':
-          errorMessage = 'Please enter a valid email address';
-          break;
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case 'auth/user-not-found':
+          case 'auth/wrong-password':
+            errorMessage = 'Invalid email or password';
+            break;
+          case 'auth/invalid-email':
+            errorMessage = 'Please enter a valid email address';
+            break;
+        }
       }
       setErrors({ email: errorMessage });
     } finally {
@@ -78,9 +81,9 @@ export default function LoginPage() {
         <Header />
       </div>
 
-      <div className="relative w-full max-w-form-xl">
-        <div className="relative bg-gray-100 rounded-3xl shadow-2xl p-12 space-y-10 border border-gray-100">
-          <div className="space-y-4 text-center">
+      <div className="relative w-content max-w-form-xl min-w-[280px]">
+        <div className="relative bg-gray-100 rounded-3xl shadow-2xl p-[5%] space-y-[3%] border border-gray-100">
+          <div className="space-y-[2%] text-center">
             <h1 className="text-5xl font-bold text-gray-900">Welcome Back</h1>
             <p className="text-lg text-gray-600">Sign in to continue your journey</p>
           </div>
@@ -94,7 +97,7 @@ export default function LoginPage() {
           />
 
           <p className="text-center text-lg text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/register" className="text-gray-900 hover:underline font-medium text-lg">
               Sign up
             </Link>

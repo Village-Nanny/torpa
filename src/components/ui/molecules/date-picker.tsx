@@ -12,9 +12,9 @@ interface DatePickerProps {
 
 const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
   ({ label, value, onChange, error, className }, ref) => {
-    const [focusedDay, setFocusedDay] = React.useState(false);
-    const [focusedMonth, setFocusedMonth] = React.useState(false);
-    const [focusedYear, setFocusedYear] = React.useState(false);
+    const [, setFocusedDay] = React.useState(false);
+    const [, setFocusedMonth] = React.useState(false);
+    const [, setFocusedYear] = React.useState(false);
 
     const months = [
       'January',
@@ -41,9 +41,9 @@ const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
     const [selectedYear, setSelectedYear] = React.useState(value ? selectedDate.getFullYear() : '');
 
     const handleDateChange = (type: 'day' | 'month' | 'year', value: number | string) => {
-      let newDay = type === 'day' ? value : selectedDay;
-      let newMonth = type === 'month' ? value : selectedMonth;
-      let newYear = type === 'year' ? value : selectedYear;
+      const newDay = type === 'day' ? value : selectedDay;
+      const newMonth = type === 'month' ? value : selectedMonth;
+      const newYear = type === 'year' ? value : selectedYear;
 
       if (newDay && newMonth !== '' && newYear) {
         const date = new Date(+newYear, +newMonth, +newDay);
