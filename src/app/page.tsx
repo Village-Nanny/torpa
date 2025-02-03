@@ -7,11 +7,12 @@ import { FeatureItem } from '../components/ui/atoms/feature-item';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen font-sans bg-gray-100 overflow-x-hidden">
-      <DotPattern className="fixed inset-0 bg-gray-100 text-green-400 " />
+    <div className="min-h-screen font-sans bg-gray-100">
+      <DotPattern className="fixed inset-0 bg-gray-100 text-green-400" />
 
-      <div className="relative z-10 flex flex-col">
+      <div className="relative z-10 flex flex-col overflow-x-hidden">
         {/* Fixed Header */}
+
         <div className="fixed top-0 left-0 right-0 z-50 bg-gray-100/80 backdrop-blur-sm">
           <Header />
         </div>
@@ -19,7 +20,7 @@ export default function LandingPage() {
         <main className="flex-grow container mx-auto px-8 pb-20">
           <div className="mt-48">
             <section>
-              <div className="w-full flex flex-col md:flex-row shadow-xl rounded-3xl relative overflow-hidden bg-gradient-to-br from-green-400 to-green-500">
+              <div className="w-full flex flex-col md:flex-row shadow-xl rounded-3xl relative overflow-hidden bg-gradient-to-br from-green-500 to-green-600">
                 <div className="flex-1 p-12 md:p-16 flex flex-col items-start relative">
                   <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 text-left drop-shadow-md">Torpa</h1>
                   <p className="text-xl text-white mb-8 text-left leading-relaxed">
@@ -29,7 +30,7 @@ export default function LandingPage() {
                     Designed for young minds, built for curious learners.
                   </p>
                   <Link
-                    href="/signup"
+                    href="/register"
                     className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-white text-green-500 hover:bg-green-50 hover:text-green-600 shadow-lg transition-colors duration-200 h-11 px-8">
                     Get Started
                   </Link>
@@ -99,10 +100,10 @@ export default function LandingPage() {
                       <div className="inline-block bg-blue-100 p-3 rounded-2xl mb-6">
                         <BarChart className="text-blue-500 w-8 h-8" />
                       </div>
-                      <h2 className="text-4xl font-bold text-gray-800 mb-6">Track Your Child's Journey</h2>
+                      <h2 className="text-4xl font-bold text-gray-800 mb-6">Track Your Child&apos;s Journey</h2>
                       <p className="text-xl text-gray-600 mb-8">
-                        Watch your child's progress in real-time with our intuitive tracking system. Celebrate every
-                        milestone along the way!
+                        Watch your child&apos;s progress in real-time with our intuitive tracking system. Celebrate
+                        every milestone along the way!
                       </p>
                       <div className="grid grid-cols-3 gap-4">
                         {[

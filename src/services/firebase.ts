@@ -19,7 +19,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db = getFirestore(app, 'development'); // oh wow here you have to specify the firestore db name. Makes sense in retrospect.
 const storage = getStorage(app);
 const functions = getFunctions(app);
 const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
