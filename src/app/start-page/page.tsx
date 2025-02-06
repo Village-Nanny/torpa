@@ -4,6 +4,7 @@ import React from 'react';
 import { Header } from '@/src/components/ui/molecules/header';
 import { DotPattern } from '@/src/components/ui/atoms/dot-pattern';
 import { Button } from '@/src/components/ui/atoms/button';
+import Link from 'next/link';
 
 export default function StartPage() {
   return (
@@ -28,14 +29,14 @@ export default function StartPage() {
           </div>
         </div>
 
-        <Button
-          variant="outline"
-          size="lg"
-          className="w-full md:w-auto px-4 md:px-6 lg:px-10 py-4 md:py-6 lg:py-8 text-base sm:text-lg md:text-xl font-bold text-green-600 hover:text-green-600 bg-white hover:bg-gray-100 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-[1.02] md:hover:scale-105"
-          onClick={() => {}}>
-          <span className="block sm:hidden">Let's Begin!</span>
-          <span className="hidden sm:block">Ready to Start? Hand Over to Your Child →</span>
-        </Button>
+        <Link href="/onboarding">
+          <Button
+            size="lg"
+            className="w-full md:w-auto px-4 md:px-6 lg:px-10 py-4 md:py-6 lg:py-8 text-base sm:text-lg md:text-xl font-bold text-green-600 hover:text-green-600 bg-white hover:bg-gray-100 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-[1.02] md:hover:scale-105">
+            <span className="block sm:hidden">Let&apos;s Begin!</span>
+            <span className="hidden sm:block">Ready to Start? Hand Over to Your Child →</span>
+          </Button>
+        </Link>
       </div>
     </div>
   );
