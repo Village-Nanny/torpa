@@ -8,6 +8,7 @@ import { auth } from '@/src/services/firebase';
 import { RootState } from '@/src/store';
 import { Button } from '@/src/components/ui/atoms/button';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -42,7 +43,12 @@ export default function DashboardPage() {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <Button onClick={handleSignOut}>Sign out</Button>
+          <div className="flex gap-4">
+            <Link href="/start-page">
+              <Button variant="secondary">Go to Start Page</Button>
+            </Link>
+            <Button onClick={handleSignOut}>Sign out</Button>
+          </div>
         </div>
 
         <div className="bg-card p-6 rounded-lg shadow-sm">
