@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { signOut } from 'firebase/auth';
@@ -9,16 +9,36 @@ import { RootState } from '@/src/store';
 import { Button } from '@/src/components/ui/atoms/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/src/services/firebase';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading } = useSelector((state: RootState) => state.auth);
+  const [runs, setRuns] = useState<{ id: string; score: number }[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    if (user) {
+      const fetchRuns = async () => {
+        try {
+          const runsRef = collection(db, 'gameRuns');
+          const q = query(runsRef, where('uid', '==', user.uid));
+          const snapshot = await getDocs(q);
+          const fetchedRuns = snapshot.docs.map(doc => ({ id: doc.id, score: doc.data().score }));
+          setRuns(fetchedRuns);
+        } catch (error) {
+          console.error('Error fetching game runs:', error);
+        }
+      };
+      fetchRuns();
+    }
+  }, [user]);
 
   const handleSignOut = async () => {
     try {
@@ -55,6 +75,21 @@ export default function DashboardPage() {
           <h2 className="text-xl font-semibold mb-4">Welcome!</h2>
           <p className="text-muted-foreground">You&apos;re signed in as: {user.email}</p>
           <p className="mt-4">This is a barebones dashboard page. Add your content here!</p>
+          <div className="mt-6">
+            <h3 className="text-lg font-medium text-white">Game Runs</h3>
+            {runs.length > 0 ? (
+              <ul className="mt-2 space-y-2">
+                {runs.map(run => (
+                  <li key={run.id} className="bg-card p-2 rounded">
+                    <p className="text-white">Run ID: {run.id}</p>
+                    <p className="text-white">Score: {run.score} / 100</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-white">No runs recorded.</p>
+            )}
+          </div>
         </div>
       </div>
     </div>

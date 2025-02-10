@@ -1,8 +1,11 @@
 'use client';
+export const dynamic = 'force-dynamic';
+
 import React, { useCallback, useState, useEffect } from 'react';
-import { useSearchParams, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
-import { startGame, submitAnswer, getCurrentProblem } from '@/src/store/slices/gameSlice';
+import Link from 'next/link';
+import { startGame, submitAnswerAndRecord, getCurrentProblem } from '@/src/store/slices/gameSlice';
 import { BlendingProblem } from '@/src/types/blending';
 import { SegmentingProblem } from '@/src/types/segmenting';
 import { Problems } from '@/src/types/enums/problems.enum';
@@ -17,7 +20,6 @@ import { Button } from '@/src/components/ui/atoms/button';
 
 export default function GamePage() {
   const dispatch = useDispatch<AppDispatch>();
-  const searchParams = useSearchParams();
   const currentProblem = useSelector((state: RootState) => getCurrentProblem(state));
   const currentProblemType = useSelector((state: RootState) => state.game.config?.[state.game.currentProblemIndex]);
   const score = useSelector((state: RootState) => state.game.score);
@@ -41,13 +43,6 @@ export default function GamePage() {
     [dispatch]
   );
 
-  useEffect(() => {
-    const tutorial = searchParams.get('tutorial');
-    if (tutorial !== null) {
-      startGameHandler(tutorial === 'true');
-    }
-  }, [searchParams, startGameHandler]);
-
   if (loading || !user) {
     return null;
   }
@@ -57,7 +52,7 @@ export default function GamePage() {
   }
 
   const handleSubmit = (answer: string) => {
-    dispatch(submitAnswer(answer));
+    dispatch(submitAnswerAndRecord(answer, user.uid));
   };
 
   const getBackgroundColor = () => {
@@ -97,12 +92,17 @@ export default function GamePage() {
               <p className="font-bold mb-2">Your Final Score</p>
               <p className="text-7xl font-extrabold text-white">{score}</p>
             </div>
-            <div className="mt-8">
+            <div className="mt-8 flex flex-col gap-4 items-center">
               <Button
                 onClick={() => window.location.reload()}
                 className="bg-white/20 hover:bg-white/30 text-white text-xl font-bold px-8 py-4 rounded-xl">
                 Play Again! 🎮
               </Button>
+              <Link href="/dashboard">
+                <Button className="bg-white/20 hover:bg-white/30 text-white text-xl font-bold px-8 py-4 rounded-xl">
+                  Go to Dashboard
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
