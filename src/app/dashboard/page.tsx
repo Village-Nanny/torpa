@@ -44,8 +44,8 @@ export default function DashboardPage() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <div className="flex gap-4">
-            <Link href="/start-page">
-              <Button variant="secondary">Go to Start Page</Button>
+            <Link href="/game">
+              <Button variant="secondary">Play a Game</Button>
             </Link>
             <Button onClick={handleSignOut}>Sign out</Button>
           </div>

@@ -48,8 +48,6 @@ export default function SegmentingPage({ problem, onSubmit }: SegmentingPageProp
 
   return (
     <div className="relative min-h-screen flex flex-col font-sans items-center justify-center overflow-hidden">
-      <DotPattern className="absolute inset-0 bg-red-600 text-gray-200" />
-
       <div className="z-10 max-w-3xl px-4 mx-auto">
         <div className="space-y-8 text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold text-white">Choose the Right Picture! 🎯</h1>

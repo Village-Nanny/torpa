@@ -30,7 +30,7 @@ export default function LandingPage() {
                     Designed for young minds, built for curious learners.
                   </p>
                   <Link
-                    href="/start-page" // TODO: add auth check
+                    href="/game" // TODO: add auth check
                     className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-white text-green-500 hover:bg-green-50 hover:text-green-600 shadow-lg transition-colors duration-200 h-11 px-8">
                     Get Started
                   </Link>
