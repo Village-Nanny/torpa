@@ -1,11 +1,11 @@
 import { GAME_CONFIG } from '@/src/config/gameConfig';
-import { BlendingProblem } from '@/src/types/blending';
 import { Problems } from '@/src/types/enums/problems.enum';
-import { SegmentingProblem } from '@/src/types/segmenting';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { ProblemGenerator } from '@/src/utils/ProblemGenerator';
+import { BlendingProblem } from '@/src/types/blending';
+import { SegmentingProblem } from '@/src/types/segmenting';
 
-export type Problem = BlendingProblem | SegmentingProblem;
-
+type Problem = BlendingProblem | SegmentingProblem;
 interface GameState {
   config: Problems[] | null;
   problems: Problem[];
@@ -20,73 +20,11 @@ const initialState: GameState = {
   score: 0,
 };
 
-const ASSET_PATHS = {
-  images: '/assets/images',
-  audio: '/assets/audio',
-} as const;
-
-function getRandomItem<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
-function getRandomExcept<T>(array: T[], except: T): T {
-  const filtered = array.filter(item => item !== except);
-  return getRandomItem(filtered);
-}
-
-async function generateProblem(type: Problems): Promise<Problem> {
-  try {
-    const imagesResponse = await fetch('/api/assets/images');
-    const audioResponse = await fetch('/api/assets/audio');
-
-    const images: string[] = await imagesResponse.json();
-    const audio: string[] = await audioResponse.json();
-
-    const imageNames = images.map(img => img.split('.')[0]);
-    const audioNames = audio.map(aud => aud.split('.')[0]);
-
-    const availableItems = imageNames.filter(name => audioNames.includes(name));
-
-    if (type === Problems.TUTORIAL_BLENDING) {
-      const correctItem = 'pot';
-      const wrongItem = getRandomExcept(availableItems, correctItem);
-
-      return new BlendingProblem({
-        imagePath: `${ASSET_PATHS.images}/${correctItem}.png`,
-        correctAudioPath: `${ASSET_PATHS.audio}/${correctItem}.wav`,
-        wrongAudioPath: `${ASSET_PATHS.audio}/${wrongItem}.wav`,
-      });
-    } else if (type === Problems.BLENDING) {
-      const correctItem = getRandomItem(availableItems);
-      const wrongItem = getRandomExcept(availableItems, correctItem);
-
-      return new BlendingProblem({
-        imagePath: `${ASSET_PATHS.images}/${correctItem}.png`,
-        correctAudioPath: `${ASSET_PATHS.audio}/${correctItem}.wav`,
-        wrongAudioPath: `${ASSET_PATHS.audio}/${wrongItem}.wav`,
-      });
-    } else if (type === Problems.SEGMENTING) {
-      const correctItem = getRandomItem(availableItems);
-      const wrongItem = getRandomExcept(availableItems, correctItem);
-
-      return new SegmentingProblem({
-        correctImagePath: `${ASSET_PATHS.images}/${correctItem}.png`,
-        wrongImagePath: `${ASSET_PATHS.images}/${wrongItem}.png`,
-        audioPath: `${ASSET_PATHS.audio}/${correctItem}.wav`,
-      });
-    }
-
-    throw new Error(`Unknown problem type: ${type}`);
-  } catch (error) {
-    console.error('Error generating problem:', error);
-    throw error;
-  }
-}
-
 const startGame = (config: Problems[]) => async (dispatch: any) => {
   try {
     const validProblemTypes = config.filter(type => GAME_CONFIG.includes(type));
-    const problems = await Promise.all(validProblemTypes.map(generateProblem));
+    // Problem generation is now handled by ProblemGenerator in the utils folder
+    const problems = await Promise.all(validProblemTypes.map(type => ProblemGenerator.generateProblem(type)));
 
     dispatch(
       setGameState({
@@ -117,12 +55,14 @@ const gameSlice = createSlice({
 
       const isCorrect = currentProblem.isCorrect(action.payload);
 
+      // Update score if answer is correct and it's not a tutorial problem
       if (isCorrect && currentProblemType !== Problems.TUTORIAL_BLENDING) {
         state.score += 1;
       }
 
       state.currentProblemIndex += 1;
 
+      // Reset game state if we've reached the end of the problems list
       if (state.currentProblemIndex >= state.problems.length) {
         state.config = null;
         state.problems = [];
