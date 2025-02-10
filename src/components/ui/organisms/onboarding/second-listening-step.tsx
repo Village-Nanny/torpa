@@ -17,13 +17,13 @@ export function SecondListeningStep({ activeCharacter, canReplay, playAudioWithA
       </div>
       {canReplay && (
         <Button
-          onClick={() => playAudioWithAnimation('0a gum', Character.FRANCINE)}
+          onClick={() => playAudioWithAnimation('gum', Character.FRANCINE)}
           className="bg-white/20 px-6 py-3 rounded-full text-white font-bold text-xl hover:bg-white/30 transition-colors">
           Listen Again! 🔄
         </Button>
       )}
       <div className="flex justify-center gap-20 md:gap-32 mt-8">
-        <div onClick={() => playAudioWithAnimation('0b pot', Character.LULU)} className="cursor-pointer">
+        <div onClick={() => playAudioWithAnimation('pot', Character.LULU)} className="cursor-pointer">
           <CharacterAvatar
             emoji="🐞"
             name="Lulu"
@@ -32,7 +32,7 @@ export function SecondListeningStep({ activeCharacter, canReplay, playAudioWithA
             className={activeCharacter === Character.LULU ? 'scale-125 shadow-xl' : 'hover:scale-110'}
           />
         </div>
-        <div onClick={() => playAudioWithAnimation('0a gum', Character.FRANCINE)} className="cursor-pointer">
+        <div onClick={() => playAudioWithAnimation('gum', Character.FRANCINE)} className="cursor-pointer">
           <CharacterAvatar
             emoji="🐸"
             name="Francine"

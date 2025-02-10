@@ -42,9 +42,9 @@ export default function OnboardingPage() {
 
   const playSequence = useCallback(() => {
     setCanReplay(false);
-    playAudioWithAnimation('0b pot', Character.LULU, () => {
+    playAudioWithAnimation('pot', Character.LULU, () => {
       setTimeout(() => {
-        playAudioWithAnimation('0a gum', Character.FRANCINE, () => {
+        playAudioWithAnimation('gum', Character.FRANCINE, () => {
           setCanReplay(true);
         });
       }, 1000);
