@@ -20,41 +20,95 @@ const initialState: GameState = {
   score: 0,
 };
 
-const generateProblem = (type: Problems): Problem => {
-  if (type === Problems.TUTORIAL_BLENDING) {
-    return new BlendingProblem({
-      imagePath: '/assets/images/pot.png',
-      correctAudioPath: '/assets/audio/pot.wav',
-      wrongAudioPath: '/assets/audio/gum.wav',
-    });
-  } else if (type === Problems.BLENDING) {
-    return new BlendingProblem({
-      imagePath: '/assets/images/couch.png',
-      correctAudioPath: '/assets/audio/couch.wav',
-      wrongAudioPath: '/assets/audio/cake.wav',
-    });
-  } else if (type === Problems.SEGMENTING) {
-    return new SegmentingProblem({
-      correctImagePath: '/assets/images/fish.png',
-      wrongImagePath: '/assets/images/wheel.png',
-      audioPath: '/assets/audio/fish.wav',
-    });
+const ASSET_PATHS = {
+  images: '/assets/images',
+  audio: '/assets/audio',
+} as const;
+
+function getRandomItem<T>(array: T[]): T {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+function getRandomExcept<T>(array: T[], except: T): T {
+  const filtered = array.filter(item => item !== except);
+  return getRandomItem(filtered);
+}
+
+async function generateProblem(type: Problems): Promise<Problem> {
+  try {
+    const imagesResponse = await fetch('/api/assets/images');
+    const audioResponse = await fetch('/api/assets/audio');
+
+    const images: string[] = await imagesResponse.json();
+    const audio: string[] = await audioResponse.json();
+
+    const imageNames = images.map(img => img.split('.')[0]);
+    const audioNames = audio.map(aud => aud.split('.')[0]);
+
+    const availableItems = imageNames.filter(name => audioNames.includes(name));
+
+    if (type === Problems.TUTORIAL_BLENDING) {
+      const correctItem = 'pot';
+      const wrongItem = getRandomExcept(availableItems, correctItem);
+
+      return new BlendingProblem({
+        imagePath: `${ASSET_PATHS.images}/${correctItem}.png`,
+        correctAudioPath: `${ASSET_PATHS.audio}/${correctItem}.wav`,
+        wrongAudioPath: `${ASSET_PATHS.audio}/${wrongItem}.wav`,
+      });
+    } else if (type === Problems.BLENDING) {
+      const correctItem = getRandomItem(availableItems);
+      const wrongItem = getRandomExcept(availableItems, correctItem);
+
+      return new BlendingProblem({
+        imagePath: `${ASSET_PATHS.images}/${correctItem}.png`,
+        correctAudioPath: `${ASSET_PATHS.audio}/${correctItem}.wav`,
+        wrongAudioPath: `${ASSET_PATHS.audio}/${wrongItem}.wav`,
+      });
+    } else if (type === Problems.SEGMENTING) {
+      const correctItem = getRandomItem(availableItems);
+      const wrongItem = getRandomExcept(availableItems, correctItem);
+
+      return new SegmentingProblem({
+        correctImagePath: `${ASSET_PATHS.images}/${correctItem}.png`,
+        wrongImagePath: `${ASSET_PATHS.images}/${wrongItem}.png`,
+        audioPath: `${ASSET_PATHS.audio}/${correctItem}.wav`,
+      });
+    }
+
+    throw new Error(`Unknown problem type: ${type}`);
+  } catch (error) {
+    console.error('Error generating problem:', error);
+    throw error;
   }
-  throw new Error(`Unknown problem type: ${type}`);
+}
+
+const startGame = (config: Problems[]) => async (dispatch: any) => {
+  try {
+    const validProblemTypes = config.filter(type => GAME_CONFIG.includes(type));
+    const problems = await Promise.all(validProblemTypes.map(generateProblem));
+
+    dispatch(
+      setGameState({
+        config: validProblemTypes,
+        problems,
+        currentProblemIndex: 0,
+        score: 0,
+      })
+    );
+  } catch (error) {
+    console.error('Error starting game:', error);
+    // Handle error appropriately
+  }
 };
 
 const gameSlice = createSlice({
   name: 'game',
   initialState,
   reducers: {
-    startGame: (state, action: PayloadAction<Problems[]>) => {
-      const validProblemTypes = action.payload.filter(type => GAME_CONFIG.includes(type));
-      state.config = validProblemTypes;
-      state.problems = validProblemTypes.map(type => generateProblem(type));
-      state.currentProblemIndex = 0;
-      state.score = 0;
+    setGameState: (state, action: PayloadAction<GameState>) => {
+      return action.payload;
     },
-
     submitAnswer: (state, action: PayloadAction<string>) => {
       const currentProblem = state.problems[state.currentProblemIndex];
       const currentProblemType = state.config?.[state.currentProblemIndex];
@@ -63,7 +117,6 @@ const gameSlice = createSlice({
 
       const isCorrect = currentProblem.isCorrect(action.payload);
 
-      // Only increment score for non-tutorial problems
       if (isCorrect && currentProblemType !== Problems.TUTORIAL_BLENDING) {
         state.score += 1;
       }
@@ -71,13 +124,11 @@ const gameSlice = createSlice({
       state.currentProblemIndex += 1;
 
       if (state.currentProblemIndex >= state.problems.length) {
-        // End game
         state.config = null;
         state.problems = [];
         state.currentProblemIndex = 0;
       }
     },
-
     endGame: state => {
       state.config = null;
       state.problems = [];
@@ -87,9 +138,9 @@ const gameSlice = createSlice({
   },
 });
 
-export const { startGame, submitAnswer, endGame } = gameSlice.actions;
+export const { submitAnswer, endGame, setGameState } = gameSlice.actions;
+export { startGame };
 export default gameSlice.reducer;
 
-// Helper selector
 export const getCurrentProblem = (state: { game: GameState }): Problem | null =>
   state.game.problems[state.game.currentProblemIndex] || null;

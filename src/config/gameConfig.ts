@@ -6,4 +6,8 @@ export const GAME_CONFIG: Problems[] = [
   Problems.BLENDING,
   Problems.SEGMENTING,
   Problems.BLENDING,
+  Problems.SEGMENTING,
+  Problems.BLENDING,
+  Problems.SEGMENTING,
+  Problems.BLENDING,
 ];

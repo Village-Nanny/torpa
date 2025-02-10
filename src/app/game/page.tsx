@@ -41,9 +41,10 @@ export default function GamePage() {
     return null;
   }
 
-  const startGameHandler = (includeTutorial: boolean) => {
+  // In your game page
+  const startGameHandler = async (includeTutorial: boolean) => {
     const gameConfig = includeTutorial ? GAME_CONFIG : GAME_CONFIG.filter(type => type !== Problems.TUTORIAL_BLENDING);
-    dispatch(startGame(gameConfig));
+    await dispatch(startGame(gameConfig));
     setGameStarted(true);
   };
 

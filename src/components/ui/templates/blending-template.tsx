@@ -33,6 +33,10 @@ export function BlendingGameTemplate({
   const [canReplay, setCanReplay] = useState(true);
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [audioSequence, setAudioSequence] = useState([
+    { audio: '', character: Character.LULU },
+    { audio: '', character: Character.FRANCINE },
+  ]);
 
   const playAudioWithAnimation = useCallback((audioPath: string, character: Character, nextAction?: () => void) => {
     if (audioRef.current) {
@@ -56,14 +60,28 @@ export function BlendingGameTemplate({
 
   const playSequence = useCallback(() => {
     setCanReplay(false);
-    playAudioWithAnimation(problem.correctAudioPath, Character.LULU, () => {
+
+    // Update the sequence
+    const newSequence = [
+      { audio: problem.correctAudioPath, character: Character.LULU },
+      { audio: problem.wrongAudioPath, character: Character.FRANCINE },
+    ];
+
+    if (!tutorialStep && Math.random() < 0.5) {
+      [newSequence[0].audio, newSequence[1].audio] = [newSequence[1].audio, newSequence[0].audio];
+    }
+
+    setAudioSequence(newSequence);
+
+    // Play the sequence
+    playAudioWithAnimation(newSequence[0].audio, newSequence[0].character, () => {
       setTimeout(() => {
-        playAudioWithAnimation(problem.wrongAudioPath, Character.FRANCINE, () => {
+        playAudioWithAnimation(newSequence[1].audio, newSequence[1].character, () => {
           setCanReplay(true);
         });
       }, 1000);
     });
-  }, [playAudioWithAnimation, problem]);
+  }, [playAudioWithAnimation, problem, tutorialStep]);
 
   useEffect(() => {
     if (!tutorialStep || tutorialStep === 4) {
@@ -88,7 +106,9 @@ export function BlendingGameTemplate({
         }, 2000);
       }
     } else {
-      onSubmit(character === Character.LULU ? problem.correctAudioPath : problem.wrongAudioPath);
+      // Submit the audio that was played for this character
+      const characterAudio = character === Character.LULU ? audioSequence[0].audio : audioSequence[1].audio;
+      onSubmit(characterAudio);
     }
   };
 
@@ -164,7 +184,7 @@ export function BlendingGameTemplate({
                 size="lg"
                 onClick={onPrev}
                 className="w-20 h-20 md:w-24 md:h-24 p-0 text-white bg-green-500 hover:bg-green-400 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110">
-                <ChevronLeft size={48} />
+                <ChevronLeft className="w-12 h-12" />
               </Button>
             )}
             {onNext && (
@@ -173,7 +193,7 @@ export function BlendingGameTemplate({
                 size="lg"
                 onClick={onNext}
                 className="w-20 h-20 md:w-24 md:h-24 p-0 text-white bg-green-500 hover:bg-green-400 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110">
-                <ChevronRight size={48} />
+                <ChevronRight className="w-12 h-12" />
               </Button>
             )}
           </div>
@@ -184,7 +204,7 @@ export function BlendingGameTemplate({
 }
 
 interface CharacterChoiceProps {
-  // specific to blending pages
+  // specific to blending pages so no need for atom
   character: Character;
   isActive: boolean;
   canReplay: boolean;
