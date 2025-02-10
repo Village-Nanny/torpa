@@ -21,7 +21,13 @@ const initialState: GameState = {
 };
 
 const generateProblem = (type: Problems): Problem => {
-  if (type === Problems.BLENDING) {
+  if (type === Problems.TUTORIAL_BLENDING) {
+    return new BlendingProblem({
+      imagePath: '/assets/images/pot.png',
+      correctAudioPath: '/assets/audio/pot.wav',
+      wrongAudioPath: '/assets/audio/gum.wav',
+    });
+  } else if (type === Problems.BLENDING) {
     return new BlendingProblem({
       imagePath: '/assets/images/couch.png',
       correctAudioPath: '/assets/audio/couch.wav',
@@ -51,16 +57,21 @@ const gameSlice = createSlice({
 
     submitAnswer: (state, action: PayloadAction<string>) => {
       const currentProblem = state.problems[state.currentProblemIndex];
-      if (!currentProblem) return;
+      const currentProblemType = state.config?.[state.currentProblemIndex];
+
+      if (!currentProblem || !currentProblemType) return;
 
       const isCorrect = currentProblem.isCorrect(action.payload);
-      if (isCorrect) {
+
+      // Only increment score for non-tutorial problems
+      if (isCorrect && currentProblemType !== Problems.TUTORIAL_BLENDING) {
         state.score += 1;
       }
 
       state.currentProblemIndex += 1;
 
       if (state.currentProblemIndex >= state.problems.length) {
+        // End game
         state.config = null;
         state.problems = [];
         state.currentProblemIndex = 0;
@@ -79,5 +90,6 @@ const gameSlice = createSlice({
 export const { startGame, submitAnswer, endGame } = gameSlice.actions;
 export default gameSlice.reducer;
 
+// Helper selector
 export const getCurrentProblem = (state: { game: GameState }): Problem | null =>
   state.game.problems[state.game.currentProblemIndex] || null;
