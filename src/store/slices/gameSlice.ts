@@ -1,7 +1,7 @@
 import { GAME_CONFIG } from '@/src/config/gameConfig';
 import { Problems } from '@/src/types/enums/problems.enum';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ProblemGenerator } from '@/src/utils/ProblemGenerator';
+import { ProblemGenerator } from '@/src/utils/problem-generator';
 import { BlendingProblem } from '@/src/types/blending';
 import { SegmentingProblem } from '@/src/types/segmenting';
 
@@ -23,7 +23,6 @@ const initialState: GameState = {
 const startGame = (config: Problems[]) => async (dispatch: any) => {
   try {
     const validProblemTypes = config.filter(type => GAME_CONFIG.includes(type));
-    // Problem generation is now handled by ProblemGenerator in the utils folder
     const problems = await Promise.all(validProblemTypes.map(type => ProblemGenerator.generateProblem(type)));
 
     dispatch(
@@ -36,7 +35,6 @@ const startGame = (config: Problems[]) => async (dispatch: any) => {
     );
   } catch (error) {
     console.error('Error starting game:', error);
-    // Handle error appropriately
   }
 };
 
@@ -55,14 +53,12 @@ const gameSlice = createSlice({
 
       const isCorrect = currentProblem.isCorrect(action.payload);
 
-      // Update score if answer is correct and it's not a tutorial problem
       if (isCorrect && currentProblemType !== Problems.TUTORIAL_BLENDING) {
         state.score += 1;
       }
 
       state.currentProblemIndex += 1;
 
-      // Reset game state if we've reached the end of the problems list
       if (state.currentProblemIndex >= state.problems.length) {
         state.config = null;
         state.problems = [];

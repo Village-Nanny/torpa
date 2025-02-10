@@ -5,7 +5,6 @@ import { BlendingProblem } from '@/src/types/blending';
 import { Character } from '@/src/types/enums/characters.enum';
 import { CharacterAvatar } from '@/src/components/ui/atoms/character-avatar';
 import { Button } from '@/src/components/ui/atoms/button';
-import { DotPattern } from '@/src/components/ui/atoms/dot-pattern';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';

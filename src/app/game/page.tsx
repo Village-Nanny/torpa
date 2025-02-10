@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useSearchParams, redirect } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { startGame, submitAnswer, getCurrentProblem } from '@/src/store/slices/gameSlice';
@@ -30,23 +30,31 @@ export default function GamePage() {
     }
   }, [user, loading]);
 
+  const startGameHandler = useCallback(
+    async (includeTutorial: boolean) => {
+      const gameConfig = includeTutorial
+        ? GAME_CONFIG
+        : GAME_CONFIG.filter(type => type !== Problems.TUTORIAL_BLENDING);
+      await dispatch(startGame(gameConfig));
+      setGameStarted(true);
+    },
+    [dispatch]
+  );
+
   useEffect(() => {
     const tutorial = searchParams.get('tutorial');
     if (tutorial !== null) {
       startGameHandler(tutorial === 'true');
     }
-  }, [searchParams]);
+  }, [searchParams, startGameHandler]);
 
   if (loading || !user) {
     return null;
   }
 
-  // In your game page
-  const startGameHandler = async (includeTutorial: boolean) => {
-    const gameConfig = includeTutorial ? GAME_CONFIG : GAME_CONFIG.filter(type => type !== Problems.TUTORIAL_BLENDING);
-    await dispatch(startGame(gameConfig));
-    setGameStarted(true);
-  };
+  if (!gameStarted) {
+    return <StartScreen onStart={startGameHandler} showHeader={false} />;
+  }
 
   const handleSubmit = (answer: string) => {
     dispatch(submitAnswer(answer));
@@ -64,10 +72,6 @@ export default function GamePage() {
         return 'bg-gray-600';
     }
   };
-
-  if (!gameStarted) {
-    return <StartScreen onStart={startGameHandler} showHeader={false} />;
-  }
 
   return (
     <div className="relative min-h-screen">

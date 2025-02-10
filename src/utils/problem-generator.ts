@@ -44,7 +44,6 @@ export class ProblemGenerator {
     const images: string[] = await imagesResponse.json();
     const audio: string[] = await audioResponse.json();
 
-    // Remove file extensions from asset names for matching
     const imageNames = images.map(img => img.split('.')[0]);
     const audioNames = audio.map(aud => aud.split('.')[0]);
 
