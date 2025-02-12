@@ -34,7 +34,6 @@ const startGame = (config: Problems[]) => async (dispatch: AppDispatch) => {
     const validProblemTypes = config.filter(type => GAME_CONFIG.includes(type));
     const problems = await Promise.all(validProblemTypes.map(type => ProblemGenerator.generateProblem(type)));
 
-    // Count total problems of each type (excluding tutorial)
     const totalBlendingProblems = validProblemTypes.filter(type => type === Problems.BLENDING).length;
     const totalSegmentingProblems = validProblemTypes.filter(type => type === Problems.SEGMENTING).length;
 
@@ -58,7 +57,7 @@ const gameSlice = createSlice({
   name: 'game',
   initialState,
   reducers: {
-    setGameState: (state, action: PayloadAction<GameState>) => action.payload,
+    setGameState: (_, action: PayloadAction<GameState>) => action.payload,
     submitAnswer: (state, action: PayloadAction<string>) => {
       const currentProblem = state.problems[state.currentProblemIndex];
       const currentProblemType = state.config?.[state.currentProblemIndex];
@@ -75,7 +74,6 @@ const gameSlice = createSlice({
           case Problems.SEGMENTING:
             state.segmentingScore += 1;
             break;
-          // Tutorial problems don't affect score
         }
       }
 
@@ -106,9 +104,11 @@ export const submitAnswerAndRecord =
   (answer: string, uid: string) => async (dispatch: AppDispatch, getState: () => RootState) => {
     dispatch(submitAnswer(answer));
     const state: GameState = getState().game;
+    const auth = getState().auth;
 
     if (state.config === null && state.problems.length === 0 && state.currentProblemIndex === 0) {
       try {
+        // Record to Firebase
         await addDoc(collection(db, 'gameRuns'), {
           blendingScore: {
             correct: state.blendingScore,
@@ -121,6 +121,25 @@ export const submitAnswerAndRecord =
           uid,
           createdAt: new Date().toISOString(),
         });
+
+        // Send email
+        if (auth.user?.email) {
+          await fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: auth.user.email,
+              blendingScore: {
+                correct: state.blendingScore,
+                total: state.totalBlendingProblems,
+              },
+              segmentingScore: {
+                correct: state.segmentingScore,
+                total: state.totalSegmentingProblems,
+              },
+            }),
+          });
+        }
       } catch (error) {
         console.error('Error recording game run:', error);
       }

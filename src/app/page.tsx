@@ -6,7 +6,7 @@ import { DotPattern } from '../components/ui/atoms/dot-pattern';
 import { FeatureItem } from '../components/ui/atoms/feature-item';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { MobileMenu } from '../components/ui/molecules/MobileMenu';
+import { MobileMenu } from '../components/ui/molecules/mobile-menu';
 
 const fadeInLeft = {
   hidden: { opacity: 0, x: -50 },
@@ -22,12 +22,6 @@ const fadeUp = (delay = 0) => ({
   hidden: { y: 20, opacity: 0 },
   visible: { y: 0, opacity: 1, transition: { delay, duration: 0.8 } },
 });
-
-const navLinks = [
-  { label: 'Home', href: '/' },
-  { label: 'Features', href: '#features' },
-  { label: 'Game', href: '/game' },
-];
 
 const features = [
   {
@@ -72,7 +66,7 @@ export default function LandingPage() {
         </div>
 
         {/* Mobile Menu Molecule */}
-        <MobileMenu navLinks={navLinks} />
+        <MobileMenu />
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen pt-16 md:pt-20 lg:pt-0">

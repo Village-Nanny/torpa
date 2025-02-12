@@ -2,16 +2,9 @@
 export const dynamic = 'force-dynamic';
 
 import React, { useCallback, useState, useEffect } from 'react';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
-import Link from 'next/link';
-import {
-  startGame,
-  submitAnswerAndRecord,
-  getCurrentProblem,
-  getBlendingScore,
-  getSegmentingScore,
-} from '@/src/store/slices/gameSlice';
+import { startGame, submitAnswerAndRecord, getCurrentProblem } from '@/src/store/slices/gameSlice';
 import { BlendingProblem } from '@/src/types/blending';
 import { SegmentingProblem } from '@/src/types/segmenting';
 import { Problems } from '@/src/types/enums/problems.enum';
@@ -23,15 +16,22 @@ import TutorialBlendingPage from '@/src/components/ui/pages/tutorial-blending-pa
 import { StartScreen } from '@/src/components/ui/pages/start-screen';
 import { DotPattern } from '@/src/components/ui/atoms/dot-pattern';
 import { Button } from '@/src/components/ui/atoms/button';
+import { Home } from 'lucide-react';
+import { ConfirmDialog } from '@/src/components/ui/molecules/confirm-dialogue';
+import { AnimatePresence } from 'framer-motion';
+import { FadeIn } from '@/src/components/ui/atoms/fade-in';
+import { GameOverPage } from '@/src/components/ui/pages/game-over-page';
 
 export default function GamePage() {
   const dispatch = useDispatch<AppDispatch>();
   const currentProblem = useSelector((state: RootState) => getCurrentProblem(state));
   const currentProblemType = useSelector((state: RootState) => state.game.config?.[state.game.currentProblemIndex]);
-  const blendingScore = useSelector(getBlendingScore);
-  const segmentingScore = useSelector(getSegmentingScore);
+
   const [gameStarted, setGameStarted] = useState(false);
   const { user, loading } = useSelector((state: RootState) => state.auth);
+  const router = useRouter();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const currentProblemIndex = useSelector((state: RootState) => state.game.currentProblemIndex);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -54,10 +54,6 @@ export default function GamePage() {
     return null;
   }
 
-  if (!gameStarted) {
-    return <StartScreen onStart={startGameHandler} showHeader={false} />;
-  }
-
   const handleSubmit = (answer: string) => {
     dispatch(submitAnswerAndRecord(answer, user.uid));
   };
@@ -69,57 +65,67 @@ export default function GamePage() {
       case Problems.BLENDING:
         return 'bg-green-600';
       case Problems.SEGMENTING:
-        return 'bg-red-600';
+        return 'bg-rose-700';
       default:
         return 'bg-gray-600';
     }
   };
 
+  const handleHomeClick = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmLeave = () => {
+    router.push('/dashboard');
+  };
+
   return (
     <div className="relative min-h-screen">
-      <DotPattern className={`absolute inset-0 ${getBackgroundColor()} text-gray-200`} />
-      {currentProblem ? (
-        currentProblemType === Problems.TUTORIAL_BLENDING ? (
-          <TutorialBlendingPage problem={currentProblem as BlendingProblem} onSubmit={handleSubmit} />
-        ) : currentProblemType === Problems.BLENDING ? (
-          <BlendingPage problem={currentProblem as BlendingProblem} onSubmit={handleSubmit} />
-        ) : currentProblemType === Problems.SEGMENTING ? (
-          <SegmentingPage problem={currentProblem as SegmentingProblem} onSubmit={handleSubmit} />
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={handleConfirmLeave}
+        title="Leave Game?"
+        description="Are you sure you want to leave? Your current progress will be lost."
+      />
+
+      <Button
+        onClick={handleHomeClick}
+        variant="outline"
+        className="absolute top-4 left-4 z-50 bg-white/10 hover:bg-white/20 text-white border-white/30 hover:border-white inline-flex items-center gap-2 transition-all duration-200">
+        <Home className="w-4 h-4" />
+        Home
+      </Button>
+
+      <DotPattern
+        className={`absolute inset-0 transition-colors duration-700 ease-in-out ${!gameStarted ? 'bg-blue-600' : getBackgroundColor()} text-gray-200`}
+      />
+
+      <AnimatePresence mode="wait">
+        {!gameStarted ? (
+          <FadeIn key="start-screen" className="relative z-10">
+            <StartScreen onStart={startGameHandler} showHeader={false} />
+          </FadeIn>
         ) : (
-          <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center text-black">Unknown Problem</div>
-          </div>
-        )
-      ) : (
-        <div className="relative min-h-screen flex items-center justify-center">
-          <DotPattern className="absolute inset-0 bg-blue-600 text-gray-200" />
-          <div className="relative z-10 text-center space-y-8">
-            <h1 className="text-6xl font-bold text-white mb-4">🎉 Game Over! 🎉</h1>
-            <div className="text-4xl text-white space-y-6">
-              <div className="bg-white/10 p-6 rounded-xl">
-                <p className="font-bold mb-2">Blending Score</p>
-                <p className="text-7xl font-extrabold text-white">{blendingScore}</p>
-              </div>
-              <div className="bg-white/10 p-6 rounded-xl">
-                <p className="font-bold mb-2">Segmenting Score</p>
-                <p className="text-7xl font-extrabold text-white">{segmentingScore}</p>
-              </div>
-            </div>
-            <div className="mt-8 flex flex-col gap-4 items-center">
-              <Button
-                onClick={() => window.location.reload()}
-                className="bg-white/20 hover:bg-white/30 text-white text-xl font-bold px-8 py-4 rounded-xl">
-                Play Again! 🎮
-              </Button>
-              <Link href="/dashboard">
-                <Button className="bg-white/20 hover:bg-white/30 text-white text-xl font-bold px-8 py-4 rounded-xl">
-                  Go to Dashboard
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+          <FadeIn key={`problem-${currentProblemIndex}`} className="relative z-10">
+            {currentProblem ? (
+              currentProblemType === Problems.TUTORIAL_BLENDING ? (
+                <TutorialBlendingPage problem={currentProblem as BlendingProblem} onSubmit={handleSubmit} />
+              ) : currentProblemType === Problems.BLENDING ? (
+                <BlendingPage problem={currentProblem as BlendingProblem} onSubmit={handleSubmit} />
+              ) : currentProblemType === Problems.SEGMENTING ? (
+                <SegmentingPage problem={currentProblem as SegmentingProblem} onSubmit={handleSubmit} />
+              ) : (
+                <div className="min-h-screen flex items-center justify-center">
+                  <div className="text-center text-black">Unknown Problem</div>
+                </div>
+              )
+            ) : (
+              <GameOverPage />
+            )}
+          </FadeIn>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

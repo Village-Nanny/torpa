@@ -72,7 +72,6 @@ export function BlendingGameTemplate({
 
     setAudioSequence(newSequence);
 
-    // Play the sequence
     playAudioWithAnimation(newSequence[0].audio, newSequence[0].character, () => {
       setTimeout(() => {
         playAudioWithAnimation(newSequence[1].audio, newSequence[1].character, () => {
@@ -84,7 +83,10 @@ export function BlendingGameTemplate({
 
   useEffect(() => {
     if (!tutorialStep || tutorialStep === 4) {
-      playSequence();
+      const timer = setTimeout(() => {
+        playSequence();
+      }, 1500);
+      return () => clearTimeout(timer);
     }
   }, [tutorialStep, playSequence]);
 
@@ -105,7 +107,6 @@ export function BlendingGameTemplate({
         }, 2000);
       }
     } else {
-      // Submit the audio that was played for this character
       const characterAudio = character === Character.LULU ? audioSequence[0].audio : audioSequence[1].audio;
       onSubmit(characterAudio);
     }

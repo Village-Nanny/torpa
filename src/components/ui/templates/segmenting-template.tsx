@@ -37,7 +37,7 @@ export function SegmentingGameTemplate({ problem, onSubmit }: SegmentingGameTemp
   }, [problem.audioPath]);
 
   useEffect(() => {
-    const timer = setTimeout(playAudio, 500);
+    const timer = setTimeout(playAudio, 1500);
     return () => clearTimeout(timer);
   }, [playAudio]);
 
