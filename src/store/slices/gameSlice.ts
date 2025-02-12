@@ -13,30 +13,40 @@ interface GameState {
   config: Problems[] | null;
   problems: Problem[];
   currentProblemIndex: number;
-  score: number;
-  totalScoreable: number;
+  blendingScore: number;
+  segmentingScore: number;
+  totalBlendingProblems: number;
+  totalSegmentingProblems: number;
 }
 
 const initialState: GameState = {
   config: null,
   problems: [],
   currentProblemIndex: 0,
-  score: 0,
-  totalScoreable: 0,
+  blendingScore: 0,
+  segmentingScore: 0,
+  totalBlendingProblems: 0,
+  totalSegmentingProblems: 0,
 };
 
 const startGame = (config: Problems[]) => async (dispatch: AppDispatch) => {
   try {
     const validProblemTypes = config.filter(type => GAME_CONFIG.includes(type));
     const problems = await Promise.all(validProblemTypes.map(type => ProblemGenerator.generateProblem(type)));
-    const totalScoreable = validProblemTypes.filter(type => type !== Problems.TUTORIAL_BLENDING).length;
+
+    // Count total problems of each type (excluding tutorial)
+    const totalBlendingProblems = validProblemTypes.filter(type => type === Problems.BLENDING).length;
+    const totalSegmentingProblems = validProblemTypes.filter(type => type === Problems.SEGMENTING).length;
+
     dispatch(
       setGameState({
         config: validProblemTypes,
         problems,
         currentProblemIndex: 0,
-        score: 0,
-        totalScoreable,
+        blendingScore: 0,
+        segmentingScore: 0,
+        totalBlendingProblems,
+        totalSegmentingProblems,
       })
     );
   } catch (error) {
@@ -57,8 +67,16 @@ const gameSlice = createSlice({
 
       const isCorrect = currentProblem.isCorrect(action.payload);
 
-      if (isCorrect && currentProblemType !== Problems.TUTORIAL_BLENDING) {
-        state.score += 1;
+      if (isCorrect) {
+        switch (currentProblemType) {
+          case Problems.BLENDING:
+            state.blendingScore += 1;
+            break;
+          case Problems.SEGMENTING:
+            state.segmentingScore += 1;
+            break;
+          // Tutorial problems don't affect score
+        }
       }
 
       state.currentProblemIndex += 1;
@@ -73,8 +91,10 @@ const gameSlice = createSlice({
       state.config = null;
       state.problems = [];
       state.currentProblemIndex = 0;
-      state.score = 0;
-      state.totalScoreable = 0;
+      state.blendingScore = 0;
+      state.segmentingScore = 0;
+      state.totalBlendingProblems = 0;
+      state.totalSegmentingProblems = 0;
     },
   },
 });
@@ -89,9 +109,15 @@ export const submitAnswerAndRecord =
 
     if (state.config === null && state.problems.length === 0 && state.currentProblemIndex === 0) {
       try {
-        const finalPercentage = state.totalScoreable > 0 ? Math.round((state.score / state.totalScoreable) * 100) : 0;
         await addDoc(collection(db, 'gameRuns'), {
-          score: finalPercentage,
+          blendingScore: {
+            correct: state.blendingScore,
+            total: state.totalBlendingProblems,
+          },
+          segmentingScore: {
+            correct: state.segmentingScore,
+            total: state.totalSegmentingProblems,
+          },
           uid,
           createdAt: new Date().toISOString(),
         });
@@ -105,3 +131,10 @@ export default gameSlice.reducer;
 
 export const getCurrentProblem = (state: { game: GameState }): Problem | null =>
   state.game.problems[state.game.currentProblemIndex] || null;
+
+// Helper selectors for getting the scores
+export const getBlendingScore = (state: RootState): string =>
+  `${state.game.blendingScore}/${state.game.totalBlendingProblems}`;
+
+export const getSegmentingScore = (state: RootState): string =>
+  `${state.game.segmentingScore}/${state.game.totalSegmentingProblems}`;

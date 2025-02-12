@@ -5,7 +5,13 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { redirect } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
-import { startGame, submitAnswerAndRecord, getCurrentProblem } from '@/src/store/slices/gameSlice';
+import {
+  startGame,
+  submitAnswerAndRecord,
+  getCurrentProblem,
+  getBlendingScore,
+  getSegmentingScore,
+} from '@/src/store/slices/gameSlice';
 import { BlendingProblem } from '@/src/types/blending';
 import { SegmentingProblem } from '@/src/types/segmenting';
 import { Problems } from '@/src/types/enums/problems.enum';
@@ -22,7 +28,8 @@ export default function GamePage() {
   const dispatch = useDispatch<AppDispatch>();
   const currentProblem = useSelector((state: RootState) => getCurrentProblem(state));
   const currentProblemType = useSelector((state: RootState) => state.game.config?.[state.game.currentProblemIndex]);
-  const score = useSelector((state: RootState) => state.game.score);
+  const blendingScore = useSelector(getBlendingScore);
+  const segmentingScore = useSelector(getSegmentingScore);
   const [gameStarted, setGameStarted] = useState(false);
   const { user, loading } = useSelector((state: RootState) => state.auth);
 
@@ -88,9 +95,15 @@ export default function GamePage() {
           <DotPattern className="absolute inset-0 bg-blue-600 text-gray-200" />
           <div className="relative z-10 text-center space-y-8">
             <h1 className="text-6xl font-bold text-white mb-4">🎉 Game Over! 🎉</h1>
-            <div className="text-4xl text-white">
-              <p className="font-bold mb-2">Your Final Score</p>
-              <p className="text-7xl font-extrabold text-white">{score}</p>
+            <div className="text-4xl text-white space-y-6">
+              <div className="bg-white/10 p-6 rounded-xl">
+                <p className="font-bold mb-2">Blending Score</p>
+                <p className="text-7xl font-extrabold text-white">{blendingScore}</p>
+              </div>
+              <div className="bg-white/10 p-6 rounded-xl">
+                <p className="font-bold mb-2">Segmenting Score</p>
+                <p className="text-7xl font-extrabold text-white">{segmentingScore}</p>
+              </div>
             </div>
             <div className="mt-8 flex flex-col gap-4 items-center">
               <Button
