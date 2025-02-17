@@ -188,8 +188,17 @@ export function BlendingGameTemplate({
               />
             </div>
 
-            {canReplay && !feedback && (
-              <div className="mt-8">
+            <motion.div
+              className="h-[120px] mt-8"
+              animate={{ height: canReplay && !feedback ? 'auto' : '0px' }}
+              transition={{ duration: 0.3 }}>
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{
+                  opacity: canReplay && !feedback ? 1 : 0,
+                  y: canReplay && !feedback ? 0 : -20,
+                }}
+                transition={{ duration: 0.3 }}>
                 <p className="text-2xl md:text-4xl text-white font-bold mb-4">Who said it the right way?</p>
                 <Button
                   variant="ghost"
@@ -198,8 +207,8 @@ export function BlendingGameTemplate({
                   className="bg-white/20 px-6 py-3 text-white font-bold text-xl hover:bg-white/30">
                   Listen Again! 🔄
                 </Button>
-              </div>
-            )}
+              </motion.div>
+            </motion.div>
           </div>
         )}
 

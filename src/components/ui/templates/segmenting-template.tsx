@@ -89,9 +89,30 @@ export function SegmentingGameTemplate({ problem, onSubmit }: SegmentingGameTemp
               </div>
             ))}
           </div>
+
           <div className="mt-8">
-            <p className="text-2xl md:text-4xl text-white font-bold mb-4">Which picture matches what you hear?</p>
-            <div className="flex flex-col items-center gap-6">
+            <CharacterAvatar
+              emoji="🐞"
+              name="Lulu"
+              backgroundColor="bg-red-400"
+              isAnimated={activeCharacter === Character.LULU}
+              className={`transition-transform duration-200 ${
+                activeCharacter === Character.LULU ? 'scale-125 shadow-xl' : 'hover:scale-110'
+              }`}
+            />
+          </div>
+
+          <motion.div
+            className="h-[80px] mt-8"
+            animate={{ height: canSelect && !feedback ? 'auto' : '0px' }}
+            transition={{ duration: 0.3 }}>
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{
+                opacity: canSelect && !feedback ? 1 : 0,
+                y: canSelect && !feedback ? 0 : -20,
+              }}
+              transition={{ duration: 0.3 }}>
               <Button
                 variant="ghost"
                 size="lg"
@@ -99,15 +120,8 @@ export function SegmentingGameTemplate({ problem, onSubmit }: SegmentingGameTemp
                 className="bg-white/20 px-6 py-3 text-white font-bold text-xl hover:bg-white/30">
                 Listen Again! 🔄
               </Button>
-              <CharacterAvatar
-                emoji="🐞"
-                name="Lulu"
-                backgroundColor="bg-red-400"
-                isAnimated={activeCharacter === Character.LULU}
-                className={`transition-transform duration-200 ${activeCharacter === Character.LULU ? 'scale-125 shadow-xl' : 'hover:scale-110'}`}
-              />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </div>
