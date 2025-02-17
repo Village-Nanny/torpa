@@ -29,63 +29,75 @@ export function BlendingGameTemplate({
   onPrev,
 }: BlendingGameTemplateProps) {
   const [activeCharacter, setActiveCharacter] = useState<Character | null>(null);
-  const [canReplay, setCanReplay] = useState(true);
+  const [canReplay, setCanReplay] = useState(false);
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [audioSequence, setAudioSequence] = useState([
-    { audio: '', character: Character.LULU },
-    { audio: '', character: Character.FRANCINE },
-  ]);
+
+  const audioSequenceRef = useRef<{ audio: string; character: Character }[] | null>(null);
+
+  useEffect(() => {
+    audioSequenceRef.current = null;
+  }, [problem]);
 
   const playAudioWithAnimation = useCallback((audioPath: string, character: Character, nextAction?: () => void) => {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+      audioRef.current.removeEventListener('ended', audioRef.current.onended as any);
+      audioRef.current = null;
     }
+
     setActiveCharacter(character);
-    audioRef.current = new Audio(audioPath);
-    audioRef.current.play().catch(error => {
-      console.log('Audio playback failed:', error);
-    });
-    audioRef.current.onended = () => {
+    const audio = new Audio(audioPath);
+    audioRef.current = audio;
+
+    const handleEnded = () => {
       setActiveCharacter(null);
       if (nextAction) {
         nextAction();
       } else {
         setCanReplay(true);
       }
+      audio.removeEventListener('ended', handleEnded);
     };
+
+    audio.addEventListener('ended', handleEnded);
+    audio.play().catch(error => {
+      console.error('Audio playback failed:', error);
+    });
   }, []);
 
   const playSequence = useCallback(() => {
     setCanReplay(false);
 
-    // Update the sequence
-    const newSequence = [
-      { audio: problem.correctAudioPath, character: Character.LULU },
-      { audio: problem.wrongAudioPath, character: Character.FRANCINE },
-    ];
-
-    if (!tutorialStep && Math.random() < 0.5) {
-      [newSequence[0].audio, newSequence[1].audio] = [newSequence[1].audio, newSequence[0].audio];
+    if (!audioSequenceRef.current) {
+      const luluHasCorrectAudio = Math.random() < 0.5;
+      audioSequenceRef.current = [
+        {
+          audio: luluHasCorrectAudio ? problem.correctAudioPath : problem.wrongAudioPath,
+          character: Character.LULU,
+        },
+        {
+          audio: luluHasCorrectAudio ? problem.wrongAudioPath : problem.correctAudioPath,
+          character: Character.FRANCINE,
+        },
+      ];
     }
 
-    setAudioSequence(newSequence);
+    const sequence = audioSequenceRef.current;
+    if (!sequence) return; // Safety check
 
-    playAudioWithAnimation(newSequence[0].audio, newSequence[0].character, () => {
+    playAudioWithAnimation(sequence[0].audio, sequence[0].character, () => {
       setTimeout(() => {
-        playAudioWithAnimation(newSequence[1].audio, newSequence[1].character, () => {
+        playAudioWithAnimation(sequence[1].audio, sequence[1].character, () => {
           setCanReplay(true);
         });
       }, 1000);
     });
-  }, [playAudioWithAnimation, problem, tutorialStep]);
+  }, [playAudioWithAnimation, problem]);
 
   useEffect(() => {
     if (!tutorialStep || tutorialStep === 4) {
-      const timer = setTimeout(() => {
-        playSequence();
-      }, 1500);
+      const timer = setTimeout(playSequence, 1500);
       return () => clearTimeout(timer);
     }
   }, [tutorialStep, playSequence]);
@@ -93,11 +105,17 @@ export function BlendingGameTemplate({
   const handleChoice = (character: Character) => {
     if (!canReplay) return;
 
+    const sequence = audioSequenceRef.current;
+    if (!sequence) return;
+
     if (tutorialStep) {
-      if (character === Character.LULU) {
+      const correctCharacter = sequence[0].audio === problem.correctAudioPath ? Character.LULU : Character.FRANCINE;
+      if (character === correctCharacter) {
         setFeedback('success');
+        // Submit the correct audio from the corresponding sequence index.
+        const correctAudio = correctCharacter === Character.LULU ? sequence[0].audio : sequence[1].audio;
         setTimeout(() => {
-          onSubmit(problem.correctAudioPath);
+          onSubmit(correctAudio);
         }, 2000);
       } else {
         setFeedback('retry');
@@ -107,10 +125,16 @@ export function BlendingGameTemplate({
         }, 2000);
       }
     } else {
-      const characterAudio = character === Character.LULU ? audioSequence[0].audio : audioSequence[1].audio;
+      const characterAudio = character === Character.LULU ? sequence[0].audio : sequence[1].audio;
       onSubmit(characterAudio);
     }
   };
+
+  const correctCharacter = audioSequenceRef.current
+    ? audioSequenceRef.current[0].audio === problem.correctAudioPath
+      ? Character.LULU
+      : Character.FRANCINE
+    : null;
 
   return (
     <div className="relative min-h-screen flex flex-col font-sans items-center justify-center overflow-hidden">
@@ -151,6 +175,7 @@ export function BlendingGameTemplate({
                 canReplay={canReplay}
                 feedback={feedback}
                 onClick={() => handleChoice(Character.LULU)}
+                shouldAnimate={feedback === 'success' && correctCharacter === Character.LULU}
               />
               <CharacterChoice
                 character={Character.FRANCINE}
@@ -158,6 +183,7 @@ export function BlendingGameTemplate({
                 canReplay={canReplay}
                 feedback={feedback}
                 onClick={() => handleChoice(Character.FRANCINE)}
+                shouldAnimate={feedback === 'success' && correctCharacter === Character.FRANCINE}
               />
             </div>
 
@@ -204,15 +230,15 @@ export function BlendingGameTemplate({
 }
 
 interface CharacterChoiceProps {
-  // specific to blending pages so no need for atom
   character: Character;
   isActive: boolean;
   canReplay: boolean;
   feedback: 'success' | 'retry' | null;
   onClick: () => void;
+  shouldAnimate: boolean;
 }
 
-function CharacterChoice({ character, isActive, canReplay, feedback, onClick }: CharacterChoiceProps) {
+function CharacterChoice({ character, isActive, canReplay, feedback, onClick, shouldAnimate }: CharacterChoiceProps) {
   const isLulu = character === Character.LULU;
 
   return (
@@ -226,7 +252,7 @@ function CharacterChoice({ character, isActive, canReplay, feedback, onClick }: 
         isAnimated={isActive}
         className={`
           ${isActive ? 'scale-125 shadow-xl' : 'hover:scale-110'}
-          ${feedback === 'success' && isLulu && 'animate-bounce'}
+          ${shouldAnimate ? 'animate-bounce' : ''}
         `}
       />
     </div>
