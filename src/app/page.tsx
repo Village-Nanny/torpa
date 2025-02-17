@@ -6,7 +6,6 @@ import { DotPattern } from '../components/ui/atoms/dot-pattern';
 import { FeatureItem } from '../components/ui/atoms/feature-item';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { MobileMenu } from '../components/ui/molecules/mobile-menu';
 
 const fadeInLeft = {
   hidden: { opacity: 0, x: -50 },
@@ -60,13 +59,10 @@ export default function LandingPage() {
       />
 
       <div className="relative z-10">
-        {/* Desktop Header */}
-        <div className="fixed top-0 left-0 right-0 z-50 bg-transparent h-20 hidden md:block">
+        {/* Responsive Header */}
+        <div className="fixed top-0 left-0 right-0 z-50 bg-transparent h-20">
           <Header />
         </div>
-
-        {/* Mobile Menu Molecule */}
-        <MobileMenu />
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-screen pt-16 md:pt-20 lg:pt-0">

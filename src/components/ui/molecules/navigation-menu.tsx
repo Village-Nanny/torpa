@@ -1,6 +1,5 @@
 'use client';
 
-//import { NavLink } from '../atoms/nav-link';
 import { Button } from '../atoms/button';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/src/store';
@@ -9,6 +8,7 @@ import { auth } from '@/src/services/firebase';
 import { toast } from 'sonner';
 import { LogOut, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
+import React from 'react';
 
 export function NavigationMenu() {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -24,14 +24,12 @@ export function NavigationMenu() {
 
   return (
     <div className="space-x-4">
-      {/*<NavLink href="/features">Features</NavLink>
-      <NavLink href="/about">About</NavLink>*/}
       {user ? (
         <>
           <Link href="/dashboard">
             <Button
               variant="outline"
-              className="hidden sm:inline-flex items-center gap-2 font-bold bg-green-500 hover:bg-green-600 text-white border-green-400 hover:border-green-300 transition-all duration-200">
+              className="inline-flex items-center gap-2 font-bold bg-green-500 hover:bg-green-600 text-white border-green-400 hover:border-green-300 transition-all duration-200">
               <LayoutDashboard className="w-4 h-4" />
               Dashboard
             </Button>

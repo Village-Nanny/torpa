@@ -42,7 +42,9 @@ export function BlendingGameTemplate({
   const playAudioWithAnimation = useCallback((audioPath: string, character: Character, nextAction?: () => void) => {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.removeEventListener('ended', audioRef.current.onended as any);
+      if (audioRef.current.onended) {
+        audioRef.current.removeEventListener('ended', audioRef.current.onended);
+      }
       audioRef.current = null;
     }
 
@@ -62,7 +64,7 @@ export function BlendingGameTemplate({
 
     audio.addEventListener('ended', handleEnded);
     audio.play().catch(error => {
-      console.error('Audio playback failed:', error);
+      console.log('Audio playback failed:', error);
     });
   }, []);
 
@@ -112,7 +114,6 @@ export function BlendingGameTemplate({
       const correctCharacter = sequence[0].audio === problem.correctAudioPath ? Character.LULU : Character.FRANCINE;
       if (character === correctCharacter) {
         setFeedback('success');
-        // Submit the correct audio from the corresponding sequence index.
         const correctAudio = correctCharacter === Character.LULU ? sequence[0].audio : sequence[1].audio;
         setTimeout(() => {
           onSubmit(correctAudio);
