@@ -25,8 +25,8 @@ const fadeUp = (delay = 0) => ({
 const features = [
   {
     icon: <Target className="w-6 h-6 sm:w-8 sm:h-8 text-white" />,
-    title: 'Age-Appropriate Learning',
-    description: 'Tailored activities for 2.5 to 3.5 year olds',
+    title: 'Age-Appropriate Learning and Assessment',
+    description: 'Tailored activities for 2.5 through 4.5 year olds',
   },
   {
     icon: <LineChart className="w-6 h-6 sm:w-8 sm:h-8 text-white" />,
@@ -76,14 +76,12 @@ export default function LandingPage() {
               <motion.h1
                 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white lg:font-extrabold"
                 variants={fadeUp(0.2)}>
-                Torpa
+                TORPA
               </motion.h1>
               <motion.div className="space-y-4" variants={fadeUp(0.4)}>
-                <p className="text-xl sm:text-2xl text-white lg:font-bold">
-                  Embark on a fun-filled journey of early literacy with our interactive phonemic awareness app.
-                </p>
+                <p className="text-xl sm:text-2xl text-white lg:font-bold">Test of Receptive Phonemic Awareness</p>
                 <p className="text-lg sm:text-xl text-white font-semibold lg:font-bold">
-                  Designed for young minds, built for curious learners.
+                  Start Your Child's Pre-Literacy Journey!
                 </p>
               </motion.div>
               <motion.div variants={fadeUp(0.6)}>
@@ -120,7 +118,7 @@ export default function LandingPage() {
                         icon={feature.icon}
                         title={feature.title}
                         description={feature.description}
-                        titleClassName="text-2xl font-bold lg:font-extrabold text-gray-800 mb-1"
+                        titleClassName="text-xl font-bold lg:font-extrabold text-gray-800 mb-1"
                         descriptionClassName="text-lg font-medium text-gray-600 lg:font-bold"
                       />
                     </motion.div>
