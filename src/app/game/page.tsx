@@ -12,7 +12,6 @@ import { RootState, AppDispatch } from '@/src/store';
 import { GAME_CONFIG } from '@/src/config/gameConfig';
 import BlendingPage from '@/src/components/ui/pages/blending-page';
 import SegmentingPage from '@/src/components/ui/pages/segmenting-page';
-import TutorialBlendingPage from '@/src/components/ui/pages/tutorial-blending-page';
 import { StartScreen } from '@/src/components/ui/pages/start-screen';
 import { DotPattern } from '@/src/components/ui/atoms/dot-pattern';
 import { Button } from '@/src/components/ui/atoms/button';
@@ -21,6 +20,7 @@ import { ConfirmDialog } from '@/src/components/ui/molecules/confirm-dialogue';
 import { AnimatePresence } from 'framer-motion';
 import { FadeIn } from '@/src/components/ui/atoms/fade-in';
 import { GameOverPage } from '@/src/components/ui/pages/game-over-page';
+import TutorialSegmentingPage from '@/src/components/ui/pages/tutorial-segmenting-page';
 
 export default function GamePage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -43,7 +43,7 @@ export default function GamePage() {
     async (includeTutorial: boolean) => {
       const gameConfig = includeTutorial
         ? GAME_CONFIG
-        : GAME_CONFIG.filter(type => type !== Problems.TUTORIAL_BLENDING);
+        : GAME_CONFIG.filter(type => type !== Problems.TUTORIAL_SEGMENTING);
       await dispatch(startGame(gameConfig));
       setGameStarted(true);
     },
@@ -60,11 +60,13 @@ export default function GamePage() {
 
   const getBackgroundColor = () => {
     switch (currentProblemType) {
-      case Problems.TUTORIAL_BLENDING:
+      case Problems.TUTORIAL_SEGMENTING:
         return 'bg-green-600';
-      case Problems.BLENDING:
+      case Problems.FINAL_BLENDING:
+      case Problems.INITIAL_BLENDING:
         return 'bg-green-600';
-      case Problems.SEGMENTING:
+      case Problems.FINAL_SEGMENTING:
+      case Problems.INITIAL_SEGMENTING:
         return 'bg-rose-700';
       default:
         return 'bg-gray-600';
@@ -109,11 +111,12 @@ export default function GamePage() {
         ) : (
           <FadeIn key={`problem-${currentProblemIndex}`} className="relative z-10">
             {currentProblem ? (
-              currentProblemType === Problems.TUTORIAL_BLENDING ? (
-                <TutorialBlendingPage problem={currentProblem as BlendingProblem} onSubmit={handleSubmit} />
-              ) : currentProblemType === Problems.BLENDING ? (
+              currentProblemType === Problems.TUTORIAL_SEGMENTING ? (
+                <TutorialSegmentingPage problem={currentProblem as SegmentingProblem} onSubmit={handleSubmit} />
+              ) : currentProblemType === Problems.INITIAL_BLENDING || currentProblemType === Problems.FINAL_BLENDING ? (
                 <BlendingPage problem={currentProblem as BlendingProblem} onSubmit={handleSubmit} />
-              ) : currentProblemType === Problems.SEGMENTING ? (
+              ) : currentProblemType === Problems.INITIAL_SEGMENTING ||
+                currentProblemType === Problems.FINAL_SEGMENTING ? (
                 <SegmentingPage problem={currentProblem as SegmentingProblem} onSubmit={handleSubmit} />
               ) : (
                 <div className="min-h-screen flex items-center justify-center">

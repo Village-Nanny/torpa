@@ -1,33 +1,66 @@
 import { Problems } from '@/src/types/enums/problems.enum';
 import { BlendingProblem } from '@/src/types/blending';
 import { SegmentingProblem } from '@/src/types/segmenting';
+import { PROBLEMS_CONFIG, BlendingProblemConfig, SegmentingProblemConfig } from '@/src/config/problems-config';
 
 export class ProblemGenerator {
-  private static readonly ASSET_PATHS = {
-    images: '/assets/images',
-    audio: '/assets/audio',
-  } as const;
+  private usedIndices: Map<Problems, Set<number>> = new Map();
 
-  private static getRandomItem<T>(array: T[]): T {
-    return array[Math.floor(Math.random() * array.length)];
+  constructor() {
+    this.resetUsedProblems();
   }
 
-  private static getRandomExcept<T>(array: T[], except: T): T {
-    const filtered = array.filter(item => item !== except);
-    return this.getRandomItem(filtered);
+  private getRandomUnusedIndex(type: Problems): number {
+    const problems = PROBLEMS_CONFIG[type];
+
+    if (!this.usedIndices.has(type)) {
+      this.usedIndices.set(type, new Set());
+    }
+
+    const usedSet = this.usedIndices.get(type)!;
+
+    if (usedSet.size >= problems.length) {
+      usedSet.clear();
+    }
+
+    const availableIndices = Array.from({ length: problems.length }, (_, i) => i).filter(i => !usedSet.has(i));
+
+    const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+
+    usedSet.add(randomIndex);
+
+    return randomIndex;
   }
 
-  public static async generateProblem(type: Problems): Promise<BlendingProblem | SegmentingProblem> {
+  public generateProblem(type: Problems): BlendingProblem | SegmentingProblem {
     try {
-      const { availableItems } = await this.fetchAssets();
+      const problemConfig = PROBLEMS_CONFIG[type];
+      if (!problemConfig || !problemConfig.length) {
+        throw new Error(`No problems configured for type: ${type}`);
+      }
+
+      const selectedIndex = this.getRandomUnusedIndex(type);
 
       switch (type) {
-        case Problems.TUTORIAL_BLENDING:
-          return this.generateTutorialBlendingProblem(availableItems);
-        case Problems.BLENDING:
-          return this.generateBlendingProblem(availableItems);
-        case Problems.SEGMENTING:
-          return this.generateSegmentingProblem(availableItems);
+        case Problems.INITIAL_BLENDING:
+        case Problems.FINAL_BLENDING: {
+          const config = problemConfig[selectedIndex] as BlendingProblemConfig;
+          return new BlendingProblem({
+            correctImagePath: config.correctImagePath,
+            wrongImagePath: config.wrongImagePath,
+            audioPath: config.audioPath,
+          });
+        }
+        case Problems.TUTORIAL_SEGMENTING:
+        case Problems.INITIAL_SEGMENTING:
+        case Problems.FINAL_SEGMENTING: {
+          const config = problemConfig[selectedIndex] as SegmentingProblemConfig;
+          return new SegmentingProblem({
+            imagePath: config.imagePath,
+            correctAudioPath: config.correctAudioPath,
+            wrongAudioPath: config.wrongAudioPath,
+          });
+        }
         default:
           throw new Error(`Unknown problem type: ${type}`);
       }
@@ -37,51 +70,7 @@ export class ProblemGenerator {
     }
   }
 
-  private static async fetchAssets(): Promise<{ availableItems: string[] }> {
-    const imagesResponse = await fetch('/api/assets/images');
-    const audioResponse = await fetch('/api/assets/audio');
-
-    const images: string[] = await imagesResponse.json();
-    const audio: string[] = await audioResponse.json();
-
-    const imageNames = images.map(img => img.split('.')[0]);
-    const audioNames = audio.map(aud => aud.split('.')[0]);
-
-    return {
-      availableItems: imageNames.filter(name => audioNames.includes(name)),
-    };
-  }
-
-  private static generateTutorialBlendingProblem(availableItems: string[]): BlendingProblem {
-    const correctItem = 'pot';
-    const wrongItem = this.getRandomExcept(availableItems, correctItem);
-
-    return new BlendingProblem({
-      imagePath: `${this.ASSET_PATHS.images}/${correctItem}.png`,
-      correctAudioPath: `${this.ASSET_PATHS.audio}/${correctItem}.wav`,
-      wrongAudioPath: `${this.ASSET_PATHS.audio}/${wrongItem}.wav`,
-    });
-  }
-
-  private static generateBlendingProblem(availableItems: string[]): BlendingProblem {
-    const correctItem = this.getRandomItem(availableItems);
-    const wrongItem = this.getRandomExcept(availableItems, correctItem);
-
-    return new BlendingProblem({
-      imagePath: `${this.ASSET_PATHS.images}/${correctItem}.png`,
-      correctAudioPath: `${this.ASSET_PATHS.audio}/${correctItem}.wav`,
-      wrongAudioPath: `${this.ASSET_PATHS.audio}/${wrongItem}.wav`,
-    });
-  }
-
-  private static generateSegmentingProblem(availableItems: string[]): SegmentingProblem {
-    const correctItem = this.getRandomItem(availableItems);
-    const wrongItem = this.getRandomExcept(availableItems, correctItem);
-
-    return new SegmentingProblem({
-      correctImagePath: `${this.ASSET_PATHS.images}/${correctItem}.png`,
-      wrongImagePath: `${this.ASSET_PATHS.images}/${wrongItem}.png`,
-      audioPath: `${this.ASSET_PATHS.audio}/${correctItem}.wav`,
-    });
+  public resetUsedProblems(): void {
+    this.usedIndices.clear();
   }
 }

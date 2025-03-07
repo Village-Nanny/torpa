@@ -1,21 +1,21 @@
 export interface BlendingProblemProps {
-  imagePath: string;
-  correctAudioPath: string;
-  wrongAudioPath: string;
+  correctImagePath: string;
+  wrongImagePath: string;
+  audioPath: string;
 }
 
 export class BlendingProblem {
-  public imagePath: string;
-  public correctAudioPath: string;
-  public wrongAudioPath: string;
+  public correctImagePath: string;
+  public wrongImagePath: string;
+  public audioPath: string;
 
   constructor(props: BlendingProblemProps) {
-    this.imagePath = props.imagePath;
-    this.correctAudioPath = props.correctAudioPath;
-    this.wrongAudioPath = props.wrongAudioPath;
+    this.correctImagePath = props.correctImagePath;
+    this.wrongImagePath = props.wrongImagePath;
+    this.audioPath = props.audioPath;
   }
 
-  isCorrect = (audioPath: string): boolean => {
-    return audioPath === this.correctAudioPath;
+  isCorrect = (imagePath: string): boolean => {
+    return imagePath === this.correctImagePath;
   };
 }

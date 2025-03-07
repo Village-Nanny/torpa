@@ -1,21 +1,21 @@
 export interface SegmentingProblemProps {
-  correctImagePath: string;
-  wrongImagePath: string;
-  audioPath: string;
+  imagePath: string;
+  correctAudioPath: string;
+  wrongAudioPath: string;
 }
 
 export class SegmentingProblem {
-  public correctImagePath: string;
-  public wrongImagePath: string;
-  public audioPath: string;
+  public imagePath: string;
+  public correctAudioPath: string;
+  public wrongAudioPath: string;
 
   constructor(props: SegmentingProblemProps) {
-    this.correctImagePath = props.correctImagePath;
-    this.wrongImagePath = props.wrongImagePath;
-    this.audioPath = props.audioPath;
+    this.imagePath = props.imagePath;
+    this.correctAudioPath = props.correctAudioPath;
+    this.wrongAudioPath = props.wrongAudioPath;
   }
 
-  isCorrect = (imagePath: string): boolean => {
-    return imagePath === this.correctImagePath;
+  isCorrect = (audioPath: string): boolean => {
+    return audioPath === this.correctAudioPath;
   };
 }

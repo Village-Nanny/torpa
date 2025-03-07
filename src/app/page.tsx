@@ -81,7 +81,7 @@ export default function LandingPage() {
               <motion.div className="space-y-4" variants={fadeUp(0.4)}>
                 <p className="text-xl sm:text-2xl text-white lg:font-bold">Test of Receptive Phonemic Awareness</p>
                 <p className="text-lg sm:text-xl text-white font-semibold lg:font-bold">
-                  Start Your Child's Pre-Literacy Journey!
+                  Start Your Child&apos;s Pre-Literacy Journey!
                 </p>
               </motion.div>
               <motion.div variants={fadeUp(0.6)}>
