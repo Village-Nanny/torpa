@@ -21,6 +21,7 @@ import { AnimatePresence } from 'framer-motion';
 import { FadeIn } from '@/src/components/ui/atoms/fade-in';
 import { GameOverPage } from '@/src/components/ui/pages/game-over-page';
 import TutorialSegmentingPage from '@/src/components/ui/pages/tutorial-segmenting-page';
+import TutorialBlendingPage from '@/src/components/ui/pages/tutorial-blending-page';
 
 export default function GamePage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -60,11 +61,11 @@ export default function GamePage() {
 
   const getBackgroundColor = () => {
     switch (currentProblemType) {
-      case Problems.TUTORIAL_SEGMENTING:
-        return 'bg-green-600';
+      case Problems.TUTORIAL_BLENDING:
       case Problems.FINAL_BLENDING:
       case Problems.INITIAL_BLENDING:
         return 'bg-green-600';
+      case Problems.TUTORIAL_SEGMENTING:
       case Problems.FINAL_SEGMENTING:
       case Problems.INITIAL_SEGMENTING:
         return 'bg-rose-700';
@@ -113,6 +114,8 @@ export default function GamePage() {
             {currentProblem ? (
               currentProblemType === Problems.TUTORIAL_SEGMENTING ? (
                 <TutorialSegmentingPage problem={currentProblem as SegmentingProblem} onSubmit={handleSubmit} />
+              ) : currentProblemType === Problems.TUTORIAL_BLENDING ? (
+                <TutorialBlendingPage problem={currentProblem as BlendingProblem} onSubmit={handleSubmit} />
               ) : currentProblemType === Problems.INITIAL_BLENDING || currentProblemType === Problems.FINAL_BLENDING ? (
                 <BlendingPage problem={currentProblem as BlendingProblem} onSubmit={handleSubmit} />
               ) : currentProblemType === Problems.INITIAL_SEGMENTING ||

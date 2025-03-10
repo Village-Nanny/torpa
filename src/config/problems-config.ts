@@ -24,7 +24,29 @@ export const PROBLEMS_CONFIG = {
       correctAudioPath: '/assets/audio/watch.wav',
       wrongAudioPath: '/assets/audio/gum.wav',
     },
+    {
+      imagePath: '/assets/images/pot.png',
+      correctAudioPath: '/assets/audio/pot.wav',
+      wrongAudioPath: '/assets/audio/door.wav',
+    },
+    {
+      imagePath: '/assets/images/door.png',
+      correctAudioPath: '/assets/audio/door.wav',
+      wrongAudioPath: '/assets/audio/pot.wav',
+    },
   ] as SegmentingProblemConfig[],
+  [Problems.TUTORIAL_BLENDING]: [
+    {
+      correctImagePath: '/assets/images/gum.png',
+      wrongImagePath: '/assets/images/watch.png',
+      audioPath: '/assets/audio/gum.wav',
+    },
+    {
+      correctImagePath: '/assets/images/pot.png',
+      wrongImagePath: '/assets/images/door.png',
+      audioPath: '/assets/audio/pot.wav',
+    },
+  ] as BlendingProblemConfig[],
 
   [Problems.INITIAL_SEGMENTING]: [
     {

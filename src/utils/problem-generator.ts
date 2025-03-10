@@ -42,6 +42,7 @@ export class ProblemGenerator {
       const selectedIndex = this.getRandomUnusedIndex(type);
 
       switch (type) {
+        case Problems.TUTORIAL_BLENDING:
         case Problems.INITIAL_BLENDING:
         case Problems.FINAL_BLENDING: {
           const config = problemConfig[selectedIndex] as BlendingProblemConfig;

@@ -7,16 +7,30 @@ import { Button } from '@/src/components/ui/atoms/button';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { BlendingProblem } from '@/src/types/blending';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface BlendingGameTemplateProps {
   problem: BlendingProblem;
   onSubmit: (answer: string) => void;
+  tutorialStep?: number;
+  tutorialContent?: React.ReactNode;
+  showNavigation?: boolean;
+  onNext?: () => void;
+  onPrev?: () => void;
 }
 
-export function BlendingGameTemplate({ problem, onSubmit }: BlendingGameTemplateProps) {
+export function BlendingGameTemplate({
+  problem,
+  onSubmit,
+  tutorialStep,
+  tutorialContent,
+  showNavigation,
+  onNext,
+  onPrev,
+}: BlendingGameTemplateProps) {
   const [activeCharacter, setActiveCharacter] = useState<Character | null>(null);
   const [canSelect, setCanSelect] = useState(false);
-  const [feedback] = useState<'success' | 'retry' | null>(null);
+  const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const playAudio = useCallback(() => {
@@ -37,13 +51,31 @@ export function BlendingGameTemplate({ problem, onSubmit }: BlendingGameTemplate
   }, [problem.audioPath]);
 
   useEffect(() => {
-    const timer = setTimeout(playAudio, 1500);
-    return () => clearTimeout(timer);
-  }, [playAudio]);
+    if (!tutorialStep || tutorialStep === 4) {
+      const timer = setTimeout(playAudio, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [tutorialStep, playAudio]);
 
   function handleChoice(imagePath: string) {
     if (!canSelect) return;
-    onSubmit(imagePath);
+
+    if (tutorialStep) {
+      if (problem.isCorrect(imagePath)) {
+        setFeedback('success');
+        setTimeout(() => {
+          onSubmit(imagePath);
+        }, 2000);
+      } else {
+        setFeedback('retry');
+        setTimeout(() => {
+          setFeedback(null);
+          playAudio();
+        }, 2000);
+      }
+    } else {
+      onSubmit(imagePath);
+    }
   }
 
   const choices = React.useMemo(() => {
@@ -57,72 +89,99 @@ export function BlendingGameTemplate({ problem, onSubmit }: BlendingGameTemplate
   return (
     <div className="relative min-h-screen flex flex-col font-sans items-center justify-center overflow-hidden">
       <div className="z-10 max-w-3xl px-4 mx-auto">
-        <div className="space-y-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white">Choose the Right Picture! 🎯</h1>
-          {feedback && (
-            <motion.div
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className={`text-center p-6 rounded-xl ${feedback === 'success' ? 'bg-green-500/30' : 'bg-yellow-500/30'}`}>
-              {feedback === 'success' ? (
-                <div className="space-y-2">
-                  <p className="text-3xl md:text-4xl text-white font-bold">Perfect! 🌟</p>
-                  <p className="text-2xl md:text-3xl text-white">You found the right picture! ⭐️</p>
+        {tutorialContent || (
+          <div className="space-y-8 text-center">
+            <h1 className="text-4xl md:text-6xl font-extrabold text-white">Choose the Right Picture! 🎯</h1>
+            {feedback && (
+              <motion.div
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className={`text-center p-6 rounded-xl ${
+                  feedback === 'success' ? 'bg-green-500/30' : 'bg-yellow-500/30'
+                }`}>
+                {feedback === 'success' ? (
+                  <div className="space-y-2">
+                    <p className="text-3xl md:text-4xl text-white font-bold">Perfect! 🌟</p>
+                    <p className="text-2xl md:text-3xl text-white">You found the right picture! ⭐️</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-3xl md:text-4xl text-white font-bold">Try Again! 🎯</p>
+                    <p className="text-2xl md:text-3xl text-white">Listen carefully and look at the pictures! 👀</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+            <div className="flex justify-center gap-20 md:gap-32 mt-8">
+              {choices.map(option => (
+                <div
+                  key={option.type}
+                  onClick={() => canSelect && !feedback && handleChoice(option.image)}
+                  className={!canSelect || feedback ? 'cursor-default' : 'cursor-pointer'}>
+                  <div className="relative w-40 h-40 md:w-48 md:h-48 rounded-xl overflow-hidden hover:scale-110 transition-transform">
+                    <Image src={option.image} alt={`${option.type} image`} fill className="object-contain" priority />
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  <p className="text-3xl md:text-4xl text-white font-bold">Try Again! 🎯</p>
-                  <p className="text-2xl md:text-3xl text-white">Listen carefully and look at the pictures! 👀</p>
-                </div>
-              )}
-            </motion.div>
-          )}
-          <div className="flex justify-center gap-20 md:gap-32 mt-8">
-            {choices.map(option => (
-              <div
-                key={option.type}
-                onClick={() => canSelect && handleChoice(option.image)}
-                className={!canSelect ? 'cursor-default' : 'cursor-pointer'}>
-                <div className="relative w-40 h-40 md:w-48 md:h-48 rounded-xl overflow-hidden hover:scale-110 transition-transform">
-                  <Image src={option.image} alt={`${option.type} image`} fill className="object-contain" priority />
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          <div className="mt-8">
-            <CharacterAvatar
-              emoji="🐞"
-              name="Lulu"
-              backgroundColor="bg-red-400"
-              isAnimated={activeCharacter === Character.LULU}
-              className={`transition-transform duration-200 ${
-                activeCharacter === Character.LULU ? 'scale-125 shadow-xl' : 'hover:scale-110'
-              }`}
-            />
-          </div>
+            <div className="mt-8">
+              <CharacterAvatar
+                emoji="🐞"
+                name="Lulu"
+                backgroundColor="bg-red-400"
+                isAnimated={activeCharacter === Character.LULU}
+                className={`transition-transform duration-200 ${
+                  activeCharacter === Character.LULU ? 'scale-125 shadow-xl' : 'hover:scale-110'
+                }`}
+              />
+            </div>
 
-          <motion.div
-            className="h-[80px] mt-8"
-            animate={{ height: canSelect && !feedback ? 'auto' : '0px' }}
-            transition={{ duration: 0.3 }}>
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{
-                opacity: canSelect && !feedback ? 1 : 0,
-                y: canSelect && !feedback ? 0 : -20,
-              }}
+              className="h-[80px] mt-8"
+              animate={{ height: canSelect && !feedback ? 'auto' : '0px' }}
               transition={{ duration: 0.3 }}>
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{
+                  opacity: canSelect && !feedback ? 1 : 0,
+                  y: canSelect && !feedback ? 0 : -20,
+                }}
+                transition={{ duration: 0.3 }}>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={playAudio}
+                  className="bg-white/20 px-6 py-3 text-white font-bold text-xl hover:bg-white/30">
+                  Listen Again! 🔄
+                </Button>
+              </motion.div>
+            </motion.div>
+          </div>
+        )}
+
+        {showNavigation && (
+          <div className="mt-12 flex justify-center gap-8">
+            {onPrev && (
               <Button
                 variant="ghost"
                 size="lg"
-                onClick={playAudio}
-                className="bg-white/20 px-6 py-3 text-white font-bold text-xl hover:bg-white/30">
-                Listen Again! 🔄
+                onClick={onPrev}
+                className="w-20 h-20 md:w-24 md:h-24 p-0 text-white bg-green-500 hover:bg-green-400 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110">
+                <ChevronLeft className="w-12 h-12" />
               </Button>
-            </motion.div>
-          </motion.div>
-        </div>
+            )}
+            {onNext && (
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={onNext}
+                className="w-20 h-20 md:w-24 md:h-24 p-0 text-white bg-green-500 hover:bg-green-400 rounded-full shadow-lg transition-all duration-200 transform hover:scale-110">
+                <ChevronRight className="w-12 h-12" />
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
