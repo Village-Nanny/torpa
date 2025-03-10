@@ -117,7 +117,7 @@ export const PROBLEMS_CONFIG = {
     },
     {
       imagePath: '/assets/images/coat.png',
-      correctAudioPath: '/assets/audio/comb.wav',
+      correctAudioPath: '/assets/audio/coat.wav',
       wrongAudioPath: '/assets/audio/comb.wav',
     },
     {
