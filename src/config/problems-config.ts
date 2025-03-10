@@ -104,7 +104,7 @@ export const PROBLEMS_CONFIG = {
     },
     {
       imagePath: '/assets/images/seal.png',
-      correctAudioPath: '/assets/audio/wheel.wav',
+      correctAudioPath: '/assets/audio/seal.wav',
       wrongAudioPath: '/assets/audio/wheel.wav',
     },
   ] as SegmentingProblemConfig[],
