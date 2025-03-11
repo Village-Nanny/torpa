@@ -31,11 +31,15 @@ const initialState: GameState = {
 
 const startGame = (config: Problems[]) => async (dispatch: AppDispatch) => {
   try {
+    const problemGenerator = new ProblemGenerator();
     const validProblemTypes = config.filter(type => GAME_CONFIG.includes(type));
-    const problems = await Promise.all(validProblemTypes.map(type => ProblemGenerator.generateProblem(type)));
+    const problems = await Promise.all(validProblemTypes.map(type => problemGenerator.generateProblem(type)));
 
-    const totalBlendingProblems = validProblemTypes.filter(type => type === Problems.BLENDING).length;
-    const totalSegmentingProblems = validProblemTypes.filter(type => type === Problems.SEGMENTING).length;
+    const blendingTypes = [Problems.INITIAL_BLENDING, Problems.FINAL_BLENDING];
+    const totalBlendingProblems = validProblemTypes.filter(type => blendingTypes.includes(type)).length;
+
+    const segmentingTypes = [Problems.INITIAL_SEGMENTING, Problems.FINAL_SEGMENTING];
+    const totalSegmentingProblems = validProblemTypes.filter(type => segmentingTypes.includes(type)).length;
 
     dispatch(
       setGameState({
@@ -67,13 +71,13 @@ const gameSlice = createSlice({
       const isCorrect = currentProblem.isCorrect(action.payload);
 
       if (isCorrect) {
-        switch (currentProblemType) {
-          case Problems.BLENDING:
-            state.blendingScore += 1;
-            break;
-          case Problems.SEGMENTING:
-            state.segmentingScore += 1;
-            break;
+        if (currentProblemType === Problems.INITIAL_BLENDING || currentProblemType === Problems.FINAL_BLENDING) {
+          state.blendingScore += 1;
+        } else if (
+          currentProblemType === Problems.INITIAL_SEGMENTING ||
+          currentProblemType === Problems.FINAL_SEGMENTING
+        ) {
+          state.segmentingScore += 1;
         }
       }
 

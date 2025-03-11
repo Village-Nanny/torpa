@@ -10,7 +10,7 @@ export async function POST(request: Request) {
 
   try {
     await resend.emails.send({
-      from: 'Torpa <onboarding@resend.dev>',
+      from: 'Torpa <results.torpa@svegian.xyz>',
       to: email,
       subject: 'Your Torpa Game Results',
       html: `

@@ -1,18 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BlendingProblem } from '@/src/types/blending';
-import { BlendingGameTemplate } from '@/src/components/ui/templates/blending-template';
 import { WelcomeStep } from '@/src/components/ui/organisms/onboarding/welcome-step';
 import { GameExplanationStep } from '@/src/components/ui/organisms/onboarding/game-explanation-step';
 import { PracticeStep } from '@/src/components/ui/organisms/onboarding/practice-step';
-
-interface TutorialBlendingPageProps {
-  problem: BlendingProblem;
+import { SegmentingGameTemplate } from '../templates/segmenting-template';
+import { SegmentingProblem } from '@/src/types/segmenting';
+interface TutorialSegmentingPageProps {
+  problem: SegmentingProblem;
   onSubmit: (answer: string) => void;
 }
 
-export default function TutorialBlendingPage({ problem, onSubmit }: TutorialBlendingPageProps) {
+export default function TutorialSegmentingPage({ problem, onSubmit }: TutorialSegmentingPageProps) {
   const [step, setStep] = useState(1);
 
   const renderTutorialContent = () => {
@@ -22,7 +21,7 @@ export default function TutorialBlendingPage({ problem, onSubmit }: TutorialBlen
       case 2:
         return <GameExplanationStep />;
       case 3:
-        return <PracticeStep />;
+        return <PracticeStep problem={problem} />;
       case 4:
         return null;
       default:
@@ -31,7 +30,7 @@ export default function TutorialBlendingPage({ problem, onSubmit }: TutorialBlen
   };
 
   return (
-    <BlendingGameTemplate
+    <SegmentingGameTemplate
       problem={problem}
       onSubmit={onSubmit}
       tutorialStep={step}
