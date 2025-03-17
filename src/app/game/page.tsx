@@ -22,7 +22,7 @@ import { GameOverPage } from '@/src/components/ui/pages/game-over-page';
 import TutorialSegmentingPage from '@/src/components/ui/pages/tutorial-segmenting-page';
 import TutorialBlendingPage from '@/src/components/ui/pages/tutorial-blending-page';
 import { HomeNavButton } from '@/src/components/ui/molecules/home-nav-button';
-import { stopAllAudio } from '@/src/utils/helpers';
+import { useAudio } from '@/src/hooks/use-audio';
 
 const ErrorScreen = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
   <div className="min-h-screen flex items-center justify-center bg-rose-600">
@@ -42,10 +42,12 @@ const ProblemRenderer = ({
   problemType,
   problem,
   onSubmit,
+  onError,
 }: {
   problemType: Problems | null;
   problem: BlendingProblem | SegmentingProblem | null;
   onSubmit: (answer: string) => void;
+  onError: (error: string) => void;
 }) => {
   if (!problem || !problemType) {
     return (
@@ -57,15 +59,15 @@ const ProblemRenderer = ({
 
   switch (problemType) {
     case Problems.TUTORIAL_SEGMENTING:
-      return <TutorialSegmentingPage problem={problem as SegmentingProblem} onSubmit={onSubmit} />;
+      return <TutorialSegmentingPage problem={problem as SegmentingProblem} onSubmit={onSubmit} onError={onError} />;
     case Problems.TUTORIAL_BLENDING:
-      return <TutorialBlendingPage problem={problem as BlendingProblem} onSubmit={onSubmit} />;
+      return <TutorialBlendingPage problem={problem as BlendingProblem} onSubmit={onSubmit} onError={onError} />;
     case Problems.INITIAL_BLENDING:
     case Problems.FINAL_BLENDING:
-      return <BlendingPage problem={problem as BlendingProblem} onSubmit={onSubmit} />;
+      return <BlendingPage problem={problem as BlendingProblem} onSubmit={onSubmit} onError={onError} />;
     case Problems.INITIAL_SEGMENTING:
     case Problems.FINAL_SEGMENTING:
-      return <SegmentingPage problem={problem as SegmentingProblem} onSubmit={onSubmit} />;
+      return <SegmentingPage problem={problem as SegmentingProblem} onSubmit={onSubmit} onError={onError} />;
     default:
       return (
         <div className="min-h-screen flex items-center justify-center">
@@ -78,6 +80,7 @@ const ProblemRenderer = ({
 export default function GamePage() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const { stopAllAudio } = useAudio();
 
   // Redux state
   const currentProblem = useSelector((state: RootState) => getCurrentProblem(state));
@@ -172,7 +175,7 @@ export default function GamePage() {
     } finally {
       setIsLeavingGame(false);
     }
-  }, [router]);
+  }, [router, stopAllAudio]);
 
   // Get the appropriate background color based on problem type
   const getBackgroundColor = useCallback(() => {
@@ -239,6 +242,7 @@ export default function GamePage() {
                 problemType={currentProblemType || null}
                 problem={currentProblem}
                 onSubmit={handleSubmit}
+                onError={setError}
               />
             ) : (
               <GameOverPage />

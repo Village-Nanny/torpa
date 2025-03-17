@@ -8,10 +8,12 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { SegmentingProblem } from '@/src/types/segmenting';
+import { useAudio } from '@/src/hooks/use-audio';
 
 interface SegmentingGameTemplateProps {
   problem: SegmentingProblem;
   onSubmit: (answer: string) => void;
+  onError?: (error: string) => void;
   tutorialStep?: number;
   tutorialContent?: React.ReactNode;
   showNavigation?: boolean;
@@ -22,6 +24,7 @@ interface SegmentingGameTemplateProps {
 export function SegmentingGameTemplate({
   problem,
   onSubmit,
+  onError,
   tutorialStep,
   tutorialContent,
   showNavigation,
@@ -31,7 +34,7 @@ export function SegmentingGameTemplate({
   const [activeCharacter, setActiveCharacter] = useState<Character | null>(null);
   const [canReplay, setCanReplay] = useState(false);
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { playAudio } = useAudio();
 
   const audioSequenceRef = useRef<{ audio: string; character: Character }[] | null>(null);
 
@@ -39,34 +42,25 @@ export function SegmentingGameTemplate({
     audioSequenceRef.current = null;
   }, [problem]);
 
-  const playAudioWithAnimation = useCallback((audioPath: string, character: Character, nextAction?: () => void) => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      if (audioRef.current.onended) {
-        audioRef.current.removeEventListener('ended', audioRef.current.onended as EventListener);
-      }
-      audioRef.current = null;
-    }
+  const playAudioWithAnimation = useCallback(
+    (audioPath: string, character: Character, nextAction?: () => void) => {
+      setActiveCharacter(character);
 
-    setActiveCharacter(character);
-    const audio = new Audio(audioPath);
-    audioRef.current = audio;
-
-    const handleEnded = () => {
-      setActiveCharacter(null);
-      if (nextAction) {
-        nextAction();
-      } else {
-        setCanReplay(true);
-      }
-      audio.removeEventListener('ended', handleEnded);
-    };
-
-    audio.addEventListener('ended', handleEnded);
-    audio.play().catch(error => {
-      console.log('Audio playback failed:', error);
-    });
-  }, []);
+      playAudio(
+        audioPath,
+        () => {
+          setActiveCharacter(null);
+          if (nextAction) {
+            nextAction();
+          } else {
+            setCanReplay(true);
+          }
+        },
+        onError
+      );
+    },
+    [onError, playAudio]
+  );
 
   const playSequence = useCallback(() => {
     setCanReplay(false);
@@ -86,7 +80,7 @@ export function SegmentingGameTemplate({
     }
 
     const sequence = audioSequenceRef.current;
-    if (!sequence) return; // Safety check
+    if (!sequence) return;
 
     playAudioWithAnimation(sequence[0].audio, sequence[0].character, () => {
       setTimeout(() => {
@@ -103,21 +97,6 @@ export function SegmentingGameTemplate({
       return () => clearTimeout(timer);
     }
   }, [tutorialStep, playSequence]);
-
-  // Clean up audio when component unmounts
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        if (audioRef.current.onended) {
-          audioRef.current.removeEventListener('ended', audioRef.current.onended as EventListener);
-        }
-        audioRef.current.currentTime = 0;
-        audioRef.current = null;
-      }
-      audioSequenceRef.current = null;
-    };
-  }, []);
 
   const handleChoice = (character: Character) => {
     if (!canReplay) return;

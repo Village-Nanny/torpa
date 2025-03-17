@@ -6,12 +6,14 @@ import { GameExplanationStep } from '@/src/components/ui/organisms/onboarding/ga
 import { PracticeStep } from '@/src/components/ui/organisms/onboarding/practice-step';
 import { SegmentingGameTemplate } from '../templates/segmenting-template';
 import { SegmentingProblem } from '@/src/types/segmenting';
+
 interface TutorialSegmentingPageProps {
   problem: SegmentingProblem;
   onSubmit: (answer: string) => void;
+  onError?: (error: string) => void;
 }
 
-export default function TutorialSegmentingPage({ problem, onSubmit }: TutorialSegmentingPageProps) {
+export default function TutorialSegmentingPage({ problem, onSubmit, onError }: TutorialSegmentingPageProps) {
   const [step, setStep] = useState(1);
 
   const renderTutorialContent = () => {
@@ -33,6 +35,7 @@ export default function TutorialSegmentingPage({ problem, onSubmit }: TutorialSe
     <SegmentingGameTemplate
       problem={problem}
       onSubmit={onSubmit}
+      onError={onError}
       tutorialStep={step}
       tutorialContent={step < 4 ? renderTutorialContent() : undefined}
       showNavigation={step < 4}

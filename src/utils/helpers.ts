@@ -1,22 +1,13 @@
-export function stopAllAudio(): void {
-  const audioElements = document.querySelectorAll('audio');
-  audioElements.forEach(audio => {
-    audio.pause();
-    audio.currentTime = 0;
-  });
+// Create a global registry to track all audio instances
+// This will allow us to access them from anywhere
+const globalAudioRegistry = new Set<HTMLAudioElement>();
 
-  try {
-    interface WindowWithWebkit extends Window {
-      webkitAudioContext?: typeof AudioContext;
-    }
+// Add a function to register audio instances
+export function registerAudio(audio: HTMLAudioElement): void {
+  globalAudioRegistry.add(audio);
+}
 
-    const AudioContextClass = window.AudioContext || (window as WindowWithWebkit).webkitAudioContext;
-
-    if (AudioContextClass) {
-      const audioContext = new AudioContextClass();
-      audioContext.suspend();
-    }
-  } catch (error) {
-    console.error('Failed to suspend audio context:', error);
-  }
+// Add a function to unregister audio instances
+export function unregisterAudio(audio: HTMLAudioElement): void {
+  globalAudioRegistry.delete(audio);
 }

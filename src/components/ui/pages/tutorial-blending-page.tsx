@@ -10,9 +10,10 @@ import { BlendingProblem } from '@/src/types/blending';
 interface TutorialBlendingPageProps {
   problem: BlendingProblem;
   onSubmit: (answer: string) => void;
+  onError?: (error: string) => void;
 }
 
-export default function TutorialBlendingPage({ problem, onSubmit }: TutorialBlendingPageProps) {
+export default function TutorialBlendingPage({ problem, onSubmit, onError }: TutorialBlendingPageProps) {
   const [step, setStep] = useState(1);
 
   const renderTutorialContent = () => {
@@ -34,6 +35,7 @@ export default function TutorialBlendingPage({ problem, onSubmit }: TutorialBlen
     <BlendingGameTemplate
       problem={problem}
       onSubmit={onSubmit}
+      onError={onError}
       tutorialStep={step}
       tutorialContent={step < 4 ? renderTutorialContent() : undefined}
       showNavigation={step < 4}

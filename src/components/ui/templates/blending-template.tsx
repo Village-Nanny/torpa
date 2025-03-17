@@ -8,10 +8,12 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { BlendingProblem } from '@/src/types/blending';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useAudio } from '@/src/hooks/use-audio';
 
 interface BlendingGameTemplateProps {
   problem: BlendingProblem;
   onSubmit: (answer: string) => void;
+  onError?: (error: string) => void;
   tutorialStep?: number;
   tutorialContent?: React.ReactNode;
   showNavigation?: boolean;
@@ -22,6 +24,7 @@ interface BlendingGameTemplateProps {
 export function BlendingGameTemplate({
   problem,
   onSubmit,
+  onError,
   tutorialStep,
   tutorialContent,
   showNavigation,
@@ -31,43 +34,39 @@ export function BlendingGameTemplate({
   const [activeCharacter, setActiveCharacter] = useState<Character | null>(null);
   const [canSelect, setCanSelect] = useState(false);
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { playAudio } = useAudio();
+  const activeAudioRef = useRef<HTMLAudioElement | null>(null);
   const [currentCharacter] = useState<Character>(Math.random() < 0.5 ? Character.LULU : Character.FRANCINE);
 
-  const playAudio = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+  const playBlendingAudio = useCallback(() => {
+    // Stop any currently playing audio
+    if (activeAudioRef.current) {
+      activeAudioRef.current.pause();
+      activeAudioRef.current.currentTime = 0;
     }
+
     setCanSelect(false);
     setActiveCharacter(currentCharacter);
-    audioRef.current = new Audio(problem.audioPath);
-    audioRef.current.play().catch(error => {
-      console.log('Audio playback failed:', error);
-    });
-    audioRef.current.onended = () => {
-      setActiveCharacter(null);
-      setCanSelect(true);
-    };
-  }, [problem.audioPath, currentCharacter]);
+
+    activeAudioRef.current = playAudio(
+      problem.audioPath,
+      // On ended callback
+      () => {
+        setActiveCharacter(null);
+        setCanSelect(true);
+        activeAudioRef.current = null;
+      },
+      // On error callback
+      onError
+    );
+  }, [problem.audioPath, currentCharacter, onError, playAudio]);
 
   useEffect(() => {
     if (!tutorialStep || tutorialStep === 4) {
-      const timer = setTimeout(playAudio, 1500);
+      const timer = setTimeout(playBlendingAudio, 1500);
       return () => clearTimeout(timer);
     }
-  }, [tutorialStep, playAudio]);
-
-  // Clean up audio when component unmounts
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        audioRef.current = null;
-      }
-    };
-  }, []);
+  }, [tutorialStep, playBlendingAudio]);
 
   function handleChoice(imagePath: string) {
     if (!canSelect) return;
@@ -82,7 +81,7 @@ export function BlendingGameTemplate({
         setFeedback('retry');
         setTimeout(() => {
           setFeedback(null);
-          playAudio();
+          playBlendingAudio();
         }, 2000);
       }
     } else {
@@ -182,7 +181,7 @@ export function BlendingGameTemplate({
                 <Button
                   variant="ghost"
                   size="lg"
-                  onClick={playAudio}
+                  onClick={playBlendingAudio}
                   className="bg-white/20 px-6 py-3 text-white font-bold text-xl hover:bg-white/30">
                   Listen Again! 🔄
                 </Button>
