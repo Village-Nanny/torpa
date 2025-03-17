@@ -43,7 +43,7 @@ export function SegmentingGameTemplate({
     if (audioRef.current) {
       audioRef.current.pause();
       if (audioRef.current.onended) {
-        audioRef.current.removeEventListener('ended', audioRef.current.onended);
+        audioRef.current.removeEventListener('ended', audioRef.current.onended as EventListener);
       }
       audioRef.current = null;
     }
@@ -103,6 +103,21 @@ export function SegmentingGameTemplate({
       return () => clearTimeout(timer);
     }
   }, [tutorialStep, playSequence]);
+
+  // Clean up audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        if (audioRef.current.onended) {
+          audioRef.current.removeEventListener('ended', audioRef.current.onended as EventListener);
+        }
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+      audioSequenceRef.current = null;
+    };
+  }, []);
 
   const handleChoice = (character: Character) => {
     if (!canReplay) return;

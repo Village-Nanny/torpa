@@ -15,51 +15,167 @@ import SegmentingPage from '@/src/components/ui/pages/segmenting-page';
 import { StartScreen } from '@/src/components/ui/pages/start-screen';
 import { DotPattern } from '@/src/components/ui/atoms/dot-pattern';
 import { Button } from '@/src/components/ui/atoms/button';
-import { Home } from 'lucide-react';
 import { ConfirmDialog } from '@/src/components/ui/molecules/confirm-dialogue';
 import { AnimatePresence } from 'framer-motion';
 import { FadeIn } from '@/src/components/ui/atoms/fade-in';
 import { GameOverPage } from '@/src/components/ui/pages/game-over-page';
 import TutorialSegmentingPage from '@/src/components/ui/pages/tutorial-segmenting-page';
 import TutorialBlendingPage from '@/src/components/ui/pages/tutorial-blending-page';
+import { HomeNavButton } from '@/src/components/ui/molecules/home-nav-button';
+import { stopAllAudio } from '@/src/utils/helpers';
+
+const ErrorScreen = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
+  <div className="min-h-screen flex items-center justify-center bg-rose-600">
+    <div className="text-center text-white max-w-md p-6">
+      <h2 className="text-2xl font-bold mb-4">Something went wrong</h2>
+      <p className="mb-6">{message}</p>
+      <p className="mb-6">Share this message with the developer</p>
+
+      <Button onClick={onRetry} className="bg-white text-rose-600 hover:bg-rose-100">
+        Try Again
+      </Button>
+    </div>
+  </div>
+);
+
+const ProblemRenderer = ({
+  problemType,
+  problem,
+  onSubmit,
+}: {
+  problemType: Problems | null;
+  problem: BlendingProblem | SegmentingProblem | null;
+  onSubmit: (answer: string) => void;
+}) => {
+  if (!problem || !problemType) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center text-black">Problem not available</div>
+      </div>
+    );
+  }
+
+  switch (problemType) {
+    case Problems.TUTORIAL_SEGMENTING:
+      return <TutorialSegmentingPage problem={problem as SegmentingProblem} onSubmit={onSubmit} />;
+    case Problems.TUTORIAL_BLENDING:
+      return <TutorialBlendingPage problem={problem as BlendingProblem} onSubmit={onSubmit} />;
+    case Problems.INITIAL_BLENDING:
+    case Problems.FINAL_BLENDING:
+      return <BlendingPage problem={problem as BlendingProblem} onSubmit={onSubmit} />;
+    case Problems.INITIAL_SEGMENTING:
+    case Problems.FINAL_SEGMENTING:
+      return <SegmentingPage problem={problem as SegmentingProblem} onSubmit={onSubmit} />;
+    default:
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center text-black">Unknown Problem Type</div>
+        </div>
+      );
+  }
+};
 
 export default function GamePage() {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+
+  // Redux state
   const currentProblem = useSelector((state: RootState) => getCurrentProblem(state));
   const currentProblemType = useSelector((state: RootState) => state.game.config?.[state.game.currentProblemIndex]);
-
-  const [gameStarted, setGameStarted] = useState(false);
-  const { user, loading } = useSelector((state: RootState) => state.auth);
-  const router = useRouter();
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const currentProblemIndex = useSelector((state: RootState) => state.game.currentProblemIndex);
+  const { user, loading: authLoading } = useSelector((state: RootState) => state.auth);
 
+  // Local state
+  const [gameStarted, setGameStarted] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLeavingGame, setIsLeavingGame] = useState(false);
+
+  // Redirect to login if not authenticated
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       redirect('/login');
     }
-  }, [user, loading]);
+  }, [user, authLoading]);
 
+  // Handler to start the game
   const startGameHandler = useCallback(
     async (includeTutorial: boolean) => {
-      const gameConfig = includeTutorial
-        ? GAME_CONFIG
-        : GAME_CONFIG.filter(type => type !== Problems.TUTORIAL_SEGMENTING && type !== Problems.TUTORIAL_BLENDING);
-      await dispatch(startGame(gameConfig));
-      setGameStarted(true);
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const gameConfig = includeTutorial
+          ? GAME_CONFIG
+          : GAME_CONFIG.filter(type => type !== Problems.TUTORIAL_SEGMENTING && type !== Problems.TUTORIAL_BLENDING);
+
+        await dispatch(startGame(gameConfig));
+        setGameStarted(true);
+      } catch (error) {
+        console.error('Failed to start game:', error);
+        setError('Unable to start the game. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
     },
     [dispatch]
   );
 
-  if (loading || !user) {
-    return null;
-  }
+  // Handler for answer submission
+  const handleSubmit = useCallback(
+    (answer: string) => {
+      try {
+        if (!user) {
+          setError('You must be logged in to submit answers');
+          return;
+        }
 
-  const handleSubmit = (answer: string) => {
-    dispatch(submitAnswerAndRecord(answer, user.uid));
-  };
+        dispatch(submitAnswerAndRecord(answer, user.uid));
+      } catch (error) {
+        console.error('Error submitting answer:', error);
+        setError('Failed to submit your answer. Please try again.');
+      }
+    },
+    [dispatch, user]
+  );
 
-  const getBackgroundColor = () => {
+  // Handler for error retry
+  const handleRetry = useCallback(() => {
+    setError(null);
+    router.refresh();
+  }, [router]);
+
+  // Handler to navigate to home
+  const handleHomeClick = useCallback(() => {
+    setShowConfirmDialog(true);
+  }, []);
+
+  // Update the handler for confirm leaving
+  const handleConfirmLeave = useCallback(async () => {
+    try {
+      setIsLeavingGame(true);
+
+      // Stop all audio playback before leaving
+      stopAllAudio();
+
+      // If you have any cleanup or API calls before navigation, do them here
+
+      // Simulate a slight delay for the loading state to be visible
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Navigate to dashboard
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error leaving game:', error);
+      setError('Failed to leave game. Please try again.');
+    } finally {
+      setIsLeavingGame(false);
+    }
+  }, [router]);
+
+  // Get the appropriate background color based on problem type
+  const getBackgroundColor = useCallback(() => {
     switch (currentProblemType) {
       case Problems.TUTORIAL_BLENDING:
       case Problems.FINAL_BLENDING:
@@ -72,33 +188,40 @@ export default function GamePage() {
       default:
         return 'bg-gray-600';
     }
-  };
+  }, [currentProblemType]);
 
-  const handleHomeClick = () => {
-    setShowConfirmDialog(true);
-  };
+  // Show error screen if there's an error
+  if (error) {
+    return <ErrorScreen message={error} onRetry={handleRetry} />;
+  }
 
-  const handleConfirmLeave = () => {
-    router.push('/dashboard');
-  };
+  // Ensure user is authenticated
+  if (!user) {
+    return null; // This will trigger the redirect in the useEffect
+  }
 
   return (
     <div className="relative min-h-screen">
+      {/* Loading overlay */}
+      {(authLoading || isLoading) && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white/10 rounded-lg p-6 text-center text-white">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+            <p className="mt-4 text-xl font-medium">Loading...</p>
+          </div>
+        </div>
+      )}
+
       <ConfirmDialog
         isOpen={showConfirmDialog}
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={handleConfirmLeave}
         title="Leave Game?"
         description="Are you sure you want to leave? Your current progress will be lost."
+        isConfirmLoading={isLeavingGame}
       />
 
-      <Button
-        onClick={handleHomeClick}
-        variant="outline"
-        className="absolute top-4 left-4 z-50 bg-white/10 hover:bg-white/20 text-white border-white/30 hover:border-white inline-flex items-center gap-2 transition-all duration-200">
-        <Home className="w-4 h-4" />
-        Home
-      </Button>
+      <HomeNavButton onClick={handleHomeClick} />
 
       <DotPattern
         className={`absolute inset-0 transition-colors duration-700 ease-in-out ${!gameStarted ? 'bg-blue-600' : getBackgroundColor()} text-gray-200`}
@@ -112,20 +235,11 @@ export default function GamePage() {
         ) : (
           <FadeIn key={`problem-${currentProblemIndex}`} className="relative z-10">
             {currentProblem ? (
-              currentProblemType === Problems.TUTORIAL_SEGMENTING ? (
-                <TutorialSegmentingPage problem={currentProblem as SegmentingProblem} onSubmit={handleSubmit} />
-              ) : currentProblemType === Problems.TUTORIAL_BLENDING ? (
-                <TutorialBlendingPage problem={currentProblem as BlendingProblem} onSubmit={handleSubmit} />
-              ) : currentProblemType === Problems.INITIAL_BLENDING || currentProblemType === Problems.FINAL_BLENDING ? (
-                <BlendingPage problem={currentProblem as BlendingProblem} onSubmit={handleSubmit} />
-              ) : currentProblemType === Problems.INITIAL_SEGMENTING ||
-                currentProblemType === Problems.FINAL_SEGMENTING ? (
-                <SegmentingPage problem={currentProblem as SegmentingProblem} onSubmit={handleSubmit} />
-              ) : (
-                <div className="min-h-screen flex items-center justify-center">
-                  <div className="text-center text-black">Unknown Problem</div>
-                </div>
-              )
+              <ProblemRenderer
+                problemType={currentProblemType || null}
+                problem={currentProblem}
+                onSubmit={handleSubmit}
+              />
             ) : (
               <GameOverPage />
             )}

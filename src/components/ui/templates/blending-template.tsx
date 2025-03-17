@@ -58,6 +58,17 @@ export function BlendingGameTemplate({
     }
   }, [tutorialStep, playAudio]);
 
+  // Clean up audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
   function handleChoice(imagePath: string) {
     if (!canSelect) return;
 
