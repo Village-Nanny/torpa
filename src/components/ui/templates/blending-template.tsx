@@ -32,9 +32,7 @@ export function BlendingGameTemplate({
   const [canSelect, setCanSelect] = useState(false);
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [currentCharacter, setCurrentCharacter] = useState<Character>(
-    Math.random() < 0.5 ? Character.LULU : Character.FRANCINE
-  );
+  const [currentCharacter] = useState<Character>(Math.random() < 0.5 ? Character.LULU : Character.FRANCINE);
 
   const playAudio = useCallback(() => {
     if (audioRef.current) {
