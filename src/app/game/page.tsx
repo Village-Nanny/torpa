@@ -44,7 +44,7 @@ export default function GamePage() {
     async (includeTutorial: boolean) => {
       const gameConfig = includeTutorial
         ? GAME_CONFIG
-        : GAME_CONFIG.filter(type => type !== Problems.TUTORIAL_SEGMENTING);
+        : GAME_CONFIG.filter(type => type !== Problems.TUTORIAL_SEGMENTING && type !== Problems.TUTORIAL_BLENDING);
       await dispatch(startGame(gameConfig));
       setGameStarted(true);
     },

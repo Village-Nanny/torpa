@@ -32,6 +32,9 @@ export function BlendingGameTemplate({
   const [canSelect, setCanSelect] = useState(false);
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [currentCharacter, setCurrentCharacter] = useState<Character>(
+    Math.random() < 0.5 ? Character.LULU : Character.FRANCINE
+  );
 
   const playAudio = useCallback(() => {
     if (audioRef.current) {
@@ -39,7 +42,7 @@ export function BlendingGameTemplate({
       audioRef.current.currentTime = 0;
     }
     setCanSelect(false);
-    setActiveCharacter(Character.LULU);
+    setActiveCharacter(currentCharacter);
     audioRef.current = new Audio(problem.audioPath);
     audioRef.current.play().catch(error => {
       console.log('Audio playback failed:', error);
@@ -48,7 +51,7 @@ export function BlendingGameTemplate({
       setActiveCharacter(null);
       setCanSelect(true);
     };
-  }, [problem.audioPath]);
+  }, [problem.audioPath, currentCharacter]);
 
   useEffect(() => {
     if (!tutorialStep || tutorialStep === 4) {
@@ -85,6 +88,25 @@ export function BlendingGameTemplate({
     ];
     return Math.random() < 0.5 ? options : options.reverse();
   }, [problem]);
+
+  // Get character display properties
+  const getCharacterProps = () => {
+    if (currentCharacter === Character.LULU) {
+      return {
+        emoji: '🐞',
+        name: 'Lulu',
+        backgroundColor: 'bg-red-400',
+      };
+    } else {
+      return {
+        emoji: '🐸',
+        name: 'Francine',
+        backgroundColor: 'bg-green-400',
+      };
+    }
+  };
+
+  const characterProps = getCharacterProps();
 
   return (
     <div className="relative min-h-screen flex flex-col font-sans items-center justify-center overflow-hidden">
@@ -127,12 +149,12 @@ export function BlendingGameTemplate({
 
             <div className="mt-8">
               <CharacterAvatar
-                emoji="🐞"
-                name="Lulu"
-                backgroundColor="bg-red-400"
-                isAnimated={activeCharacter === Character.LULU}
+                emoji={characterProps.emoji}
+                name={characterProps.name}
+                backgroundColor={characterProps.backgroundColor}
+                isAnimated={activeCharacter === currentCharacter}
                 className={`transition-transform duration-200 ${
-                  activeCharacter === Character.LULU ? 'scale-125 shadow-xl' : 'hover:scale-110'
+                  activeCharacter === currentCharacter ? 'scale-125 shadow-xl' : 'hover:scale-110'
                 }`}
               />
             </div>
