@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     const totalQuestions = blendingScore.total + segmentingScore.total;
 
     const result = await resend.emails.send({
-      from: 'Torpa <results.torpa@svegian.xyz>',
+      from: 'Torpa <results@torpa.app>',
       to: email,
       subject: 'Your Torpa Game Results',
       html: `

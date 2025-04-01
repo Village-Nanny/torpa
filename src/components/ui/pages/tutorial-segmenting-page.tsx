@@ -24,8 +24,6 @@ export default function TutorialSegmentingPage({ problem, onSubmit, onError }: T
         return <GameExplanationStep />;
       case 3:
         return <PracticeStep problem={problem} />;
-      case 4:
-        return null;
       default:
         return null;
     }

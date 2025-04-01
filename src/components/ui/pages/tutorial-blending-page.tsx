@@ -24,8 +24,6 @@ export default function TutorialBlendingPage({ problem, onSubmit, onError }: Tut
         return <BlendingExplanationStep />;
       case 3:
         return <BlendingPracticeStep problem={problem} />;
-      case 4:
-        return null;
       default:
         return null;
     }
