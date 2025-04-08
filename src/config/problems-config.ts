@@ -1,18 +1,19 @@
 import { Problems } from '@/src/types/enums/problems.enum';
+import { SegmentingProblem, SegmentingProblemProps } from '../types/segmenting';
+import { BlendingProblem, BlendingProblemProps } from '../types/blending';
+import { Character } from '../types/enums/characters.enum';
+import { getRandomCharacter } from '../utils/helpers';
 
-export interface BlendingProblemConfig {
-  correctImagePath: string;
-  wrongImagePath: string;
-  audioPath: string;
-}
+type ProblemsConfigType = {
+  [Problems.TUTORIAL_SEGMENTING]: SegmentingProblemProps[];
+  [Problems.TUTORIAL_BLENDING]: BlendingProblemProps[];
+  [Problems.INITIAL_SEGMENTING]: SegmentingProblemProps[];
+  [Problems.FINAL_SEGMENTING]: SegmentingProblemProps[];
+  [Problems.INITIAL_BLENDING]: BlendingProblemProps[];
+  [Problems.FINAL_BLENDING]: BlendingProblemProps[];
+};
 
-export interface SegmentingProblemConfig {
-  imagePath: string;
-  correctAudioPath: string;
-  wrongAudioPath: string;
-}
-
-export const PROBLEMS_CONFIG = {
+export const PROBLEMS_CONFIG: ProblemsConfigType = {
   [Problems.TUTORIAL_SEGMENTING]: [
     {
       imagePath: '/assets/images/gum.png',
@@ -34,19 +35,21 @@ export const PROBLEMS_CONFIG = {
       correctAudioPath: '/assets/audio/door.wav',
       wrongAudioPath: '/assets/audio/pot.wav',
     },
-  ] as SegmentingProblemConfig[],
+  ],
   [Problems.TUTORIAL_BLENDING]: [
     {
       correctImagePath: '/assets/images/gum.png',
       wrongImagePath: '/assets/images/watch.png',
       audioPath: '/assets/audio/gum.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/pot.png',
       wrongImagePath: '/assets/images/door.png',
       audioPath: '/assets/audio/pot.wav',
+      visibleCharacter: Character.LULU,
     },
-  ] as BlendingProblemConfig[],
+  ],
 
   [Problems.INITIAL_SEGMENTING]: [
     {
@@ -129,7 +132,7 @@ export const PROBLEMS_CONFIG = {
       correctAudioPath: '/assets/audio/seal.wav',
       wrongAudioPath: '/assets/audio/wheel.wav',
     },
-  ] as SegmentingProblemConfig[],
+  ],
 
   [Problems.FINAL_SEGMENTING]: [
     {
@@ -212,91 +215,126 @@ export const PROBLEMS_CONFIG = {
       correctAudioPath: '/assets/audio/cage.wav',
       wrongAudioPath: '/assets/audio/cake.wav',
     },
-  ] as SegmentingProblemConfig[],
+  ],
 
   [Problems.INITIAL_BLENDING]: [
     {
       correctImagePath: '/assets/images/sock.png',
       wrongImagePath: '/assets/images/lock.png',
       audioPath: '/assets/audio/sock.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/wheel.png',
       wrongImagePath: '/assets/images/seal.png',
       audioPath: '/assets/audio/wheel.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/can.png',
       wrongImagePath: '/assets/images/fan.png',
       audioPath: '/assets/audio/can.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/fish.png',
       wrongImagePath: '/assets/images/dish.png',
       audioPath: '/assets/audio/fish.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/cat.png',
       wrongImagePath: '/assets/images/bat.png',
       audioPath: '/assets/audio/cat.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/hose.png',
       wrongImagePath: '/assets/images/nose.png',
       audioPath: '/assets/audio/hose.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/one.png',
       wrongImagePath: '/assets/images/sun.png',
       audioPath: '/assets/audio/one.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/goose.png',
       wrongImagePath: '/assets/images/juice.png',
       audioPath: '/assets/audio/goose.wav',
+      visibleCharacter: Character.LULU,
     },
-  ] as BlendingProblemConfig[],
+  ],
 
   [Problems.FINAL_BLENDING]: [
     {
       correctImagePath: '/assets/images/couch.png',
       wrongImagePath: '/assets/images/cows.png',
       audioPath: '/assets/audio/couch.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/cake.png',
       wrongImagePath: '/assets/images/cage.png',
       audioPath: '/assets/audio/cake.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/doll.png',
       wrongImagePath: '/assets/images/dog.png',
       audioPath: '/assets/audio/doll.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/beach.png',
       wrongImagePath: '/assets/images/beak.png',
       audioPath: '/assets/audio/beach.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/comb.png',
       wrongImagePath: '/assets/images/coat.png',
       audioPath: '/assets/audio/comb.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/mail.png',
       wrongImagePath: '/assets/images/man.png',
       audioPath: '/assets/audio/mail.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/bowl.png',
       wrongImagePath: '/assets/images/boat.png',
       audioPath: '/assets/audio/bowl.wav',
+      visibleCharacter: Character.LULU,
     },
     {
       correctImagePath: '/assets/images/bus.png',
       wrongImagePath: '/assets/images/bug.png',
       audioPath: '/assets/audio/bus.wav',
+      visibleCharacter: Character.LULU,
     },
-  ] as BlendingProblemConfig[],
+  ],
+};
+
+export const PROBLEMS = {
+  [Problems.TUTORIAL_SEGMENTING]: PROBLEMS_CONFIG[Problems.TUTORIAL_SEGMENTING].map(
+    props => new SegmentingProblem(props)
+  ),
+  [Problems.TUTORIAL_BLENDING]: PROBLEMS_CONFIG[Problems.TUTORIAL_BLENDING].map(
+    props => new BlendingProblem({ ...props, visibleCharacter: getRandomCharacter() })
+  ),
+  [Problems.INITIAL_SEGMENTING]: PROBLEMS_CONFIG[Problems.INITIAL_SEGMENTING].map(
+    props => new SegmentingProblem(props)
+  ),
+  [Problems.FINAL_SEGMENTING]: PROBLEMS_CONFIG[Problems.FINAL_SEGMENTING].map(props => new SegmentingProblem(props)),
+  [Problems.INITIAL_BLENDING]: PROBLEMS_CONFIG[Problems.INITIAL_BLENDING].map(
+    props => new BlendingProblem({ ...props, visibleCharacter: getRandomCharacter() })
+  ),
+  [Problems.FINAL_BLENDING]: PROBLEMS_CONFIG[Problems.FINAL_BLENDING].map(
+    props => new BlendingProblem({ ...props, visibleCharacter: getRandomCharacter() })
+  ),
 };

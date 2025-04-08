@@ -1,12 +1,12 @@
 import { GAME_CONFIG } from '@/src/config/gameConfig';
 import { Problems } from '@/src/types/enums/problems.enum';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ProblemGenerator } from '@/src/utils/problem-generator';
 import { BlendingProblem } from '@/src/types/blending';
 import { SegmentingProblem } from '@/src/types/segmenting';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '@/src/services/firebase';
 import { AppDispatch, RootState } from '@/src/store';
+import { PROBLEMS } from '@/src/config/problems-config';
 
 type Problem = BlendingProblem | SegmentingProblem;
 interface GameState {
@@ -31,9 +31,19 @@ const initialState: GameState = {
 
 const startGame = (config: Problems[]) => async (dispatch: AppDispatch) => {
   try {
-    const problemGenerator = new ProblemGenerator();
     const validProblemTypes = config.filter(type => GAME_CONFIG.includes(type));
-    const problems = await Promise.all(validProblemTypes.map(type => problemGenerator.generateProblem(type)));
+
+    const problems = validProblemTypes
+      .map(type => {
+        const availableProblems = PROBLEMS[type];
+        if (!availableProblems || availableProblems.length === 0) {
+          console.error(`No problems defined or available for type: ${type}`);
+          return null;
+        }
+        const randomIndex = Math.floor(Math.random() * availableProblems.length);
+        return availableProblems[randomIndex];
+      })
+      .filter((problem): problem is Problem => problem !== null);
 
     const blendingTypes = [Problems.INITIAL_BLENDING, Problems.FINAL_BLENDING];
     const totalBlendingProblems = validProblemTypes.filter(type => blendingTypes.includes(type)).length;

@@ -68,6 +68,7 @@ export class ProblemGenerator {
           correctImagePath: config.correctImagePath,
           wrongImagePath: config.wrongImagePath,
           audioPath: config.audioPath,
+          visibleCharacter: config.visibleCharacter,
         });
       }
 

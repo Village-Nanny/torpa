@@ -23,6 +23,7 @@ import TutorialSegmentingPage from '@/src/components/ui/pages/tutorial-segmentin
 import TutorialBlendingPage from '@/src/components/ui/pages/tutorial-blending-page';
 import { HomeNavButton } from '@/src/components/ui/molecules/home-nav-button';
 import { useAudio } from '@/src/hooks/use-audio';
+import { GameIntroScreen } from '@/src/components/ui/organisms/onboarding/game-intro-screen';
 
 const ErrorScreen = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
   <div className="min-h-screen flex items-center justify-center bg-rose-600">
@@ -89,6 +90,7 @@ export default function GamePage() {
   const { user, loading: authLoading } = useSelector((state: RootState) => state.auth);
 
   // Local state
+  const [introShown, setIntroShown] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +103,11 @@ export default function GamePage() {
       redirect('/login');
     }
   }, [user, authLoading]);
+
+  // Handler to continue from intro screen
+  const handleIntroComplete = useCallback(() => {
+    setIntroShown(true);
+  }, []);
 
   // Handler to start the game
   const startGameHandler = useCallback(
@@ -115,6 +122,7 @@ export default function GamePage() {
 
         await dispatch(startGame(gameConfig));
         setGameStarted(true);
+        setIntroShown(false);
       } catch (error) {
         console.error('Failed to start game:', error);
         setError('Unable to start the game. Please try again.');
@@ -161,8 +169,6 @@ export default function GamePage() {
 
       // Stop all audio playback before leaving
       stopAllAudio();
-
-      // If you have any cleanup or API calls before navigation, do them here
 
       // Simulate a slight delay for the loading state to be visible
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -234,6 +240,10 @@ export default function GamePage() {
         {!gameStarted ? (
           <FadeIn key="start-screen" className="relative z-10">
             <StartScreen onStart={startGameHandler} showHeader={false} />
+          </FadeIn>
+        ) : !introShown ? (
+          <FadeIn key="intro-screen" className="relative z-10">
+            <GameIntroScreen onContinue={handleIntroComplete} />
           </FadeIn>
         ) : (
           <FadeIn key={`problem-${currentProblemIndex}`} className="relative z-10">
