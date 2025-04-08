@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useAudio } from '@/src/hooks/use-audio';
+import { useAudioSequence } from '@/src/hooks/useAudioSequence';
 
 interface HiFriendProps {
   onComplete: () => void;
@@ -13,43 +13,24 @@ interface HiFriendProps {
 const AUDIO_PATH = '/assets/audio/intro/TORPA Intro/TORPA Intro- “Hi Friend”.m4a';
 
 export function HiFriend({ onComplete, onError, autoPlay = true }: HiFriendProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const { playAudio } = useAudio();
-  const activeAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
 
-  const playHiFriendAudio = useCallback(() => {
-    // Stop any currently playing audio
-    if (activeAudioRef.current) {
-      activeAudioRef.current.pause();
-      activeAudioRef.current.currentTime = 0;
-    }
-
-    setIsPlaying(true);
-
-    activeAudioRef.current = playAudio(
-      AUDIO_PATH,
-      // On ended callback
-      () => {
-        setIsPlaying(false);
-        activeAudioRef.current = null;
-
-        // Wait 1 second before transitioning
-        setTimeout(() => {
-          onComplete();
-        }, 1000);
+  const { isPlaying } = useAudioSequence({
+    sequence: [
+      {
+        path: AUDIO_PATH,
+        postDelay: 1000, // Wait 1 second before transitioning
       },
-      // On error callback
-      onError
-    );
-  }, [onComplete, onError, playAudio]);
+    ],
+    onSequenceComplete: onComplete,
+    onError: error => onError?.(error),
+    autoPlay,
+  });
 
-  // Play audio when component mounts with a slight delay
+  // Update animation state when audio plays
   useEffect(() => {
-    if (autoPlay) {
-      const timer = setTimeout(playHiFriendAudio, 200);
-      return () => clearTimeout(timer);
-    }
-  }, [autoPlay, playHiFriendAudio]);
+    setIsAnimating(isPlaying);
+  }, [isPlaying]);
 
   // Wave animation variants
   const waveAnimation = {
@@ -57,7 +38,7 @@ export function HiFriend({ onComplete, onError, autoPlay = true }: HiFriendProps
       rotate: [0, 20, -20, 20, 0],
       transition: {
         duration: 2.5,
-        repeat: isPlaying ? Infinity : 0,
+        repeat: isAnimating ? Infinity : 0,
         repeatType: 'loop' as const,
       },
     },

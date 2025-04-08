@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { useAudio } from '@/src/hooks/use-audio';
 import { Character } from '@/src/types/enums/characters.enum';
 import { CharacterAvatar } from '@/src/components/ui/atoms/character-avatar';
+import { useAudioSequence } from '@/src/hooks/useAudioSequence';
 
 interface CharacterIntroductionProps {
   onComplete: () => void;
@@ -13,14 +13,14 @@ interface CharacterIntroductionProps {
 }
 
 // Audio sequence with information about which character to introduce
-interface AudioSequenceItem {
+interface CharacterAudioItem {
   path: string;
   character: Character | null;
-  delay?: number; // Delay before playing this audio
-  postDelay?: number; // Delay after this audio finishes before playing next
+  preDelay?: number;
+  postDelay?: number;
 }
 
-const AUDIO_SEQUENCE: AudioSequenceItem[] = [
+const AUDIO_SEQUENCE: CharacterAudioItem[] = [
   {
     path: '/assets/audio/intro/TORPA Intro/meet_lulu.mp3',
     character: Character.LULU,
@@ -90,104 +90,33 @@ const CharacterWithHand = ({
 export function CharacterIntroduction({ onComplete, onError, autoPlay = true }: CharacterIntroductionProps) {
   const [visibleCharacters, setVisibleCharacters] = useState<Character[]>([]);
   const [activeCharacter, setActiveCharacter] = useState<Character | null>(null);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [canPlayNext, setCanPlayNext] = useState(true);
 
-  const { playAudio } = useAudio();
-  const activeAudioRef = useRef<HTMLAudioElement | null>(null);
-  const isMountedRef = useRef(true);
+  const { currentStepIndex, isPlaying } = useAudioSequence({
+    sequence: AUDIO_SEQUENCE,
+    onSequenceComplete: onComplete,
+    onError: error => onError?.(error),
+    autoPlay,
+    initialDelay: 1500, // Initial delay before starting
+  });
 
-  const characterEntrance = {
-    hidden: { opacity: 0, scale: 0.5, y: 20 },
-    visible: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', duration: 0.8 } },
-    center: { x: 0, opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 25 } },
-    left: { x: -60, opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 25 } },
-  };
-
-  const playSequenceAudio = useCallback(() => {
-    // Don't start if we can't play next
-    if (!canPlayNext) return;
-
-    // Stop any currently playing audio
-    if (activeAudioRef.current) {
-      activeAudioRef.current.pause();
-      activeAudioRef.current.currentTime = 0;
-    }
-
-    // Check if we've reached the end
-    if (currentStep >= AUDIO_SEQUENCE.length) {
-      if (onComplete) {
-        onComplete();
-      }
-      return;
-    }
-
-    setCanPlayNext(false);
-    const currentAudio = AUDIO_SEQUENCE[currentStep];
-
-    setActiveCharacter(currentAudio.character);
-    if (currentAudio.character && !visibleCharacters.includes(currentAudio.character)) {
-      setVisibleCharacters(prev => [...prev, currentAudio.character as Character]);
-    }
-
-    const playWithDelay = () => {
-      activeAudioRef.current = playAudio(
-        currentAudio.path,
-        () => {
-          if (!isMountedRef.current) return;
-          setActiveCharacter(null);
-          setTimeout(() => {
-            if (isMountedRef.current) {
-              setCurrentStep(prev => prev + 1);
-              setCanPlayNext(true);
-            }
-          }, currentAudio.postDelay || 900);
-        },
-        error => {
-          if (!isMountedRef.current) return;
-          console.error('Audio error:', error);
-          if (onError) onError(error);
-          setTimeout(() => {
-            if (isMountedRef.current) {
-              setCurrentStep(prev => prev + 1);
-              setCanPlayNext(true);
-            }
-          }, currentAudio.postDelay || 900);
-        }
-      );
-    };
-
-    // Apply delay if specified
-    if (currentAudio.delay) {
-      setTimeout(playWithDelay, currentAudio.delay);
-    } else {
-      playWithDelay();
-    }
-  }, [currentStep, onComplete, onError, playAudio, visibleCharacters, canPlayNext]);
-
-  // Single effect to manage the sequence
+  // Update active character based on current step
   useEffect(() => {
-    if (autoPlay && canPlayNext) {
-      const timer = setTimeout(playSequenceAudio, currentStep === 0 ? 1500 : 0);
-      return () => clearTimeout(timer);
-    }
-  }, [autoPlay, canPlayNext, currentStep, playSequenceAudio]);
+    if (currentStepIndex >= 0 && currentStepIndex < AUDIO_SEQUENCE.length) {
+      const currentAudio = AUDIO_SEQUENCE[currentStepIndex];
 
-  // Cleanup on unmount
-  useEffect(() => {
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-      if (activeAudioRef.current) {
-        activeAudioRef.current.pause();
-        activeAudioRef.current.currentTime = 0;
+      // Set active character
+      setActiveCharacter(isPlaying ? currentAudio.character : null);
+
+      // Add to visible characters if not already there
+      if (currentAudio.character && !visibleCharacters.includes(currentAudio.character)) {
+        setVisibleCharacters(prev => [...prev, currentAudio.character as Character]);
       }
-    };
-  }, []);
+    }
+  }, [currentStepIndex, isPlaying, visibleCharacters]);
 
   // Function to determine if a character should be animated
   const isCharacterAnimated = (character: Character) => {
-    return !canPlayNext && activeCharacter === character;
+    return isPlaying && activeCharacter === character;
   };
 
   return (
@@ -196,9 +125,15 @@ export function CharacterIntroduction({ onComplete, onError, autoPlay = true }: 
         {/* Lulu Character */}
         {visibleCharacters.includes(Character.LULU) && (
           <motion.div
-            variants={characterEntrance}
-            initial="hidden"
-            animate={visibleCharacters.includes(Character.FRANCINE) ? 'left' : 'center'}>
+            initial={{ opacity: 0, scale: 0.5, y: 20 }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              transition: { type: 'spring', duration: 0.8 },
+            }}
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.8 }}>
             <CharacterWithHand
               character={Character.LULU}
               isAnimated={isCharacterAnimated(Character.LULU)}
@@ -211,7 +146,16 @@ export function CharacterIntroduction({ onComplete, onError, autoPlay = true }: 
 
         {/* Francine Character */}
         {visibleCharacters.includes(Character.FRANCINE) && (
-          <motion.div variants={characterEntrance} initial="hidden" animate="visible">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5, y: 20 }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              transition: { type: 'spring', duration: 0.8 },
+            }}
+            whileHover={{ scale: 1.2 }}
+            whileTap={{ scale: 0.8 }}>
             <CharacterWithHand
               character={Character.FRANCINE}
               isAnimated={isCharacterAnimated(Character.FRANCINE)}
