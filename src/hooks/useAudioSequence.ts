@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useAudio } from '@/src/hooks/use-audio';
 
 export interface AudioSequenceItem {
   path: string;
@@ -21,8 +20,9 @@ type AudioSequenceStatus = 'idle' | 'delaying' | 'playing' | 'finished' | 'stopp
 interface UseAudioSequenceReturn {
   play: () => void;
   stop: () => void;
+  reset: () => void;
   currentStepIndex: number;
-  isPlaying: boolean; // True only during actual audio playback
+  isPlaying: boolean;
   status: AudioSequenceStatus;
 }
 
@@ -34,7 +34,6 @@ export function useAudioSequence({
   initialDelay = 0,
   loop = false,
 }: UseAudioSequenceProps): UseAudioSequenceReturn {
-  const { playAudio } = useAudio();
   const [currentStepIndex, setCurrentStepIndex] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [status, setStatus] = useState<AudioSequenceStatus>('idle');
@@ -42,25 +41,30 @@ export function useAudioSequence({
   const timeoutRef = useRef<NodeJS.Timeout>();
   const audioRef = useRef<HTMLAudioElement | null>();
   const mountedRef = useRef(true);
+  const hasAutoPlayedRef = useRef(false);
 
   const cleanup = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
+      timeoutRef.current = undefined;
     }
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      audioRef.current = undefined;
+      audioRef.current = null;
     }
+    setIsPlaying(false);
+    setStatus('stopped');
   }, []);
 
   const playStep = useCallback(
-    async (index: number) => {
+    (index: number) => {
       if (!mountedRef.current) return;
       cleanup();
 
       if (index >= sequence.length) {
         setIsPlaying(false);
+        setStatus('finished');
         if (loop) {
           timeoutRef.current = setTimeout(() => playStep(0), initialDelay);
         } else {
@@ -75,55 +79,75 @@ export function useAudioSequence({
       const playCurrentAudio = () => {
         if (!mountedRef.current) return;
 
-        audioRef.current = playAudio(
-          item.path,
-          () => {
-            if (!mountedRef.current) return;
-            timeoutRef.current = setTimeout(() => playStep(index + 1), item.postDelay || 0);
-          },
-          error => {
-            if (!mountedRef.current) return;
-            onError?.(error, index);
-            setIsPlaying(false);
-          }
-        );
+        const audio = new Audio(item.path);
+        audioRef.current = audio;
 
-        if (audioRef.current) {
-          setIsPlaying(true);
-        } else {
-          onError?.(`Failed to play: ${item.path}`, index);
-          setIsPlaying(false);
-        }
+        audio.onloadedmetadata = () => {
+          audio
+            .play()
+            .then(() => {
+              setIsPlaying(true);
+              setStatus('playing');
+            })
+            .catch(error => {
+              console.error('Playback error:', error);
+              onError?.(error.message, index);
+              setStatus('error');
+            });
+        };
+
+        audio.onended = () => {
+          if (!mountedRef.current) return;
+          timeoutRef.current = setTimeout(() => playStep(index + 1), item.postDelay || 0);
+        };
+
+        audio.onerror = () => {
+          const error = `Failed to load: ${item.path}`;
+          console.error(error);
+          onError?.(error, index);
+          setStatus('error');
+        };
       };
 
-      if (item.preDelay) {
+      if (item.preDelay && item.preDelay > 0) {
+        setStatus('delaying');
         timeoutRef.current = setTimeout(playCurrentAudio, item.preDelay);
       } else {
         playCurrentAudio();
       }
     },
-    [sequence, loop, initialDelay, onSequenceComplete, onError, cleanup, playAudio]
+    [sequence, loop, initialDelay, onSequenceComplete, onError, cleanup]
   );
 
   const play = useCallback(() => {
-    if (!isPlaying) {
-      cleanup();
-      setCurrentStepIndex(-1);
+    cleanup();
+    setCurrentStepIndex(-1);
+    setStatus('delaying');
+
+    if (initialDelay > 0) {
       timeoutRef.current = setTimeout(() => playStep(0), initialDelay);
+    } else {
+      playStep(0);
     }
-  }, [isPlaying, initialDelay, playStep, cleanup]);
+  }, [initialDelay, playStep, cleanup]);
 
   const stop = useCallback(() => {
     cleanup();
     setCurrentStepIndex(-1);
-    setIsPlaying(false);
+    setStatus('stopped');
   }, [cleanup]);
 
+  const reset = useCallback(() => {
+    hasAutoPlayedRef.current = false;
+    stop();
+  }, [stop]);
+
   useEffect(() => {
-    if (autoPlay) {
+    if (autoPlay && !hasAutoPlayedRef.current && sequence.length > 0) {
+      hasAutoPlayedRef.current = true;
       play();
     }
-  }, [autoPlay, play]);
+  }, [autoPlay, play, sequence]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -136,6 +160,7 @@ export function useAudioSequence({
   return {
     play,
     stop,
+    reset,
     currentStepIndex,
     isPlaying,
     status,

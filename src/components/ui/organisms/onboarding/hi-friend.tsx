@@ -19,7 +19,7 @@ export function HiFriend({ onComplete, onError, autoPlay = true }: HiFriendProps
     sequence: [
       {
         path: AUDIO_PATH,
-        postDelay: 1000, // Wait 1 second before transitioning
+        postDelay: 1000,
       },
     ],
     onSequenceComplete: onComplete,
@@ -27,7 +27,6 @@ export function HiFriend({ onComplete, onError, autoPlay = true }: HiFriendProps
     autoPlay,
   });
 
-  // Update animation state when audio plays
   useEffect(() => {
     setIsAnimating(isPlaying);
   }, [isPlaying]);

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Character } from '@/src/types/enums/characters.enum';
 import { CharacterAvatar } from '@/src/components/ui/atoms/character-avatar';
 import { Button } from '@/src/components/ui/atoms/button';
@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { BlendingProblem } from '@/src/types/blending';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useAudio } from '@/src/hooks/use-audio';
+import { useAudioSequence } from '@/src/hooks/useAudioSequence';
 
 interface BlendingGameTemplateProps {
   problem: BlendingProblem;
@@ -34,39 +34,50 @@ export function BlendingGameTemplate({
   const [activeCharacter, setActiveCharacter] = useState<Character | null>(null);
   const [canSelect, setCanSelect] = useState(false);
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
-  const { playAudio } = useAudio();
-  const activeAudioRef = useRef<HTMLAudioElement | null>(null);
+
   const [currentCharacter] = useState<Character>(Math.random() < 0.5 ? Character.LULU : Character.FRANCINE);
 
-  const playBlendingAudio = useCallback(() => {
-    // Stop any currently playing audio
-    if (activeAudioRef.current) {
-      activeAudioRef.current.pause();
-      activeAudioRef.current.currentTime = 0;
-    }
+  const audioSequence = useMemo(() => [{ path: problem.audioPath }], [problem.audioPath]);
 
+  const handleSequenceComplete = useCallback(() => {
+    setActiveCharacter(null);
+    setCanSelect(true);
+  }, []);
+
+  const handleAudioError = useCallback(
+    (error: string) => {
+      onError?.(error);
+    },
+    [onError]
+  );
+
+  const { play, stop, status } = useAudioSequence({
+    sequence: audioSequence,
+    initialDelay: 1500,
+    onSequenceComplete: handleSequenceComplete,
+    onError: handleAudioError,
+    loop: false,
+    autoPlay: false,
+  });
+
+  const playBlendingAudio = useCallback(() => {
     setCanSelect(false);
     setActiveCharacter(currentCharacter);
-
-    activeAudioRef.current = playAudio(
-      problem.audioPath,
-      // On ended callback
-      () => {
-        setActiveCharacter(null);
-        setCanSelect(true);
-        activeAudioRef.current = null;
-      },
-      // On error callback
-      onError
-    );
-  }, [problem.audioPath, currentCharacter, onError, playAudio]);
+    play();
+  }, [play, currentCharacter]);
 
   useEffect(() => {
     if (!tutorialStep || tutorialStep === 4) {
-      const timer = setTimeout(playBlendingAudio, 1500);
-      return () => clearTimeout(timer);
+      playBlendingAudio();
+      return () => {
+        stop();
+      };
     }
-  }, [tutorialStep, playBlendingAudio]);
+  }, [tutorialStep, playBlendingAudio, stop]);
+
+  useEffect(() => {
+    setActiveCharacter(status === 'playing' ? currentCharacter : null);
+  }, [status, currentCharacter]);
 
   function handleChoice(imagePath: string) {
     if (!canSelect) return;
