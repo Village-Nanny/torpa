@@ -1,13 +1,18 @@
 import { Problems } from '@/src/types/enums/problems.enum';
 import { SegmentingProblem, SegmentingProblemProps } from '../types/segmenting';
-import { BlendingProblem, BlendingProblemProps } from '../types/blending';
+import {
+  BlendingProblem,
+  BlendingProblemProps,
+  TutorialBlendingProblem,
+  TutorialBlendingProblemProps,
+} from '../types/blending';
 import { Character } from '../types/enums/characters.enum';
 import { getRandomCharacter } from '../utils/helpers';
 import { BlendingTutorial } from '../types/blending-tutorial';
 
 type ProblemsConfigType = {
   [Problems.TUTORIAL_SEGMENTING]: SegmentingProblemProps[];
-  [Problems.TUTORIAL_BLENDING]: BlendingProblemProps[];
+  [Problems.TUTORIAL_BLENDING]: TutorialBlendingProblemProps[];
   [Problems.INITIAL_SEGMENTING]: SegmentingProblemProps[];
   [Problems.FINAL_SEGMENTING]: SegmentingProblemProps[];
   [Problems.INITIAL_BLENDING]: BlendingProblemProps[];
@@ -43,12 +48,38 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       wrongImagePath: '/assets/images/watch.png',
       audioPath: '/assets/audio/gum.wav',
       visibleCharacter: Character.LULU,
+      correctImageNarration:
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - Correct watch: “Good Job!”.m4a',
+      wrongImageNarration: '/assets/audio/blending_training/TORPA Blending Training/lets_listen_again.mp3',
+      tapCharacterNarration:
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Tap Francine to listen to her”.m4a',
+      instructUserNarration:
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Which one did she say? Tap the right picture”.m4a',
+
+      retryAudioPath: '/assets/audio/blending_training/TORPA Blending Training/lets_listen_again.mp3',
+      correctNextNarration:
+        'public/assets/audio/blending/TORPA Blending Task /TORPA Blending Task Transition - “Now let’s keep playing”.m4a',
+      wrongNextNarration:
+        'public/assets/audio/blending/TORPA Blending Task /TORPA Blending Task Transition - “Now let’s keep playing”.m4a',
     },
     {
       correctImagePath: '/assets/images/pot.png',
       wrongImagePath: '/assets/images/door.png',
       audioPath: '/assets/audio/pot.wav',
       visibleCharacter: Character.LULU,
+      correctImageNarration:
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - correct answer door “Good job. You chose pic of door”.m4a',
+      wrongImageNarration:
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Let’s Try Another One”.m4a',
+      tapCharacterNarration:
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA  Blending Training - “Tap Lulu to Listen to Her”.m4a',
+      instructUserNarration:
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Which one did she say? Tap the right picture” 2.m4a',
+      retryAudioPath: '/assets/audio/blending_training/TORPA Blending Training/lets_listen_again.mp3',
+      correctNextNarration:
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Good job. Now let’s try one more”.m4a',
+      wrongNextNarration:
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Let’s Try Another One”.m4a',
     },
   ],
 
@@ -321,31 +352,17 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
   ],
 };
 
-// Create specific tutorial problem instances
-const tutorialBlendingProblem1Props = PROBLEMS_CONFIG[Problems.TUTORIAL_BLENDING][1]; // pot/door
-const tutorialBlendingProblem2Props = PROBLEMS_CONFIG[Problems.TUTORIAL_BLENDING][0]; // gum/watch
-
-const tutorialBlendingProblem1 = new BlendingProblem({
-  ...tutorialBlendingProblem1Props,
-  visibleCharacter: Character.LULU, // Assign Lulu based on narration
-});
-
-const tutorialBlendingProblem2 = new BlendingProblem({
-  ...tutorialBlendingProblem2Props,
-  visibleCharacter: Character.FRANCINE, // Assign Francine based on narration
-});
-
-// Create the BlendingTutorial instance
-const blendingTutorialInstance = new BlendingTutorial({
-  problem1: tutorialBlendingProblem1,
-  problem2: tutorialBlendingProblem2,
-});
-
 export const PROBLEMS = {
   [Problems.TUTORIAL_SEGMENTING]: PROBLEMS_CONFIG[Problems.TUTORIAL_SEGMENTING].map(
     props => new SegmentingProblem(props)
   ),
-  [Problems.TUTORIAL_BLENDING]: blendingTutorialInstance,
+  [Problems.TUTORIAL_BLENDING]: (() => {
+    const problems = PROBLEMS_CONFIG[Problems.TUTORIAL_BLENDING].map(props => new TutorialBlendingProblem(props));
+    return new BlendingTutorial({
+      problem1: problems[0],
+      problem2: problems[1],
+    });
+  })(),
   [Problems.INITIAL_SEGMENTING]: PROBLEMS_CONFIG[Problems.INITIAL_SEGMENTING].map(
     props => new SegmentingProblem(props)
   ),

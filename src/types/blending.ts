@@ -24,3 +24,35 @@ export class BlendingProblem {
     return imagePath === this.correctImagePath;
   };
 }
+
+export interface TutorialBlendingProblemProps extends BlendingProblemProps {
+  correctImageNarration: string;
+  wrongImageNarration: string;
+  tapCharacterNarration: string;
+  instructUserNarration: string;
+  retryAudioPath?: string;
+  correctNextNarration?: string;
+  wrongNextNarration?: string;
+}
+
+export class TutorialBlendingProblem extends BlendingProblem {
+  public correctImageNarration: string;
+  public wrongImageNarration: string;
+  public tapCharacterNarration: string;
+  public instructUserNarration: string;
+  public retryAudioPath?: string;
+  public correctNextNarration?: string;
+  public wrongNextNarration?: string;
+
+  constructor(props: TutorialBlendingProblemProps) {
+    super(props);
+
+    this.correctImageNarration = props.correctImageNarration;
+    this.wrongImageNarration = props.wrongImageNarration;
+    this.tapCharacterNarration = props.tapCharacterNarration;
+    this.instructUserNarration = props.instructUserNarration;
+    this.retryAudioPath = props.retryAudioPath;
+    this.correctNextNarration = props.correctNextNarration;
+    this.wrongNextNarration = props.wrongNextNarration;
+  }
+}

@@ -1,15 +1,15 @@
-import { BlendingProblem } from './blending';
+import { BlendingProblem, TutorialBlendingProblem } from './blending';
 
 // Define the properties needed for a BlendingTutorial
 export interface BlendingTutorialProps {
-  problem1: BlendingProblem;
-  problem2: BlendingProblem;
+  problem1: TutorialBlendingProblem;
+  problem2: TutorialBlendingProblem;
 }
 
 // Define the BlendingTutorial class
 export class BlendingTutorial {
-  public problem1: BlendingProblem;
-  public problem2: BlendingProblem;
+  public problem1: TutorialBlendingProblem;
+  public problem2: TutorialBlendingProblem;
 
   constructor(props: BlendingTutorialProps) {
     this.problem1 = props.problem1;
@@ -18,7 +18,7 @@ export class BlendingTutorial {
 
   // You could add methods here later if needed,
   // e.g., to get the problem for a specific step
-  getProblemForStep(step: 1 | 2): BlendingProblem {
+  getProblemForStep(step: 1 | 2): TutorialBlendingProblem {
     return step === 1 ? this.problem1 : this.problem2;
   }
 }

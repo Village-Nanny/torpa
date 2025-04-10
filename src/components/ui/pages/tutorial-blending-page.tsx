@@ -14,9 +14,6 @@ interface TutorialBlendingPageProps {
 export default function TutorialBlendingPage({ tutorial, onTutorialComplete, onError }: TutorialBlendingPageProps) {
   const [currentStep, setCurrentStep] = useState(1);
 
-  const currentProblem =
-    currentStep === 2 ? tutorial.problem1 : currentStep === 3 ? tutorial.problem2 : tutorial.problem1;
-
   const handleNext = () => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
@@ -33,19 +30,43 @@ export default function TutorialBlendingPage({ tutorial, onTutorialComplete, onE
 
   const handleProblemSubmit = (answer: string) => {
     console.log(`Tutorial step ${currentStep} problem submitted with:`, answer);
+
+    // Automatically advance after a problem is completed
+    setTimeout(handleNext, 1000);
   };
 
-  return currentStep === 1 ? (
-    <WelcomeStep onNext={handleNext} />
-  ) : (
-    <BlendingGameTemplate
-      problem={currentProblem}
-      onSubmit={handleProblemSubmit}
-      onError={onError}
-      showNavigation={true}
-      onNext={handleNext}
-      onPrev={currentStep > 1 ? handlePrev : undefined}
-      isTutorial={true}
-    />
-  );
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return <WelcomeStep onNext={handleNext} />;
+      case 2:
+        return (
+          <BlendingGameTemplate
+            problem={tutorial.problem1}
+            onSubmit={handleProblemSubmit}
+            onError={onError}
+            showNavigation={true}
+            onNext={handleNext}
+            onPrev={handlePrev}
+            isTutorial={true}
+          />
+        );
+      case 3:
+        return (
+          <BlendingGameTemplate
+            problem={tutorial.problem2}
+            onSubmit={handleProblemSubmit}
+            onError={onError}
+            showNavigation={true}
+            onNext={handleNext}
+            onPrev={handlePrev}
+            isTutorial={true}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  return renderStep();
 }

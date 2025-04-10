@@ -6,7 +6,7 @@ import { CharacterAvatar } from '@/src/components/ui/atoms/character-avatar';
 import { Button } from '@/src/components/ui/atoms/button';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { BlendingProblem } from '@/src/types/blending';
+import { BlendingProblem, TutorialBlendingProblem } from '@/src/types/blending';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAudioSequence } from '@/src/hooks/useAudioSequence';
 
@@ -35,6 +35,24 @@ export function BlendingGameTemplate({
 
   const [currentCharacter] = useState<Character>(Math.random() < 0.5 ? Character.LULU : Character.FRANCINE);
 
+  // Check if the problem is a TutorialBlendingProblem
+  const isTutorialProblem = useMemo(() => {
+    return problem instanceof TutorialBlendingProblem;
+  }, [problem]);
+
+  // For tutorial problems, automatically submit after 1 second
+  useEffect(() => {
+    if (isTutorial && isTutorialProblem) {
+      const timer = setTimeout(() => {
+        // Use the correct image path for automatic submission
+        onSubmit(problem.correctImagePath);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isTutorial, isTutorialProblem, problem, onSubmit]);
+
+  // Audio sequence for regular problems
   const audioSequence = useMemo(() => [{ path: problem.audioPath }], [problem.audioPath]);
 
   const handleSequenceComplete = useCallback(() => {
@@ -64,12 +82,15 @@ export function BlendingGameTemplate({
     play();
   }, [play, currentCharacter]);
 
+  // Only play audio for non-tutorial problems
   useEffect(() => {
-    playBlendingAudio();
+    if (!isTutorial || !isTutorialProblem) {
+      playBlendingAudio();
+    }
     return () => {
       stop();
     };
-  }, [playBlendingAudio, stop]);
+  }, [playBlendingAudio, stop, isTutorial, isTutorialProblem]);
 
   useEffect(() => {
     setActiveCharacter(status === 'playing' ? currentCharacter : null);
@@ -96,6 +117,19 @@ export function BlendingGameTemplate({
     }
   }
 
+  // For tutorial problems, just return a minimal div
+  if (isTutorial && isTutorialProblem) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="p-8 bg-blue-500/20 rounded-xl text-white text-center">
+          <h2 className="text-3xl font-bold mb-2">Tutorial Mode</h2>
+          <p>Loading next step...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Regular problem rendering
   const choices = React.useMemo(() => {
     const options = [
       { type: 'correct', image: problem.correctImagePath },
@@ -128,6 +162,7 @@ export function BlendingGameTemplate({
       <div className="z-10 max-w-3xl px-4 mx-auto">
         <div className="space-y-8 text-center">
           <h1 className="text-4xl md:text-6xl font-extrabold text-white">Choose the Right Picture! 🎯</h1>
+
           {feedback && (
             <motion.div
               initial={{ scale: 0.5, opacity: 0 }}
@@ -148,6 +183,7 @@ export function BlendingGameTemplate({
               )}
             </motion.div>
           )}
+
           <div className="flex justify-center gap-20 md:gap-32 mt-8">
             {choices.map(option => (
               <div
