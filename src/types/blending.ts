@@ -33,6 +33,8 @@ export interface TutorialBlendingProblemProps extends BlendingProblemProps {
   retryAudioPath?: string;
   correctNextNarration?: string;
   wrongNextNarration?: string;
+  correctImageAudio?: string;
+  wrongImageAudio?: string;
 }
 
 export class TutorialBlendingProblem extends BlendingProblem {
@@ -43,6 +45,8 @@ export class TutorialBlendingProblem extends BlendingProblem {
   public retryAudioPath?: string;
   public correctNextNarration?: string;
   public wrongNextNarration?: string;
+  public correctImageAudio?: string;
+  public wrongImageAudio?: string;
 
   constructor(props: TutorialBlendingProblemProps) {
     super(props);
@@ -54,5 +58,7 @@ export class TutorialBlendingProblem extends BlendingProblem {
     this.retryAudioPath = props.retryAudioPath;
     this.correctNextNarration = props.correctNextNarration;
     this.wrongNextNarration = props.wrongNextNarration;
+    this.correctImageAudio = props.correctImageAudio;
+    this.wrongImageAudio = props.wrongImageAudio;
   }
 }

@@ -48,6 +48,8 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       wrongImagePath: '/assets/images/watch.png',
       audioPath: '/assets/audio/gum.wav',
       visibleCharacter: Character.LULU,
+      correctImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_gum.mp3',
+      wrongImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_watch.mp3',
       correctImageNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - Correct watch: “Good Job!”.m4a',
       wrongImageNarration: '/assets/audio/blending_training/TORPA Blending Training/lets_listen_again.mp3',
@@ -67,6 +69,8 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       wrongImagePath: '/assets/images/door.png',
       audioPath: '/assets/audio/pot.wav',
       visibleCharacter: Character.LULU,
+      correctImageAudio: '/assets/audio/blending_training/TORPA Blending Training/and_door.mp3',
+      wrongImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_is_a_pot.mp3',
       correctImageNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - correct answer door “Good job. You chose pic of door”.m4a',
       wrongImageNarration:
