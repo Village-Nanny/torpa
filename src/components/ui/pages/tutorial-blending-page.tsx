@@ -2,43 +2,50 @@
 
 import React, { useState } from 'react';
 import { WelcomeStep } from '@/src/components/ui/organisms/onboarding/welcome-step';
-import { BlendingExplanationStep } from '@/src/components/ui/organisms/onboarding/blending-explanation-step';
-import { BlendingPracticeStep } from '@/src/components/ui/organisms/onboarding/blending-practice-step';
 import { BlendingGameTemplate } from '../templates/blending-template';
-import { BlendingProblem } from '@/src/types/blending';
+import { BlendingTutorial } from '@/src/types/blending-tutorial';
 
 interface TutorialBlendingPageProps {
-  problem: BlendingProblem;
-  onSubmit: (answer: string) => void;
+  tutorial: BlendingTutorial;
+  onTutorialComplete: () => void;
   onError?: (error: string) => void;
 }
 
-export default function TutorialBlendingPage({ problem, onSubmit, onError }: TutorialBlendingPageProps) {
-  const [step, setStep] = useState(1);
+export default function TutorialBlendingPage({ tutorial, onTutorialComplete, onError }: TutorialBlendingPageProps) {
+  const [currentStep, setCurrentStep] = useState(1);
 
-  const renderTutorialContent = () => {
-    switch (step) {
-      case 1:
-        return <WelcomeStep />;
-      case 2:
-        return <BlendingExplanationStep />;
-      case 3:
-        return <BlendingPracticeStep problem={problem} />;
-      default:
-        return null;
+  const currentProblem =
+    currentStep === 2 ? tutorial.problem1 : currentStep === 3 ? tutorial.problem2 : tutorial.problem1;
+
+  const handleNext = () => {
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      onTutorialComplete();
     }
   };
 
-  return (
+  const handlePrev = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleProblemSubmit = (answer: string) => {
+    console.log(`Tutorial step ${currentStep} problem submitted with:`, answer);
+  };
+
+  return currentStep === 1 ? (
+    <WelcomeStep onNext={handleNext} />
+  ) : (
     <BlendingGameTemplate
-      problem={problem}
-      onSubmit={onSubmit}
+      problem={currentProblem}
+      onSubmit={handleProblemSubmit}
       onError={onError}
-      tutorialStep={step}
-      tutorialContent={step < 4 ? renderTutorialContent() : undefined}
-      showNavigation={step < 4}
-      onNext={step < 4 ? () => setStep(step + 1) : undefined}
-      onPrev={step > 1 ? () => setStep(step - 1) : undefined}
+      showNavigation={true}
+      onNext={handleNext}
+      onPrev={currentStep > 1 ? handlePrev : undefined}
+      tutorialStep={currentStep}
     />
   );
 }

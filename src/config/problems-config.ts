@@ -3,6 +3,7 @@ import { SegmentingProblem, SegmentingProblemProps } from '../types/segmenting';
 import { BlendingProblem, BlendingProblemProps } from '../types/blending';
 import { Character } from '../types/enums/characters.enum';
 import { getRandomCharacter } from '../utils/helpers';
+import { BlendingTutorial } from '../types/blending-tutorial';
 
 type ProblemsConfigType = {
   [Problems.TUTORIAL_SEGMENTING]: SegmentingProblemProps[];
@@ -320,13 +321,31 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
   ],
 };
 
+// Create specific tutorial problem instances
+const tutorialBlendingProblem1Props = PROBLEMS_CONFIG[Problems.TUTORIAL_BLENDING][1]; // pot/door
+const tutorialBlendingProblem2Props = PROBLEMS_CONFIG[Problems.TUTORIAL_BLENDING][0]; // gum/watch
+
+const tutorialBlendingProblem1 = new BlendingProblem({
+  ...tutorialBlendingProblem1Props,
+  visibleCharacter: Character.LULU, // Assign Lulu based on narration
+});
+
+const tutorialBlendingProblem2 = new BlendingProblem({
+  ...tutorialBlendingProblem2Props,
+  visibleCharacter: Character.FRANCINE, // Assign Francine based on narration
+});
+
+// Create the BlendingTutorial instance
+const blendingTutorialInstance = new BlendingTutorial({
+  problem1: tutorialBlendingProblem1,
+  problem2: tutorialBlendingProblem2,
+});
+
 export const PROBLEMS = {
   [Problems.TUTORIAL_SEGMENTING]: PROBLEMS_CONFIG[Problems.TUTORIAL_SEGMENTING].map(
     props => new SegmentingProblem(props)
   ),
-  [Problems.TUTORIAL_BLENDING]: PROBLEMS_CONFIG[Problems.TUTORIAL_BLENDING].map(
-    props => new BlendingProblem({ ...props, visibleCharacter: getRandomCharacter() })
-  ),
+  [Problems.TUTORIAL_BLENDING]: blendingTutorialInstance,
   [Problems.INITIAL_SEGMENTING]: PROBLEMS_CONFIG[Problems.INITIAL_SEGMENTING].map(
     props => new SegmentingProblem(props)
   ),

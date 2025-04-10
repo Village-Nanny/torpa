@@ -3,12 +3,13 @@ import { Problems } from '@/src/types/enums/problems.enum';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BlendingProblem } from '@/src/types/blending';
 import { SegmentingProblem } from '@/src/types/segmenting';
+import { BlendingTutorial } from '@/src/types/blending-tutorial';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '@/src/services/firebase';
 import { AppDispatch, RootState } from '@/src/store';
 import { PROBLEMS } from '@/src/config/problems-config';
 
-type Problem = BlendingProblem | SegmentingProblem;
+type Problem = BlendingProblem | SegmentingProblem | BlendingTutorial;
 interface GameState {
   config: Problems[] | null;
   problems: Problem[];
@@ -35,13 +36,25 @@ const startGame = (config: Problems[]) => async (dispatch: AppDispatch) => {
 
     const problems = validProblemTypes
       .map(type => {
-        const availableProblems = PROBLEMS[type];
-        if (!availableProblems || availableProblems.length === 0) {
+        const availableProblemsOrTutorial = PROBLEMS[type];
+        if (!availableProblemsOrTutorial) {
           console.error(`No problems defined or available for type: ${type}`);
           return null;
         }
-        const randomIndex = Math.floor(Math.random() * availableProblems.length);
-        return availableProblems[randomIndex];
+        if (type === Problems.TUTORIAL_BLENDING) {
+          return availableProblemsOrTutorial as BlendingTutorial;
+        }
+        if (Array.isArray(availableProblemsOrTutorial)) {
+          if (availableProblemsOrTutorial.length === 0) {
+            console.error(`Empty problem array for type: ${type}`);
+            return null;
+          }
+          const randomIndex = Math.floor(Math.random() * availableProblemsOrTutorial.length);
+          return availableProblemsOrTutorial[randomIndex];
+        } else {
+          console.error(`Unexpected problem structure for type: ${type}`);
+          return null;
+        }
       })
       .filter((problem): problem is Problem => problem !== null);
 
@@ -78,25 +91,41 @@ const gameSlice = createSlice({
 
       if (!currentProblem || !currentProblemType) return;
 
-      const isCorrect = currentProblem.isCorrect(action.payload);
+      // Check if the current problem is the Blending Tutorial
+      if (currentProblem instanceof BlendingTutorial) {
+        // For the tutorial, submitting means completion, just advance index
+        console.log('Blending Tutorial completed, advancing...');
+      } else {
+        // For regular problems, check correctness and score
+        // Check if isCorrect method exists before calling (type safety)
+        if ('isCorrect' in currentProblem && typeof currentProblem.isCorrect === 'function') {
+          const isCorrect = currentProblem.isCorrect(action.payload);
 
-      if (isCorrect) {
-        if (currentProblemType === Problems.INITIAL_BLENDING || currentProblemType === Problems.FINAL_BLENDING) {
-          state.blendingScore += 1;
-        } else if (
-          currentProblemType === Problems.INITIAL_SEGMENTING ||
-          currentProblemType === Problems.FINAL_SEGMENTING
-        ) {
-          state.segmentingScore += 1;
+          if (isCorrect) {
+            if (currentProblemType === Problems.INITIAL_BLENDING || currentProblemType === Problems.FINAL_BLENDING) {
+              state.blendingScore += 1;
+            } else if (
+              currentProblemType === Problems.INITIAL_SEGMENTING ||
+              currentProblemType === Problems.FINAL_SEGMENTING
+            ) {
+              state.segmentingScore += 1;
+            }
+          }
+        } else {
+          console.error('Current problem does not have a valid isCorrect method', currentProblem);
         }
       }
 
+      // Advance to the next problem index
       state.currentProblemIndex += 1;
 
+      // Check if the game run is complete (moved outside the else block)
       if (state.currentProblemIndex >= state.problems.length) {
         state.config = null;
         state.problems = [];
         state.currentProblemIndex = 0;
+        // Note: Score reset happens here. If you want to record scores *after* the last problem
+        // but before reset, the recording logic in submitAnswerAndRecord needs careful review.
       }
     },
     endGame: state => {

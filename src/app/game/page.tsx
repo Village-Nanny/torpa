@@ -24,6 +24,7 @@ import TutorialBlendingPage from '@/src/components/ui/pages/tutorial-blending-pa
 import { HomeNavButton } from '@/src/components/ui/molecules/home-nav-button';
 import { useAudio } from '@/src/hooks/use-audio';
 import { GameIntroScreen } from '@/src/components/ui/organisms/onboarding/game-intro-screen';
+import { BlendingTutorial } from '@/src/types/blending-tutorial';
 
 const ErrorScreen = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
   <div className="min-h-screen flex items-center justify-center bg-rose-600">
@@ -46,7 +47,7 @@ const ProblemRenderer = ({
   onError,
 }: {
   problemType: Problems | null;
-  problem: BlendingProblem | SegmentingProblem | null;
+  problem: BlendingProblem | SegmentingProblem | BlendingTutorial | null;
   onSubmit: (answer: string) => void;
   onError: (error: string) => void;
 }) => {
@@ -62,7 +63,19 @@ const ProblemRenderer = ({
     case Problems.TUTORIAL_SEGMENTING:
       return <TutorialSegmentingPage problem={problem as SegmentingProblem} onSubmit={onSubmit} onError={onError} />;
     case Problems.TUTORIAL_BLENDING:
-      return <TutorialBlendingPage problem={problem as BlendingProblem} onSubmit={onSubmit} onError={onError} />;
+      if (problem instanceof BlendingTutorial) {
+        return (
+          <TutorialBlendingPage
+            tutorial={problem}
+            onTutorialComplete={() => onSubmit('tutorial_blending_complete')}
+            onError={onError}
+          />
+        );
+      } else {
+        console.error('Invalid problem type for TUTORIAL_BLENDING', problem);
+        onError('Invalid tutorial data.');
+        return null;
+      }
     case Problems.INITIAL_BLENDING:
     case Problems.FINAL_BLENDING:
       return <BlendingPage problem={problem as BlendingProblem} onSubmit={onSubmit} onError={onError} />;
