@@ -45,7 +45,7 @@ export default function TutorialBlendingPage({ tutorial, onTutorialComplete, onE
       showNavigation={true}
       onNext={handleNext}
       onPrev={currentStep > 1 ? handlePrev : undefined}
-      tutorialStep={currentStep}
+      isTutorial={true}
     />
   );
 }
