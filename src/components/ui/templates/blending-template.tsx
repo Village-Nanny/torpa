@@ -32,6 +32,7 @@ export function BlendingGameTemplate({
   const [activeCharacter, setActiveCharacter] = useState<Character | null>(null);
   const [canSelect, setCanSelect] = useState(false);
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
+  const [tutorialStep, setTutorialStep] = useState<'intro' | 'character' | 'choice' | 'feedback' | 'complete'>('intro');
 
   const [currentCharacter] = useState<Character>(Math.random() < 0.5 ? Character.LULU : Character.FRANCINE);
 
@@ -40,9 +41,9 @@ export function BlendingGameTemplate({
     return problem instanceof TutorialBlendingProblem;
   }, [problem]);
 
-  // For tutorial problems, automatically submit after 1 second
+  // For pure tutorial problems (auto-advance), automatically submit after 1 second
   useEffect(() => {
-    if (isTutorial && isTutorialProblem) {
+    if (isTutorial && isTutorialProblem && tutorialStep === 'complete') {
       const timer = setTimeout(() => {
         // Use the correct image path for automatic submission
         onSubmit(problem.correctImagePath);
@@ -50,15 +51,92 @@ export function BlendingGameTemplate({
 
       return () => clearTimeout(timer);
     }
-  }, [isTutorial, isTutorialProblem, problem, onSubmit]);
+  }, [isTutorial, isTutorialProblem, problem, onSubmit, tutorialStep]);
 
   // Audio sequence for regular problems
-  const audioSequence = useMemo(() => [{ path: problem.audioPath }], [problem.audioPath]);
+  const regularAudioSequence = useMemo(() => [{ path: problem.audioPath }], [problem.audioPath]);
+
+  // Audio sequence for tutorial problems
+  const tutorialAudioSequence = useMemo(() => {
+    if (!isTutorial || !isTutorialProblem) {
+      return [];
+    }
+
+    const tutorialProblem = problem as TutorialBlendingProblem;
+
+    switch (tutorialStep) {
+      case 'intro':
+        // Start with introduction narration
+        return [
+          // Introduction audio - "Let's play a game!"
+          // "This is a pot and this is a door"
+          ...(tutorialProblem.correctImageAudio ? [{ path: tutorialProblem.correctImageAudio }] : []),
+          ...(tutorialProblem.wrongImageAudio ? [{ path: tutorialProblem.wrongImageAudio }] : []),
+          // "Tap Lulu/Francine to listen to her"
+          ...(tutorialProblem.tapCharacterNarration ? [{ path: tutorialProblem.tapCharacterNarration }] : []),
+        ];
+      case 'character':
+        // When character is tapped, play the word
+        return [...(problem.audioPath ? [{ path: problem.audioPath }] : [])];
+      case 'choice':
+        // After word is played, instruct to choose
+        return [
+          // "Which one did she say? Tap the right picture"
+          ...(tutorialProblem.instructUserNarration ? [{ path: tutorialProblem.instructUserNarration }] : []),
+        ];
+      case 'feedback':
+        if (feedback === 'success') {
+          // Correct feedback
+          return [
+            ...(tutorialProblem.correctImageNarration ? [{ path: tutorialProblem.correctImageNarration }] : []),
+            ...(tutorialProblem.correctNextNarration ? [{ path: tutorialProblem.correctNextNarration }] : []),
+          ];
+        } else {
+          // Incorrect feedback
+          return [
+            ...(tutorialProblem.wrongImageNarration ? [{ path: tutorialProblem.wrongImageNarration }] : []),
+            ...(tutorialProblem.retryAudioPath ? [{ path: tutorialProblem.retryAudioPath }] : []),
+          ];
+        }
+      default:
+        return [];
+    }
+  }, [isTutorial, isTutorialProblem, problem, tutorialStep, feedback]);
 
   const handleSequenceComplete = useCallback(() => {
-    setActiveCharacter(null);
-    setCanSelect(true);
-  }, []);
+    if (isTutorial && isTutorialProblem) {
+      // Handle tutorial flow transitions
+      switch (tutorialStep) {
+        case 'intro':
+          setTutorialStep('character');
+          break;
+        case 'character':
+          setTutorialStep('choice');
+          setActiveCharacter(null);
+          setCanSelect(true);
+          break;
+        case 'choice':
+          // Wait for user selection
+          break;
+        case 'feedback':
+          if (feedback === 'success') {
+            setTutorialStep('complete');
+          } else {
+            // Reset to try again
+            setFeedback(null);
+            setTutorialStep('intro');
+            setCanSelect(false);
+          }
+          break;
+        default:
+          break;
+      }
+    } else {
+      // Regular problem flow
+      setActiveCharacter(null);
+      setCanSelect(true);
+    }
+  }, [isTutorial, isTutorialProblem, tutorialStep, feedback]);
 
   const handleAudioError = useCallback(
     (error: string) => {
@@ -67,58 +145,79 @@ export function BlendingGameTemplate({
     [onError]
   );
 
+  // Use appropriate audio sequence based on mode
+  const audioSequence = useMemo(() => {
+    return isTutorial && isTutorialProblem ? tutorialAudioSequence : regularAudioSequence;
+  }, [isTutorial, isTutorialProblem, tutorialAudioSequence, regularAudioSequence]);
+
   const { play, stop, status } = useAudioSequence({
     sequence: audioSequence,
     initialDelay: 1500,
     onSequenceComplete: handleSequenceComplete,
     onError: handleAudioError,
     loop: false,
-    autoPlay: false,
+    autoPlay: isTutorial && isTutorialProblem && tutorialStep !== 'character',
   });
 
   const playBlendingAudio = useCallback(() => {
-    setCanSelect(false);
-    setActiveCharacter(currentCharacter);
-    play();
-  }, [play, currentCharacter]);
+    if (isTutorial && isTutorialProblem) {
+      if (tutorialStep === 'character') {
+        setActiveCharacter(currentCharacter);
+        play();
+      }
+    } else {
+      setCanSelect(false);
+      setActiveCharacter(currentCharacter);
+      play();
+    }
+  }, [play, currentCharacter, isTutorial, isTutorialProblem, tutorialStep]);
 
-  // Only play audio for non-tutorial problems
+  // Handle character click for tutorial
+  const handleCharacterClick = useCallback(() => {
+    if (isTutorial && isTutorialProblem && tutorialStep === 'character') {
+      playBlendingAudio();
+    }
+  }, [isTutorial, isTutorialProblem, tutorialStep, playBlendingAudio]);
+
+  // Only play audio for non-tutorial problems or at specific tutorial steps
   useEffect(() => {
     if (!isTutorial || !isTutorialProblem) {
       playBlendingAudio();
+    } else if (tutorialStep === 'intro' || tutorialStep === 'choice' || tutorialStep === 'feedback') {
+      play();
     }
+
     return () => {
       stop();
     };
-  }, [playBlendingAudio, stop, isTutorial, isTutorialProblem]);
+  }, [playBlendingAudio, play, stop, isTutorial, isTutorialProblem, tutorialStep]);
 
   useEffect(() => {
-    setActiveCharacter(status === 'playing' ? currentCharacter : null);
-  }, [status, currentCharacter]);
+    setActiveCharacter(
+      status === 'playing' && tutorialStep !== 'intro' && tutorialStep !== 'choice' && tutorialStep !== 'feedback'
+        ? currentCharacter
+        : null
+    );
+  }, [status, currentCharacter, tutorialStep]);
 
   function handleChoice(imagePath: string) {
     if (!canSelect) return;
 
-    if (isTutorial) {
+    if (isTutorial && isTutorialProblem) {
       if (problem.isCorrect(imagePath)) {
         setFeedback('success');
-        setTimeout(() => {
-          onSubmit(imagePath);
-        }, 2000);
       } else {
         setFeedback('retry');
-        setTimeout(() => {
-          setFeedback(null);
-          playBlendingAudio();
-        }, 2000);
       }
+      setTutorialStep('feedback');
+      setCanSelect(false);
     } else {
       onSubmit(imagePath);
     }
   }
 
-  // For tutorial problems, just return a minimal div
-  if (isTutorial && isTutorialProblem) {
+  // For tutorial problems in auto-advance mode, just return a minimal div
+  if (isTutorial && isTutorialProblem && tutorialStep === 'complete') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="p-8 bg-blue-500/20 rounded-xl text-white text-center">
@@ -198,15 +297,19 @@ export function BlendingGameTemplate({
           </div>
 
           <div className="mt-8">
-            <CharacterAvatar
-              emoji={characterProps.emoji}
-              name={characterProps.name}
-              backgroundColor={characterProps.backgroundColor}
-              isAnimated={activeCharacter === currentCharacter}
-              className={`transition-transform duration-200 ${
-                activeCharacter === currentCharacter ? 'scale-125 shadow-xl' : 'hover:scale-110'
-              }`}
-            />
+            <div
+              onClick={handleCharacterClick}
+              className={`cursor-pointer ${tutorialStep === 'character' ? 'animate-pulse' : ''}`}>
+              <CharacterAvatar
+                emoji={characterProps.emoji}
+                name={characterProps.name}
+                backgroundColor={characterProps.backgroundColor}
+                isAnimated={activeCharacter === currentCharacter}
+                className={`transition-transform duration-200 ${
+                  activeCharacter === currentCharacter ? 'scale-125 shadow-xl' : 'hover:scale-110'
+                }`}
+              />
+            </div>
           </div>
 
           <motion.div

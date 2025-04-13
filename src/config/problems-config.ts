@@ -56,13 +56,13 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       tapCharacterNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Tap Francine to listen to her”.m4a',
       instructUserNarration:
-        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Which one did she say? Tap the right picture”.m4a',
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - Which one did she sayTap the right picture.m4a',
 
       retryAudioPath: '/assets/audio/blending_training/TORPA Blending Training/lets_listen_again.mp3',
       correctNextNarration:
-        'public/assets/audio/blending/TORPA Blending Task /TORPA Blending Task Transition - “Now let’s keep playing”.m4a',
+        '/assets/audio/blending/TORPA Blending Task /TORPA Blending Task Transition - “Now let’s keep playing”.m4a',
       wrongNextNarration:
-        'public/assets/audio/blending/TORPA Blending Task /TORPA Blending Task Transition - “Now let’s keep playing”.m4a',
+        '/assets/audio/blending/TORPA Blending Task /TORPA Blending Task Transition - “Now let’s keep playing”.m4a',
     },
     {
       correctImagePath: '/assets/images/pot.png',
