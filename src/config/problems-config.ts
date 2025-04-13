@@ -44,9 +44,9 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
   ],
   [Problems.TUTORIAL_BLENDING]: [
     {
-      correctImagePath: '/assets/images/gum.png',
-      wrongImagePath: '/assets/images/watch.png',
-      audioPath: '/assets/audio/gum.wav',
+      correctImagePath: '/assets/images/watch.png',
+      wrongImagePath: '/assets/images/gum.png',
+      audioPath: '/assets/audio/watch.wav',
       visibleCharacter: Character.LULU,
       correctImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_gum.mp3',
       wrongImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_watch.mp3',
@@ -62,7 +62,7 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       correctNextNarration:
         '/assets/audio/blending/TORPA Blending Task /TORPA Blending Task Transition - “Now let’s keep playing”.m4a',
       wrongNextNarration:
-        '/assets/audio/blending/TORPA Blending Task /TORPA Blending Task Transition - “Now let’s keep playing”.m4a',
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Let’s Try Another One”.m4a',
     },
     {
       correctImagePath: '/assets/images/pot.png',

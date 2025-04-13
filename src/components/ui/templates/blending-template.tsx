@@ -68,7 +68,6 @@ export function BlendingGameTemplate({
       case 'intro':
         // Start with introduction narration
         return [
-          // Introduction audio - "Let's play a game!"
           // "This is a pot and this is a door"
           ...(tutorialProblem.correctImageAudio ? [{ path: tutorialProblem.correctImageAudio }] : []),
           ...(tutorialProblem.wrongImageAudio ? [{ path: tutorialProblem.wrongImageAudio }] : []),
@@ -220,10 +219,7 @@ export function BlendingGameTemplate({
   if (isTutorial && isTutorialProblem && tutorialStep === 'complete') {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="p-8 bg-blue-500/20 rounded-xl text-white text-center">
-          <h2 className="text-3xl font-bold mb-2">Tutorial Mode</h2>
-          <p>Loading next step...</p>
-        </div>
+        <div className="p-8 bg-blue-500/20 rounded-xl"></div>
       </div>
     );
   }
@@ -260,29 +256,6 @@ export function BlendingGameTemplate({
     <div className="relative min-h-screen flex flex-col font-sans items-center justify-center overflow-hidden">
       <div className="z-10 max-w-3xl px-4 mx-auto">
         <div className="space-y-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white">Choose the Right Picture! 🎯</h1>
-
-          {feedback && (
-            <motion.div
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className={`text-center p-6 rounded-xl ${
-                feedback === 'success' ? 'bg-green-500/30' : 'bg-yellow-500/30'
-              }`}>
-              {feedback === 'success' ? (
-                <div className="space-y-2">
-                  <p className="text-3xl md:text-4xl text-white font-bold">Perfect! 🌟</p>
-                  <p className="text-2xl md:text-3xl text-white">You found the right picture! ⭐️</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <p className="text-3xl md:text-4xl text-white font-bold">Try Again! 🎯</p>
-                  <p className="text-2xl md:text-3xl text-white">Listen carefully and look at the pictures! 👀</p>
-                </div>
-              )}
-            </motion.div>
-          )}
-
           <div className="flex justify-center gap-20 md:gap-32 mt-8">
             {choices.map(option => (
               <div
@@ -290,7 +263,7 @@ export function BlendingGameTemplate({
                 onClick={() => canSelect && !feedback && handleChoice(option.image)}
                 className={!canSelect || feedback ? 'cursor-default' : 'cursor-pointer'}>
                 <div className="relative w-40 h-40 md:w-48 md:h-48 rounded-xl overflow-hidden hover:scale-110 transition-transform">
-                  <Image src={option.image} alt={`${option.type} image`} fill className="object-contain" priority />
+                  <Image src={option.image} alt={`image`} fill className="object-contain" priority />
                 </div>
               </div>
             ))}
@@ -328,7 +301,7 @@ export function BlendingGameTemplate({
                 size="lg"
                 onClick={playBlendingAudio}
                 className="bg-white/20 px-6 py-3 text-white font-bold text-xl hover:bg-white/30">
-                Listen Again! 🔄
+                🔄
               </Button>
             </motion.div>
           </motion.div>
