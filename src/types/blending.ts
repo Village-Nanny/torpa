@@ -35,6 +35,7 @@ export interface TutorialBlendingProblemProps extends BlendingProblemProps {
   wrongNextNarration?: string;
   correctImageAudio?: string;
   wrongImageAudio?: string;
+  narrationOrder?: string[];
 }
 
 export class TutorialBlendingProblem extends BlendingProblem {
@@ -47,6 +48,7 @@ export class TutorialBlendingProblem extends BlendingProblem {
   public wrongNextNarration?: string;
   public correctImageAudio?: string;
   public wrongImageAudio?: string;
+  public narrationOrder?: string[];
 
   constructor(props: TutorialBlendingProblemProps) {
     super(props);
@@ -60,5 +62,6 @@ export class TutorialBlendingProblem extends BlendingProblem {
     this.wrongNextNarration = props.wrongNextNarration;
     this.correctImageAudio = props.correctImageAudio;
     this.wrongImageAudio = props.wrongImageAudio;
+    this.narrationOrder = props.narrationOrder;
   }
 }

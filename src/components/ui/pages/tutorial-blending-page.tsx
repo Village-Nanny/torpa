@@ -15,9 +15,12 @@ export default function TutorialBlendingPage({ tutorial, onTutorialComplete, onE
   const [currentStep, setCurrentStep] = useState(1);
 
   const handleNext = () => {
+    console.log(`TutorialBlendingPage - handleNext called (current step: ${currentStep})`);
     if (currentStep < 3) {
+      console.log(`TutorialBlendingPage - Advancing to step ${currentStep + 1}`);
       setCurrentStep(currentStep + 1);
     } else {
+      console.log('TutorialBlendingPage - All steps complete, calling onTutorialComplete');
       onTutorialComplete();
     }
   };
@@ -28,13 +31,6 @@ export default function TutorialBlendingPage({ tutorial, onTutorialComplete, onE
     }
   };
 
-  const handleProblemSubmit = (answer: string) => {
-    console.log(`Tutorial step ${currentStep} problem submitted with:`, answer);
-
-    // Automatically advance after a problem is completed
-    setTimeout(handleNext, 1000);
-  };
-
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -42,11 +38,17 @@ export default function TutorialBlendingPage({ tutorial, onTutorialComplete, onE
       case 2:
         return (
           <BlendingGameTemplate
+            key="tutorial-problem-1"
             problem={tutorial.problem1}
-            onSubmit={handleProblemSubmit}
+            onSubmit={() => {
+              console.log("Tutorial problem1 - onSubmit called (shouldn't happen)");
+            }}
+            onInternalTutorialComplete={() => {
+              console.log('Tutorial problem1 completed, advancing to next step');
+              handleNext();
+            }}
             onError={onError}
             showNavigation={false}
-            onNext={handleNext}
             onPrev={handlePrev}
             isTutorial={true}
           />
@@ -54,11 +56,17 @@ export default function TutorialBlendingPage({ tutorial, onTutorialComplete, onE
       case 3:
         return (
           <BlendingGameTemplate
+            key="tutorial-problem-2"
             problem={tutorial.problem2}
-            onSubmit={handleProblemSubmit}
+            onSubmit={() => {
+              console.log("Tutorial problem2 - onSubmit called (shouldn't happen)");
+            }}
+            onInternalTutorialComplete={() => {
+              console.log('Tutorial problem2 completed, calling onTutorialComplete');
+              handleNext();
+            }}
             onError={onError}
             showNavigation={false}
-            onNext={handleNext}
             onPrev={handlePrev}
             isTutorial={true}
           />

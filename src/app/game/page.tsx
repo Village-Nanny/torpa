@@ -67,7 +67,10 @@ const ProblemRenderer = ({
         return (
           <TutorialBlendingPage
             tutorial={problem}
-            onTutorialComplete={() => onSubmit('tutorial_blending_complete')}
+            onTutorialComplete={() => {
+              console.log('GamePage - Tutorial blending complete, submitting to advance game state');
+              onSubmit('tutorial_blending_complete');
+            }}
             onError={onError}
           />
         );

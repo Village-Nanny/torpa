@@ -47,9 +47,9 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       correctImagePath: '/assets/images/watch.png',
       wrongImagePath: '/assets/images/gum.png',
       audioPath: '/assets/audio/watch.wav',
-      visibleCharacter: Character.LULU,
-      correctImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_gum.mp3',
-      wrongImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_watch.mp3',
+      visibleCharacter: Character.FRANCINE,
+      correctImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_watch.mp3',
+      wrongImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_gum.mp3',
       correctImageNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - Correct watch: “Good Job!”.m4a',
       wrongImageNarration: '/assets/audio/blending_training/TORPA Blending Training/lets_listen_again.mp3',
@@ -63,11 +63,12 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
         '/assets/audio/blending/TORPA Blending Task /TORPA Blending Task Transition - “Now let’s keep playing”.m4a',
       wrongNextNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Let’s Try Another One”.m4a',
+      narrationOrder: ['correct', 'wrong'],
     },
     {
-      correctImagePath: '/assets/images/pot.png',
-      wrongImagePath: '/assets/images/door.png',
-      audioPath: '/assets/audio/pot.wav',
+      correctImagePath: '/assets/images/door.png',
+      wrongImagePath: '/assets/images/pot.png',
+      audioPath: '/assets/audio/door.wav',
       visibleCharacter: Character.LULU,
       correctImageAudio: '/assets/audio/blending_training/TORPA Blending Training/and_door.mp3',
       wrongImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_is_a_pot.mp3',
@@ -78,12 +79,13 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       tapCharacterNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA  Blending Training - “Tap Lulu to Listen to Her”.m4a',
       instructUserNarration:
-        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Which one did she say? Tap the right picture” 2.m4a',
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - Which one did she sayTap the right picture.m4a',
       retryAudioPath: '/assets/audio/blending_training/TORPA Blending Training/lets_listen_again.mp3',
       correctNextNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Good job. Now let’s try one more”.m4a',
       wrongNextNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Let’s Try Another One”.m4a',
+      narrationOrder: ['wrong', 'correct'],
     },
   ],
 

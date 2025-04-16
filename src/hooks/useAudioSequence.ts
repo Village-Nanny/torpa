@@ -10,6 +10,7 @@ interface UseAudioSequenceProps {
   sequence: AudioSequenceItem[];
   onSequenceComplete?: () => void;
   onError?: (error: string, stepIndex: number) => void;
+  onAudioStart?: (item: AudioSequenceItem) => void;
   autoPlay?: boolean;
   initialDelay?: number;
   loop?: boolean;
@@ -30,6 +31,7 @@ export function useAudioSequence({
   sequence,
   onSequenceComplete,
   onError,
+  onAudioStart,
   autoPlay = false,
   initialDelay = 0,
   loop = false,
@@ -107,6 +109,8 @@ export function useAudioSequence({
 
         audio.onloadedmetadata = () => {
           debugLog('onloadedmetadata fired for:', item.path);
+          debugLog('Calling onAudioStart for:', item.path);
+          onAudioStart?.(item);
           audio
             .play()
             .then(() => {
@@ -151,7 +155,7 @@ export function useAudioSequence({
         playCurrentAudio();
       }
     },
-    [sequence, loop, initialDelay, onSequenceComplete, onError, cleanup, debugLog]
+    [sequence, loop, initialDelay, onSequenceComplete, onError, onAudioStart, cleanup, debugLog]
   );
 
   const play = useCallback(() => {
