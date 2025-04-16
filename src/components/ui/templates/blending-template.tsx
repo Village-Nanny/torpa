@@ -20,6 +20,10 @@ interface BlendingGameTemplateProps {
   onPrev?: () => void;
 }
 
+interface AudioSequenceItem {
+  path: string;
+}
+
 export function BlendingGameTemplate({
   problem,
   onSubmit,
@@ -33,6 +37,8 @@ export function BlendingGameTemplate({
   const [canSelect, setCanSelect] = useState(false);
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
   const [tutorialStep, setTutorialStep] = useState<'intro' | 'character' | 'choice' | 'feedback' | 'complete'>('intro');
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
 
   const [currentCharacter] = useState<Character>(Math.random() < 0.5 ? Character.LULU : Character.FRANCINE);
 
@@ -41,20 +47,11 @@ export function BlendingGameTemplate({
     return problem instanceof TutorialBlendingProblem;
   }, [problem]);
 
-  // For pure tutorial problems (auto-advance), automatically submit after 1 second
-  useEffect(() => {
-    if (isTutorial && isTutorialProblem && tutorialStep === 'complete') {
-      const timer = setTimeout(() => {
-        // Use the correct image path for automatic submission
-        onSubmit(problem.correctImagePath);
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [isTutorial, isTutorialProblem, problem, onSubmit, tutorialStep]);
-
   // Audio sequence for regular problems
-  const regularAudioSequence = useMemo(() => [{ path: problem.audioPath }], [problem.audioPath]);
+  const regularAudioSequence = useMemo(() => {
+    if (!problem.audioPath) return [];
+    return [{ path: problem.audioPath }];
+  }, [problem.audioPath]);
 
   // Audio sequence for tutorial problems
   const tutorialAudioSequence = useMemo(() => {
@@ -63,48 +60,63 @@ export function BlendingGameTemplate({
     }
 
     const tutorialProblem = problem as TutorialBlendingProblem;
+    const sequence: AudioSequenceItem[] = [];
 
     switch (tutorialStep) {
       case 'intro':
-        // Start with introduction narration
-        return [
-          // "This is a pot and this is a door"
-          ...(tutorialProblem.correctImageAudio ? [{ path: tutorialProblem.correctImageAudio }] : []),
-          ...(tutorialProblem.wrongImageAudio ? [{ path: tutorialProblem.wrongImageAudio }] : []),
-          // "Tap Lulu/Francine to listen to her"
-          ...(tutorialProblem.tapCharacterNarration ? [{ path: tutorialProblem.tapCharacterNarration }] : []),
-        ];
+        if (tutorialProblem.wrongImageAudio) {
+          sequence.push({ path: tutorialProblem.wrongImageAudio });
+        }
+        if (tutorialProblem.correctImageAudio) {
+          sequence.push({ path: tutorialProblem.correctImageAudio });
+        }
+        if (tutorialProblem.tapCharacterNarration) {
+          sequence.push({ path: tutorialProblem.tapCharacterNarration });
+        }
+        return sequence;
+
       case 'character':
-        // When character is tapped, play the word
-        return [...(problem.audioPath ? [{ path: problem.audioPath }] : [])];
+        if (problem.audioPath) {
+          sequence.push({ path: problem.audioPath });
+        }
+        return sequence;
+
       case 'choice':
-        // After word is played, instruct to choose
-        return [
-          // "Which one did she say? Tap the right picture"
-          ...(tutorialProblem.instructUserNarration ? [{ path: tutorialProblem.instructUserNarration }] : []),
-        ];
+        if (tutorialProblem.instructUserNarration) {
+          sequence.push({ path: tutorialProblem.instructUserNarration });
+        }
+        return sequence;
+
       case 'feedback':
         if (feedback === 'success') {
-          // Correct feedback
-          return [
-            ...(tutorialProblem.correctImageNarration ? [{ path: tutorialProblem.correctImageNarration }] : []),
-            ...(tutorialProblem.correctNextNarration ? [{ path: tutorialProblem.correctNextNarration }] : []),
-          ];
+          if (tutorialProblem.correctImageNarration) {
+            sequence.push({ path: tutorialProblem.correctImageNarration });
+          }
+          if (tutorialProblem.correctNextNarration) {
+            sequence.push({ path: tutorialProblem.correctNextNarration });
+          }
         } else {
-          // Incorrect feedback
-          return [
-            ...(tutorialProblem.wrongImageNarration ? [{ path: tutorialProblem.wrongImageNarration }] : []),
-            ...(tutorialProblem.retryAudioPath ? [{ path: tutorialProblem.retryAudioPath }] : []),
-          ];
+          console.log('wrongAttempts', wrongAttempts);
+          if (wrongAttempts > 1) {
+            if (tutorialProblem.wrongNextNarration) {
+              sequence.push({ path: tutorialProblem.wrongNextNarration });
+            }
+          } else {
+            // First wrong attempt - play retry audio
+            if (tutorialProblem.retryAudioPath) {
+              sequence.push({ path: tutorialProblem.retryAudioPath });
+            }
+          }
         }
+        return sequence;
+
       default:
-        return [];
+        return sequence;
     }
-  }, [isTutorial, isTutorialProblem, problem, tutorialStep, feedback]);
+  }, [isTutorial, isTutorialProblem, problem, tutorialStep, feedback, wrongAttempts]);
 
   const handleSequenceComplete = useCallback(() => {
     if (isTutorial && isTutorialProblem) {
-      // Handle tutorial flow transitions
       switch (tutorialStep) {
         case 'intro':
           setTutorialStep('character');
@@ -120,6 +132,9 @@ export function BlendingGameTemplate({
         case 'feedback':
           if (feedback === 'success') {
             setTutorialStep('complete');
+          } else if (wrongAttempts > 1) {
+            // After playing wrongNextNarration, auto-submit wrong answer
+            setShouldAutoSubmit(true);
           } else {
             // Reset to try again
             setFeedback(null);
@@ -135,7 +150,7 @@ export function BlendingGameTemplate({
       setActiveCharacter(null);
       setCanSelect(true);
     }
-  }, [isTutorial, isTutorialProblem, tutorialStep, feedback]);
+  }, [isTutorial, isTutorialProblem, tutorialStep, feedback, wrongAttempts]);
 
   const handleAudioError = useCallback(
     (error: string) => {
@@ -205,8 +220,12 @@ export function BlendingGameTemplate({
     if (isTutorial && isTutorialProblem) {
       if (problem.isCorrect(imagePath)) {
         setFeedback('success');
+        // Reset wrong attempts on correct answer
+        setWrongAttempts(0);
       } else {
         setFeedback('retry');
+        // Increment wrong attempts
+        setWrongAttempts(prev => prev + 1);
       }
       setTutorialStep('feedback');
       setCanSelect(false);
@@ -288,23 +307,7 @@ export function BlendingGameTemplate({
           <motion.div
             className="h-[80px] mt-8"
             animate={{ height: canSelect && !feedback ? 'auto' : '0px' }}
-            transition={{ duration: 0.3 }}>
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{
-                opacity: canSelect && !feedback ? 1 : 0,
-                y: canSelect && !feedback ? 0 : -20,
-              }}
-              transition={{ duration: 0.3 }}>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={playBlendingAudio}
-                className="bg-white/20 px-6 py-3 text-white font-bold text-xl hover:bg-white/30">
-                🔄
-              </Button>
-            </motion.div>
-          </motion.div>
+            transition={{ duration: 0.3 }}></motion.div>
         </div>
 
         {showNavigation && (

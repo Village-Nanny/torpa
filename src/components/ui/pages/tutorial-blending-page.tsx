@@ -45,7 +45,7 @@ export default function TutorialBlendingPage({ tutorial, onTutorialComplete, onE
             problem={tutorial.problem1}
             onSubmit={handleProblemSubmit}
             onError={onError}
-            showNavigation={true}
+            showNavigation={false}
             onNext={handleNext}
             onPrev={handlePrev}
             isTutorial={true}
@@ -57,7 +57,7 @@ export default function TutorialBlendingPage({ tutorial, onTutorialComplete, onE
             problem={tutorial.problem2}
             onSubmit={handleProblemSubmit}
             onError={onError}
-            showNavigation={true}
+            showNavigation={false}
             onNext={handleNext}
             onPrev={handlePrev}
             isTutorial={true}
