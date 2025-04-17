@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Character } from '@/src/types/enums/characters.enum';
 import { CharacterAvatar } from '@/src/components/ui/atoms/character-avatar';
 import { Button } from '@/src/components/ui/atoms/button';
@@ -36,7 +36,6 @@ export function BlendingGameTemplate({
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
   const [tutorialStep, setTutorialStep] = useState<'intro' | 'character' | 'choice' | 'feedback' | 'complete'>('intro');
   const [wrongAttempts, setWrongAttempts] = useState(0);
-  const [shouldAutoSubmit, setShouldAutoSubmit] = useState(false);
   const [animatedImage, setAnimatedImage] = useState<'correct' | 'wrong' | null>(null);
 
   const currentCharacter = problem.visibleCharacter;
@@ -44,6 +43,25 @@ export function BlendingGameTemplate({
   const isTutorialProblem = useMemo(() => {
     return isTutorial && problem instanceof TutorialBlendingProblem;
   }, [problem, isTutorial]);
+
+  useEffect(() => {
+    if (isTutorialProblem) {
+      console.log('BlendingGameTemplate - New tutorial problem, resetting internal state');
+      setTutorialStep('intro');
+      setActiveCharacter(null);
+      setCanSelect(false);
+      setFeedback(null);
+      setWrongAttempts(0);
+      setAnimatedImage(null);
+    }
+  }, [problem, isTutorialProblem]);
+
+  useEffect(() => {
+    if (isTutorialProblem && tutorialStep === 'complete') {
+      console.log('BlendingGameTemplate - Tutorial step complete, calling onInternalTutorialComplete');
+      onInternalTutorialComplete?.();
+    }
+  }, [isTutorialProblem, tutorialStep, onInternalTutorialComplete]);
 
   const regularAudioSequence = useMemo(() => {
     if (!problem.audioPath) return [];
@@ -136,7 +154,8 @@ export function BlendingGameTemplate({
           if (feedback === 'success') {
             setTutorialStep('complete');
           } else if (wrongAttempts > 1) {
-            setShouldAutoSubmit(true);
+            console.log('BlendingGameTemplate - Auto-submitting after too many wrong attempts');
+            setTutorialStep('complete');
           } else {
             setFeedback(null);
             setTutorialStep('intro');
@@ -228,22 +247,6 @@ export function BlendingGameTemplate({
     );
   }, [status, currentCharacter, tutorialStep]);
 
-  useEffect(() => {
-    if (isTutorialProblem && tutorialStep === 'complete') {
-      console.log('BlendingGameTemplate - Tutorial step complete, calling onInternalTutorialComplete');
-      onInternalTutorialComplete?.();
-    }
-  }, [isTutorialProblem, tutorialStep, onInternalTutorialComplete]);
-
-  useEffect(() => {
-    // Handle auto submission for too many wrong attempts
-    if (isTutorialProblem && shouldAutoSubmit) {
-      console.log('BlendingGameTemplate - Auto-submitting after too many wrong attempts');
-      setTutorialStep('complete');
-      setShouldAutoSubmit(false);
-    }
-  }, [isTutorialProblem, shouldAutoSubmit]);
-
   const choices = React.useMemo(() => {
     const options = [
       { type: 'correct', image: problem.correctImagePath },
@@ -287,21 +290,6 @@ export function BlendingGameTemplate({
       onSubmit(imagePath);
     }
   }
-
-  // Add a useEffect to reset internal state when the problem changes
-  useEffect(() => {
-    // Reset tutorial state when a new problem is provided
-    if (isTutorialProblem) {
-      console.log('BlendingGameTemplate - New tutorial problem, resetting internal state');
-      setTutorialStep('intro');
-      setActiveCharacter(null);
-      setCanSelect(false);
-      setFeedback(null);
-      setWrongAttempts(0);
-      setShouldAutoSubmit(false);
-      setAnimatedImage(null);
-    }
-  }, [problem, isTutorialProblem]); // Only run when problem changes
 
   return (
     <div className="relative min-h-screen flex flex-col font-sans items-center justify-center overflow-hidden">

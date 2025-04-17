@@ -24,22 +24,22 @@ const AUDIO_SEQUENCE: CharacterAudioItem[] = [
   {
     path: '/assets/audio/intro/TORPA Intro/meet_lulu.mp3',
     character: Character.LULU,
-    postDelay: 900, // shorter delay after Lulu's introduction
+    postDelay: 0, // shorter delay after Lulu's introduction
   },
   {
     path: '/assets/audio/intro/TORPA Intro/and_francince.mp3',
     character: Character.FRANCINE,
-    postDelay: 1000, // slightly longer delay after Francine's introduction
+    postDelay: 0, // slightly longer delay after Francine's introduction
   },
   {
     path: '/assets/audio/intro/TORPA Intro/play_games.mp3',
     character: null,
-    postDelay: 1000, // longer pause before the final message
+    postDelay: 0, // longer pause before the final message
   },
   {
     path: '/assets/audio/intro/TORPA Intro/TORPA Intro - “Wave Hello to Lulu and Francine”.m4a',
     character: null,
-    postDelay: 2000, // shorter delay at the end
+    postDelay: 0, // shorter delay at the end
   },
 ];
 
@@ -96,7 +96,7 @@ export function CharacterIntroduction({ onComplete, onError, autoPlay = true }: 
     onSequenceComplete: onComplete,
     onError: error => onError?.(error),
     autoPlay,
-    initialDelay: 1500, // Initial delay before starting
+    initialDelay: 0, // Removed initial delay
   });
 
   // Update active character based on current step

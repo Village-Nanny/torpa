@@ -10,7 +10,7 @@ interface HiFriendProps {
   autoPlay?: boolean;
 }
 
-const AUDIO_PATH = '/assets/audio/intro/TORPA Intro/TORPA Intro- “Hi Friend”.m4a';
+const AUDIO_PATH = '/assets/audio/intro/TORPA Intro/TORPAIntroHiFriend.m4a';
 
 export function HiFriend({ onComplete, onError, autoPlay = true }: HiFriendProps) {
   const [isAnimating, setIsAnimating] = useState(false);

@@ -257,18 +257,6 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
 
   [Problems.INITIAL_BLENDING]: [
     {
-      correctImagePath: '/assets/images/sock.png',
-      wrongImagePath: '/assets/images/lock.png',
-      audioPath: '/assets/audio/sock.wav',
-      visibleCharacter: Character.LULU,
-    },
-    {
-      correctImagePath: '/assets/images/wheel.png',
-      wrongImagePath: '/assets/images/seal.png',
-      audioPath: '/assets/audio/wheel.wav',
-      visibleCharacter: Character.LULU,
-    },
-    {
       correctImagePath: '/assets/images/can.png',
       wrongImagePath: '/assets/images/fan.png',
       audioPath: '/assets/audio/can.wav',
@@ -280,6 +268,19 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       audioPath: '/assets/audio/fish.wav',
       visibleCharacter: Character.LULU,
     },
+    {
+      correctImagePath: '/assets/images/sock.png',
+      wrongImagePath: '/assets/images/lock.png',
+      audioPath: '/assets/audio/sock.wav',
+      visibleCharacter: Character.LULU,
+    },
+    {
+      correctImagePath: '/assets/images/wheel.png',
+      wrongImagePath: '/assets/images/seal.png',
+      audioPath: '/assets/audio/wheel.wav',
+      visibleCharacter: Character.LULU,
+    },
+
     {
       correctImagePath: '/assets/images/cat.png',
       wrongImagePath: '/assets/images/bat.png',
@@ -308,6 +309,18 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
 
   [Problems.FINAL_BLENDING]: [
     {
+      correctImagePath: '/assets/images/doll.png',
+      wrongImagePath: '/assets/images/dog.png',
+      audioPath: '/assets/audio/doll.wav',
+      visibleCharacter: Character.LULU,
+    },
+    {
+      correctImagePath: '/assets/images/comb.png',
+      wrongImagePath: '/assets/images/coat.png',
+      audioPath: '/assets/audio/comb.wav',
+      visibleCharacter: Character.LULU,
+    },
+    {
       correctImagePath: '/assets/images/couch.png',
       wrongImagePath: '/assets/images/cows.png',
       audioPath: '/assets/audio/couch.wav',
@@ -319,24 +332,14 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       audioPath: '/assets/audio/cake.wav',
       visibleCharacter: Character.LULU,
     },
-    {
-      correctImagePath: '/assets/images/doll.png',
-      wrongImagePath: '/assets/images/dog.png',
-      audioPath: '/assets/audio/doll.wav',
-      visibleCharacter: Character.LULU,
-    },
+
     {
       correctImagePath: '/assets/images/beach.png',
       wrongImagePath: '/assets/images/beak.png',
       audioPath: '/assets/audio/beach.wav',
       visibleCharacter: Character.LULU,
     },
-    {
-      correctImagePath: '/assets/images/comb.png',
-      wrongImagePath: '/assets/images/coat.png',
-      audioPath: '/assets/audio/comb.wav',
-      visibleCharacter: Character.LULU,
-    },
+
     {
       correctImagePath: '/assets/images/mail.png',
       wrongImagePath: '/assets/images/man.png',
