@@ -54,7 +54,7 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - Correct watch: “Good Job!”.m4a',
       wrongImageNarration: '/assets/audio/blending_training/TORPA Blending Training/lets_listen_again.mp3',
       tapCharacterNarration:
-        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Tap Francine to listen to her”.m4a',
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending TrainingTap Francine to listen to her.m4a',
       instructUserNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - Which one did she sayTap the right picture.m4a',
 
@@ -77,7 +77,7 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       wrongImageNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Let’s Try Another One”.m4a',
       tapCharacterNarration:
-        '/assets/audio/blending_training/TORPA Blending Training/TORPA  Blending Training - “Tap Lulu to Listen to Her”.m4a',
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA  Blending TrainingTap Lulu to Listen to Her.m4a',
       instructUserNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - Which one did she sayTap the right picture.m4a',
       retryAudioPath: '/assets/audio/blending_training/TORPA Blending Training/lets_listen_again.mp3',

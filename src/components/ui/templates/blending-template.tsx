@@ -35,6 +35,7 @@ export function BlendingGameTemplate({
   const [canSelect, setCanSelect] = useState(false);
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
   const [tutorialStep, setTutorialStep] = useState<'intro' | 'character' | 'choice' | 'feedback' | 'complete'>('intro');
+  const [nonTutorialStep, setNonTutorialStep] = useState<'intro' | 'character' | 'choice'>('intro');
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [animatedImage, setAnimatedImage] = useState<'correct' | 'wrong' | null>(null);
 
@@ -53,6 +54,10 @@ export function BlendingGameTemplate({
       setFeedback(null);
       setWrongAttempts(0);
       setAnimatedImage(null);
+    } else {
+      setNonTutorialStep('intro');
+      setActiveCharacter(null);
+      setCanSelect(false);
     }
   }, [problem, isTutorialProblem]);
 
@@ -64,9 +69,32 @@ export function BlendingGameTemplate({
   }, [isTutorialProblem, tutorialStep, onInternalTutorialComplete]);
 
   const regularAudioSequence = useMemo(() => {
-    if (!problem.audioPath) return [];
-    return [{ path: problem.audioPath }];
-  }, [problem.audioPath]);
+    if (isTutorialProblem) return [];
+
+    const sequence: AudioSequenceItem[] = [];
+
+    switch (nonTutorialStep) {
+      case 'intro':
+        const tapInstruction =
+          currentCharacter === Character.LULU
+            ? '/assets/audio/blending_training/TORPA Blending Training/TORPA  Blending TrainingTap Lulu to Listen to Her.m4a'
+            : '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending TrainingTap Francine to listen to her.m4a';
+        sequence.push({ path: tapInstruction });
+        break;
+      case 'character':
+        if (problem.audioPath) {
+          sequence.push({ path: problem.audioPath });
+        }
+        break;
+      case 'choice':
+        sequence.push({
+          path: '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - Which one did she sayTap the right picture.m4a',
+        });
+        break;
+    }
+
+    return sequence;
+  }, [isTutorialProblem, nonTutorialStep, problem.audioPath, currentCharacter]);
 
   const tutorialAudioSequence = useMemo(() => {
     if (!isTutorialProblem) {
@@ -135,6 +163,10 @@ export function BlendingGameTemplate({
     }
   }, [isTutorialProblem, problem, tutorialStep, feedback, wrongAttempts]);
 
+  const audioSequence = useMemo(() => {
+    return isTutorialProblem ? tutorialAudioSequence : regularAudioSequence;
+  }, [isTutorialProblem, tutorialAudioSequence, regularAudioSequence]);
+
   const handleSequenceComplete = useCallback(() => {
     if (isTutorialProblem) {
       switch (tutorialStep) {
@@ -166,10 +198,20 @@ export function BlendingGameTemplate({
           break;
       }
     } else {
-      setActiveCharacter(null);
-      setCanSelect(true);
+      switch (nonTutorialStep) {
+        case 'intro':
+          setNonTutorialStep('character');
+          break;
+        case 'character':
+          setNonTutorialStep('choice');
+          setActiveCharacter(null);
+          break;
+        case 'choice':
+          setCanSelect(true);
+          break;
+      }
     }
-  }, [isTutorialProblem, tutorialStep, feedback, wrongAttempts]);
+  }, [isTutorialProblem, tutorialStep, feedback, wrongAttempts, nonTutorialStep]);
 
   const handleAudioError = useCallback(
     (error: string) => {
@@ -191,12 +233,8 @@ export function BlendingGameTemplate({
         }
       }
     },
-    [isTutorialProblem, problem, tutorialStep]
+    [isTutorialProblem, problem]
   );
-
-  const audioSequence = useMemo(() => {
-    return isTutorialProblem ? tutorialAudioSequence : regularAudioSequence;
-  }, [isTutorialProblem, tutorialAudioSequence, regularAudioSequence]);
 
   const { play, stop, status } = useAudioSequence({
     sequence: audioSequence,
@@ -205,7 +243,7 @@ export function BlendingGameTemplate({
     onAudioStart: handleAudioStart,
     onError: handleAudioError,
     loop: false,
-    autoPlay: isTutorialProblem && tutorialStep !== 'character',
+    autoPlay: isTutorialProblem ? tutorialStep !== 'character' : nonTutorialStep !== 'character',
   });
 
   const playBlendingAudio = useCallback(() => {
@@ -215,37 +253,49 @@ export function BlendingGameTemplate({
         play();
       }
     } else {
-      setCanSelect(false);
-      setActiveCharacter(currentCharacter);
-      play();
+      if (nonTutorialStep === 'character') {
+        setActiveCharacter(currentCharacter);
+        play();
+      }
     }
-  }, [play, currentCharacter, isTutorialProblem, tutorialStep]);
+  }, [play, currentCharacter, isTutorialProblem, tutorialStep, nonTutorialStep]);
 
   const handleCharacterClick = useCallback(() => {
-    if (isTutorialProblem && tutorialStep === 'character') {
+    if (
+      (isTutorialProblem && tutorialStep === 'character') ||
+      (!isTutorialProblem && nonTutorialStep === 'character')
+    ) {
       playBlendingAudio();
     }
-  }, [isTutorialProblem, tutorialStep, playBlendingAudio]);
+  }, [isTutorialProblem, tutorialStep, nonTutorialStep, playBlendingAudio]);
 
   useEffect(() => {
-    if (!isTutorialProblem) {
-      playBlendingAudio();
-    } else if (tutorialStep === 'intro' || tutorialStep === 'choice' || tutorialStep === 'feedback') {
-      play();
+    if (isTutorialProblem) {
+      if (tutorialStep === 'intro' || tutorialStep === 'choice' || tutorialStep === 'feedback') {
+        play();
+      }
+    } else {
+      if (nonTutorialStep === 'intro' || nonTutorialStep === 'choice') {
+        play();
+      }
     }
 
     return () => {
       stop();
     };
-  }, [playBlendingAudio, play, stop, isTutorialProblem, tutorialStep]);
+  }, [play, stop, isTutorialProblem, tutorialStep, nonTutorialStep]);
 
   useEffect(() => {
-    setActiveCharacter(
-      status === 'playing' && tutorialStep !== 'intro' && tutorialStep !== 'choice' && tutorialStep !== 'feedback'
-        ? currentCharacter
-        : null
-    );
-  }, [status, currentCharacter, tutorialStep]);
+    if (isTutorialProblem) {
+      setActiveCharacter(
+        status === 'playing' && tutorialStep !== 'intro' && tutorialStep !== 'choice' && tutorialStep !== 'feedback'
+          ? currentCharacter
+          : null
+      );
+    } else {
+      setActiveCharacter(status === 'playing' && nonTutorialStep === 'character' ? currentCharacter : null);
+    }
+  }, [status, currentCharacter, tutorialStep, nonTutorialStep, isTutorialProblem]);
 
   const choices = React.useMemo(() => {
     const options = [
@@ -315,7 +365,12 @@ export function BlendingGameTemplate({
           <div className="mt-8">
             <div
               onClick={handleCharacterClick}
-              className={`cursor-pointer ${tutorialStep === 'character' ? 'animate-pulse' : ''}`}>
+              className={`cursor-pointer ${
+                (isTutorialProblem && tutorialStep === 'character') ||
+                (!isTutorialProblem && nonTutorialStep === 'character')
+                  ? 'animate-pulse'
+                  : ''
+              }`}>
               <CharacterAvatar
                 emoji={characterProps.emoji}
                 name={characterProps.name}
