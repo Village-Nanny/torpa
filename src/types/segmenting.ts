@@ -19,3 +19,35 @@ export class SegmentingProblem {
     return audioPath === this.correctAudioPath;
   };
 }
+
+export interface TutorialSegmentingProblemProps extends SegmentingProblemProps {
+  imageNarration: string;
+  tapCharacterNarration: string;
+  instructUserNarration: string;
+  correctChoiceNarration: string;
+  retryNarration: string;
+  wrongInstructUserNarration: string;
+  correctChoiceNextNarration: string;
+}
+
+export class TutorialSegmentingProblem extends SegmentingProblem {
+  public imageNarration: string;
+  public tapCharacterNarration: string;
+  public instructUserNarration: string;
+  public correctChoiceNarration: string;
+  public retryNarration: string;
+  public wrongInstructUserNarration: string;
+  public correctChoiceNextNarration: string;
+
+  constructor(props: TutorialSegmentingProblemProps) {
+    super(props);
+
+    this.imageNarration = props.imageNarration;
+    this.tapCharacterNarration = props.tapCharacterNarration;
+    this.instructUserNarration = props.instructUserNarration;
+    this.correctChoiceNarration = props.correctChoiceNarration;
+    this.retryNarration = props.retryNarration;
+    this.wrongInstructUserNarration = props.wrongInstructUserNarration;
+    this.correctChoiceNextNarration = props.correctChoiceNextNarration;
+  }
+}

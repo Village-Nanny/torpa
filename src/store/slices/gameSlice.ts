@@ -4,12 +4,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BlendingProblem } from '@/src/types/blending';
 import { SegmentingProblem } from '@/src/types/segmenting';
 import { BlendingTutorial } from '@/src/types/blending-tutorial';
+import { SegmentingTutorial } from '@/src/types/segmenting-tutorial';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '@/src/services/firebase';
 import { AppDispatch, RootState } from '@/src/store';
 import { PROBLEMS } from '@/src/config/problems-config';
 
-type Problem = BlendingProblem | SegmentingProblem | BlendingTutorial;
+type Problem = BlendingProblem | SegmentingProblem | BlendingTutorial | SegmentingTutorial;
 interface GameState {
   config: Problems[] | null;
   problems: Problem[];
@@ -43,6 +44,9 @@ const startGame = (config: Problems[]) => async (dispatch: AppDispatch) => {
         }
         if (type === Problems.TUTORIAL_BLENDING) {
           return availableProblemsOrTutorial as BlendingTutorial;
+        }
+        if (type === Problems.TUTORIAL_SEGMENTING) {
+          return availableProblemsOrTutorial as SegmentingTutorial;
         }
         if (Array.isArray(availableProblemsOrTutorial)) {
           if (availableProblemsOrTutorial.length === 0) {
@@ -91,13 +95,12 @@ const gameSlice = createSlice({
 
       if (!currentProblem || !currentProblemType) return;
 
-      // Check if the current problem is the Blending Tutorial
-      if (currentProblem instanceof BlendingTutorial) {
-        // For the tutorial, submitting means completion, just advance index
-        console.log('Blending Tutorial completed, advancing...');
+      // Check if the current problem is a Tutorial
+      if (currentProblem instanceof BlendingTutorial || currentProblem instanceof SegmentingTutorial) {
+        // For tutorials, submitting means completion, just advance index
+        console.log('Tutorial completed, advancing...');
       } else {
         // For regular problems, check correctness and score
-        // Check if isCorrect method exists before calling (type safety)
         if ('isCorrect' in currentProblem && typeof currentProblem.isCorrect === 'function') {
           const isCorrect = currentProblem.isCorrect(action.payload);
 
@@ -119,13 +122,11 @@ const gameSlice = createSlice({
       // Advance to the next problem index
       state.currentProblemIndex += 1;
 
-      // Check if the game run is complete (moved outside the else block)
+      // Check if the game run is complete
       if (state.currentProblemIndex >= state.problems.length) {
         state.config = null;
         state.problems = [];
         state.currentProblemIndex = 0;
-        // Note: Score reset happens here. If you want to record scores *after* the last problem
-        // but before reset, the recording logic in submitAnswerAndRecord needs careful review.
       }
     },
     endGame: state => {

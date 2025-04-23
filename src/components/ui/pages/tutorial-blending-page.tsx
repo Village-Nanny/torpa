@@ -40,11 +40,8 @@ export default function TutorialBlendingPage({ tutorial, onTutorialComplete, onE
           <BlendingGameTemplate
             key="tutorial-problem-1"
             problem={tutorial.problem1}
-            onSubmit={() => {
-              console.log("Tutorial problem1 - onSubmit called (shouldn't happen)");
-            }}
+            onSubmit={() => {}}
             onInternalTutorialComplete={() => {
-              console.log('Tutorial problem1 completed, advancing to next step');
               handleNext();
             }}
             onError={onError}

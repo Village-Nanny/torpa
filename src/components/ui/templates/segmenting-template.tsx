@@ -1,146 +1,284 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Character } from '@/src/types/enums/characters.enum';
 import { CharacterAvatar } from '@/src/components/ui/atoms/character-avatar';
 import { Button } from '@/src/components/ui/atoms/button';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { SegmentingProblem } from '@/src/types/segmenting';
-import { useAudio } from '@/src/hooks/use-audio';
+import { SegmentingProblem, TutorialSegmentingProblem } from '@/src/types/segmenting';
+import { useAudioSequence, AudioSequenceItem } from '@/src/hooks/useAudioSequence';
 
 interface SegmentingGameTemplateProps {
   problem: SegmentingProblem;
   onSubmit: (answer: string) => void;
   onError?: (error: string) => void;
-  tutorialStep?: number;
   tutorialContent?: React.ReactNode;
   showNavigation?: boolean;
   onNext?: () => void;
   onPrev?: () => void;
+  isTutorial?: boolean;
+  onInternalTutorialComplete?: () => void;
 }
 
 export function SegmentingGameTemplate({
   problem,
   onSubmit,
   onError,
-  tutorialStep,
   tutorialContent,
   showNavigation,
   onNext,
   onPrev,
+  isTutorial,
+  onInternalTutorialComplete,
 }: SegmentingGameTemplateProps) {
   const [activeCharacter, setActiveCharacter] = useState<Character | null>(null);
-  const [canReplay, setCanReplay] = useState(false);
+  const [canSelect, setCanSelect] = useState(false);
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
-  const { playAudio } = useAudio();
+  const [tutorialStep, setTutorialStep] = useState<'intro' | 'character' | 'choice' | 'feedback' | 'complete'>('intro');
+  const [nonTutorialStep, setNonTutorialStep] = useState<'intro' | 'character' | 'choice'>('intro');
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [animatedImage, setAnimatedImage] = useState<'correct' | 'wrong' | null>(null);
+  const [charactersClicked, setCharactersClicked] = useState<Character[]>([]);
 
-  const audioSequenceRef = useRef<{ audio: string; character: Character }[] | null>(null);
+  const isTutorialProblem = isTutorial && problem instanceof TutorialSegmentingProblem;
 
   useEffect(() => {
-    audioSequenceRef.current = null;
-  }, [problem]);
+    if (isTutorialProblem) {
+      setTutorialStep('intro');
+      setActiveCharacter(null);
+      setCanSelect(false);
+      setFeedback(null);
+      setWrongAttempts(0);
+      setAnimatedImage(null);
+      setCharactersClicked([]);
+    } else {
+      setNonTutorialStep('intro');
+      setActiveCharacter(null);
+      setCanSelect(false);
+    }
+  }, [problem, isTutorialProblem]);
 
-  const playAudioWithAnimation = useCallback(
-    (audioPath: string, character: Character, nextAction?: () => void) => {
-      setActiveCharacter(character);
+  useEffect(() => {
+    if (isTutorialProblem && tutorialStep === 'complete') {
+      onInternalTutorialComplete?.();
+    }
+  }, [isTutorialProblem, tutorialStep, onInternalTutorialComplete]);
 
-      playAudio(
-        audioPath,
-        () => {
-          setActiveCharacter(null);
-          if (nextAction) {
-            nextAction();
-          } else {
-            setCanReplay(true);
-          }
-        },
-        onError
-      );
+  // Audio sequence logic
+  const regularAudioSequence = React.useMemo(() => {
+    if (isTutorialProblem) return [];
+    const sequence: AudioSequenceItem[] = [];
+    switch (nonTutorialStep) {
+      case 'intro': {
+        const tutorialProblem = problem as TutorialSegmentingProblem;
+        sequence.push({ path: tutorialProblem.wrongInstructUserNarration });
+        break;
+      }
+      case 'character': {
+        // Play only the correct audio path in the sequence, similar to blending
+        sequence.push({ path: problem.correctAudioPath });
+        break;
+      }
+      case 'choice': {
+        // Use instructUserNarration from TutorialSegmentingProblem for choice instruction
+        const tutorialProblem = problem as TutorialSegmentingProblem;
+        sequence.push({ path: tutorialProblem.instructUserNarration });
+        break;
+      }
+    }
+    return sequence;
+  }, [isTutorialProblem, nonTutorialStep, problem]);
+
+  const tutorialAudioSequence = useMemo(() => {
+    if (!isTutorialProblem) return [];
+    const tutorialProblem = problem as TutorialSegmentingProblem;
+    const sequence: AudioSequenceItem[] = [];
+    switch (tutorialStep) {
+      case 'intro':
+        if (tutorialProblem.imageNarration) sequence.push({ path: tutorialProblem.imageNarration });
+        if (tutorialProblem.tapCharacterNarration) sequence.push({ path: tutorialProblem.tapCharacterNarration });
+        break;
+      case 'character':
+        // Play audio for the most recently clicked character, if any
+        if (charactersClicked.length > 0) {
+          const last = charactersClicked[charactersClicked.length - 1];
+          const audioPath = last === Character.LULU ? tutorialProblem.correctAudioPath : tutorialProblem.wrongAudioPath;
+          sequence.push({ path: audioPath });
+        }
+        break;
+      case 'choice':
+        if (tutorialProblem.instructUserNarration) sequence.push({ path: tutorialProblem.instructUserNarration });
+        break;
+      case 'feedback':
+        if (feedback === 'success') {
+          if (tutorialProblem.correctChoiceNarration) sequence.push({ path: tutorialProblem.correctChoiceNarration });
+          if (tutorialProblem.correctChoiceNextNarration)
+            sequence.push({ path: tutorialProblem.correctChoiceNextNarration });
+        } else {
+          if (tutorialProblem.retryNarration) sequence.push({ path: tutorialProblem.retryNarration });
+        }
+        break;
+    }
+    return sequence;
+  }, [isTutorialProblem, problem, tutorialStep, feedback, charactersClicked]);
+
+  const audioSequence = useMemo(() => {
+    return isTutorialProblem ? tutorialAudioSequence : regularAudioSequence;
+  }, [isTutorialProblem, tutorialAudioSequence, regularAudioSequence]);
+
+  const { play, stop, status } = useAudioSequence({
+    sequence: audioSequence,
+    initialDelay: 1000,
+    onSequenceComplete: () => {
+      if (isTutorialProblem) {
+        switch (tutorialStep) {
+          case 'intro':
+            setTutorialStep('character');
+            setAnimatedImage(null);
+            break;
+          case 'character':
+            if (charactersClicked.length === 2) {
+              setTutorialStep('choice');
+            }
+            setActiveCharacter(null);
+            break;
+          case 'choice':
+            setCanSelect(true);
+            break;
+          case 'feedback':
+            if (feedback === 'success') {
+              setTutorialStep('complete');
+            } else {
+              setFeedback(null);
+              setTutorialStep('intro');
+              setCanSelect(false);
+              setCharactersClicked([]);
+            }
+            break;
+        }
+      } else {
+        switch (nonTutorialStep) {
+          case 'intro':
+            setNonTutorialStep('character');
+            break;
+          case 'character':
+            setNonTutorialStep('choice');
+            setActiveCharacter(null);
+            break;
+          case 'choice':
+            setCanSelect(true);
+            break;
+        }
+      }
     },
-    [onError, playAudio]
+    onAudioStart: item => {
+      if (isTutorialProblem) {
+        const tutorialProblem = problem as TutorialSegmentingProblem;
+        if (item.path === tutorialProblem.imageNarration) setAnimatedImage('correct');
+        else setAnimatedImage(null);
+      }
+    },
+    onError: onError,
+    loop: false,
+    autoPlay: isTutorialProblem ? tutorialStep !== 'character' : nonTutorialStep !== 'character',
+  });
+
+  const handleAudioError = useCallback(
+    (error: string) => {
+      onError?.(error);
+    },
+    [onError]
   );
 
-  const playSequence = useCallback(() => {
-    setCanReplay(false);
+  const shouldAnimateLulu = useMemo(() => {
+    return !!(isTutorialProblem && tutorialStep === 'character' && !charactersClicked.includes(Character.LULU));
+  }, [isTutorialProblem, tutorialStep, charactersClicked]);
 
-    if (!audioSequenceRef.current) {
-      const luluHasCorrectAudio = Math.random() < 0.5;
-      audioSequenceRef.current = [
-        {
-          audio: luluHasCorrectAudio ? problem.correctAudioPath : problem.wrongAudioPath,
-          character: Character.LULU,
-        },
-        {
-          audio: luluHasCorrectAudio ? problem.wrongAudioPath : problem.correctAudioPath,
-          character: Character.FRANCINE,
-        },
-      ];
-    }
+  const shouldAnimateFrancine = useMemo(() => {
+    return !!(isTutorialProblem && tutorialStep === 'character' && !charactersClicked.includes(Character.FRANCINE));
+  }, [isTutorialProblem, tutorialStep, charactersClicked]);
 
-    const sequence = audioSequenceRef.current;
-    if (!sequence) return;
+  const handleCharacterClick = useCallback(
+    (character: Character) => {
+      if (!isTutorialProblem || tutorialStep !== 'character') return;
+      if (charactersClicked.includes(character)) return;
+      setActiveCharacter(character);
+      setCharactersClicked(prev => [...prev, character]);
+    },
+    [isTutorialProblem, tutorialStep, charactersClicked]
+  );
 
-    playAudioWithAnimation(sequence[0].audio, sequence[0].character, () => {
-      setTimeout(() => {
-        playAudioWithAnimation(sequence[1].audio, sequence[1].character, () => {
-          setCanReplay(true);
-        });
-      }, 1000);
-    });
-  }, [playAudioWithAnimation, problem]);
+  const handleChoice = useCallback(
+    (character: Character) => {
+      if (!canSelect) return;
+      if (isTutorialProblem) {
+        stop();
+        const tutorialProblem = problem as TutorialSegmentingProblem;
+        const isCorrect = tutorialProblem.isCorrect(
+          character === Character.LULU ? tutorialProblem.correctAudioPath : tutorialProblem.wrongAudioPath
+        );
+        if (isCorrect) {
+          setFeedback('success');
+          setWrongAttempts(0);
+        } else {
+          setFeedback('retry');
+          setWrongAttempts(prev => prev + 1);
+        }
+        setTutorialStep('feedback');
+        setCanSelect(false);
+      } else {
+        onSubmit(character === Character.LULU ? problem.correctAudioPath : problem.wrongAudioPath);
+      }
+    },
+    [canSelect, isTutorialProblem, problem, stop, onSubmit]
+  );
 
   useEffect(() => {
-    if (!tutorialStep || tutorialStep === 4) {
-      const timer = setTimeout(playSequence, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [tutorialStep, playSequence]);
-
-  const handleChoice = (character: Character) => {
-    if (!canReplay) return;
-
-    const sequence = audioSequenceRef.current;
-    if (!sequence) return;
-
-    if (tutorialStep) {
-      const correctCharacter = sequence[0].audio === problem.correctAudioPath ? Character.LULU : Character.FRANCINE;
-      if (character === correctCharacter) {
-        setFeedback('success');
-        const correctAudio = correctCharacter === Character.LULU ? sequence[0].audio : sequence[1].audio;
-        setTimeout(() => {
-          onSubmit(correctAudio);
-        }, 2000);
-      } else {
-        setFeedback('retry');
-        setTimeout(() => {
-          setFeedback(null);
-          playSequence();
-        }, 2000);
+    console.log('fuck');
+    if (isTutorialProblem) {
+      console.log('fuck2');
+      console.log(tutorialStep);
+      if (tutorialStep === 'intro' || tutorialStep === 'choice' || tutorialStep === 'feedback') {
+        play();
       }
     } else {
-      const characterAudio = character === Character.LULU ? sequence[0].audio : sequence[1].audio;
-      onSubmit(characterAudio);
+      console.log('fuck3');
+      if (nonTutorialStep === 'intro' || nonTutorialStep === 'choice') {
+        stop();
+      }
     }
-  };
 
-  const correctCharacter = audioSequenceRef.current
-    ? audioSequenceRef.current[0].audio === problem.correctAudioPath
-      ? Character.LULU
-      : Character.FRANCINE
-    : null;
+    return () => {
+      stop();
+    };
+  }, [stop, isTutorialProblem, tutorialStep, nonTutorialStep]);
+
+  // Update character animation effect to match blending behavior
+  useEffect(() => {
+    if (isTutorialProblem) {
+      setActiveCharacter(
+        status === 'playing' && tutorialStep !== 'intro' && tutorialStep !== 'choice' && tutorialStep !== 'feedback'
+          ? activeCharacter
+          : null
+      );
+    } else {
+      setActiveCharacter(status === 'playing' && nonTutorialStep === 'character' ? activeCharacter : null);
+    }
+  }, [status, activeCharacter, tutorialStep, nonTutorialStep, isTutorialProblem]);
 
   return (
     <div className="relative min-h-screen flex flex-col font-sans items-center justify-center overflow-hidden">
       <div className="z-10 max-w-3xl px-4 mx-auto">
         {tutorialContent || (
           <div className="space-y-8 text-center">
-            <h1 className="text-4xl md:text-6xl font-extrabold text-white">Listen! 👂</h1>
-
-            <div className="relative w-40 h-40 md:w-48 md:h-48 mx-auto">
+            <motion.div
+              animate={{ scale: animatedImage === 'correct' ? 1.1 : animatedImage === 'wrong' ? 0.9 : 1 }}
+              transition={{ duration: 0.3 }}
+              className="relative w-40 h-40 md:w-48 md:h-48 mx-auto">
               <Image src={problem.imagePath} alt="Problem Image" fill className="object-contain" priority />
-            </div>
+            </motion.div>
 
             {feedback && (
               <motion.div
@@ -167,42 +305,56 @@ export function SegmentingGameTemplate({
               <CharacterChoice
                 character={Character.LULU}
                 isActive={activeCharacter === Character.LULU}
-                canReplay={canReplay}
+                canReplay={canSelect}
                 feedback={feedback}
-                onClick={() => handleChoice(Character.LULU)}
-                shouldAnimate={feedback === 'success' && correctCharacter === Character.LULU}
+                onClick={() => {
+                  if (isTutorialProblem && tutorialStep === 'character') {
+                    handleCharacterClick(Character.LULU);
+                  } else if (canSelect) {
+                    handleChoice(Character.LULU);
+                  }
+                }}
+                isClicked={charactersClicked.includes(Character.LULU)}
+                shouldAnimate={shouldAnimateLulu}
               />
               <CharacterChoice
                 character={Character.FRANCINE}
                 isActive={activeCharacter === Character.FRANCINE}
-                canReplay={canReplay}
+                canReplay={canSelect}
                 feedback={feedback}
-                onClick={() => handleChoice(Character.FRANCINE)}
-                shouldAnimate={feedback === 'success' && correctCharacter === Character.FRANCINE}
+                onClick={() => {
+                  if (isTutorialProblem && tutorialStep === 'character') {
+                    handleCharacterClick(Character.FRANCINE);
+                  } else if (canSelect) {
+                    handleChoice(Character.FRANCINE);
+                  }
+                }}
+                isClicked={charactersClicked.includes(Character.FRANCINE)}
+                shouldAnimate={shouldAnimateFrancine}
               />
             </div>
 
-            <motion.div
-              className="h-[120px] mt-8"
-              animate={{ height: canReplay && !feedback ? 'auto' : '0px' }}
-              transition={{ duration: 0.3 }}>
+            {(canSelect || (isTutorialProblem && tutorialStep === 'choice')) && !feedback && (
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
-                animate={{
-                  opacity: canReplay && !feedback ? 1 : 0,
-                  y: canReplay && !feedback ? 0 : -20,
-                }}
-                transition={{ duration: 0.3 }}>
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="mt-8">
                 <p className="text-2xl md:text-4xl text-white font-bold mb-4">Who said it the right way?</p>
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  onClick={playSequence}
-                  className="bg-white/20 px-6 py-3 text-white font-bold text-xl hover:bg-white/30">
-                  Listen Again! 🔄
-                </Button>
+                {!isTutorialProblem && (
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    onClick={() => {
+                      setCanSelect(false);
+                      stop();
+                    }}
+                    className="bg-white/20 px-6 py-3 text-white font-bold text-xl hover:bg-white/30">
+                    Listen Again! 🔄
+                  </Button>
+                )}
               </motion.div>
-            </motion.div>
+            )}
           </div>
         )}
 
@@ -240,15 +392,22 @@ interface CharacterChoiceProps {
   feedback: 'success' | 'retry' | null;
   onClick: () => void;
   shouldAnimate: boolean;
+  isClicked?: boolean;
 }
 
-function CharacterChoice({ character, isActive, canReplay, feedback, onClick, shouldAnimate }: CharacterChoiceProps) {
+function CharacterChoice({
+  character,
+  isActive,
+  canReplay,
+  feedback,
+  onClick,
+  shouldAnimate,
+  isClicked,
+}: CharacterChoiceProps) {
   const isLulu = character === Character.LULU;
 
   return (
-    <div
-      onClick={() => canReplay && !feedback && onClick()}
-      className={!canReplay || feedback ? 'cursor-default' : 'cursor-pointer'}>
+    <div onClick={onClick} className="cursor-pointer">
       <CharacterAvatar
         emoji={isLulu ? '🐞' : '🐸'}
         name={isLulu ? 'Lulu' : 'Francine'}
@@ -257,6 +416,7 @@ function CharacterChoice({ character, isActive, canReplay, feedback, onClick, sh
         className={`
           ${isActive ? 'scale-125 shadow-xl' : 'hover:scale-110'}
           ${shouldAnimate ? 'animate-bounce' : ''}
+          ${isClicked ? 'opacity-50' : ''}
         `}
       />
     </div>

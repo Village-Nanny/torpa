@@ -1,5 +1,10 @@
 import { Problems } from '@/src/types/enums/problems.enum';
-import { SegmentingProblem, SegmentingProblemProps } from '../types/segmenting';
+import {
+  SegmentingProblem,
+  SegmentingProblemProps,
+  TutorialSegmentingProblem,
+  TutorialSegmentingProblemProps,
+} from '../types/segmenting';
 import {
   BlendingProblem,
   BlendingProblemProps,
@@ -9,9 +14,10 @@ import {
 import { Character } from '../types/enums/characters.enum';
 import { getRandomCharacter } from '../utils/helpers';
 import { BlendingTutorial } from '../types/blending-tutorial';
+import { SegmentingTutorial } from '../types/segmenting-tutorial';
 
 type ProblemsConfigType = {
-  [Problems.TUTORIAL_SEGMENTING]: SegmentingProblemProps[];
+  [Problems.TUTORIAL_SEGMENTING]: TutorialSegmentingProblemProps[];
   [Problems.TUTORIAL_BLENDING]: TutorialBlendingProblemProps[];
   [Problems.INITIAL_SEGMENTING]: SegmentingProblemProps[];
   [Problems.FINAL_SEGMENTING]: SegmentingProblemProps[];
@@ -25,21 +31,39 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       imagePath: '/assets/images/gum.png',
       correctAudioPath: '/assets/audio/gum.wav',
       wrongAudioPath: '/assets/audio/watch.wav',
+      correctChoiceNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGood jobLulu said it the right way.m4a',
+      imageNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingThis is gum.m4a',
+      correctChoiceNextNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGreatNow let’s try one more.m4a',
+      instructUserNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting Training Who said it the right way.m4a',
+      retryNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingLet’s listen again.m4a',
+      tapCharacterNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingNow tap Lulu and Francine.m4a',
+      wrongInstructUserNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingTap Luluthen tap Francine.m4a',
     },
     {
       imagePath: '/assets/images/watch.png',
       correctAudioPath: '/assets/audio/watch.wav',
       wrongAudioPath: '/assets/audio/gum.wav',
-    },
-    {
-      imagePath: '/assets/images/pot.png',
-      correctAudioPath: '/assets/audio/pot.wav',
-      wrongAudioPath: '/assets/audio/door.wav',
-    },
-    {
-      imagePath: '/assets/images/door.png',
-      correctAudioPath: '/assets/audio/door.wav',
-      wrongAudioPath: '/assets/audio/pot.wav',
+      correctChoiceNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGood Job! Francine said it the right way.m4a',
+      imageNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingThis is a pot.m4a',
+      correctChoiceNextNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGreatNow let’s try one more.m4a',
+      instructUserNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting Training Who said it the right way.m4a',
+      retryNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingLet’s listen again.m4a',
+      tapCharacterNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingNow tap Lulu and Francine.m4a',
+      wrongInstructUserNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingTap Luluthen tap Francine.m4a',
     },
   ],
   [Problems.TUTORIAL_BLENDING]: [
@@ -362,9 +386,13 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
 };
 
 export const PROBLEMS = {
-  [Problems.TUTORIAL_SEGMENTING]: PROBLEMS_CONFIG[Problems.TUTORIAL_SEGMENTING].map(
-    props => new SegmentingProblem(props)
-  ),
+  [Problems.TUTORIAL_SEGMENTING]: (() => {
+    const problems = PROBLEMS_CONFIG[Problems.TUTORIAL_SEGMENTING].map(props => new TutorialSegmentingProblem(props));
+    return new SegmentingTutorial({
+      problem1: problems[0],
+      problem2: problems[1],
+    });
+  })(),
   [Problems.TUTORIAL_BLENDING]: (() => {
     const problems = PROBLEMS_CONFIG[Problems.TUTORIAL_BLENDING].map(props => new TutorialBlendingProblem(props));
     return new BlendingTutorial({

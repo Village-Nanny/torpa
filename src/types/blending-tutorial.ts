@@ -1,6 +1,5 @@
 import { BlendingProblem, TutorialBlendingProblem } from './blending';
 
-// Define the properties needed for a BlendingTutorial
 export interface BlendingTutorialProps {
   problem1: TutorialBlendingProblem;
   problem2: TutorialBlendingProblem;

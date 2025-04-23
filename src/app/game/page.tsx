@@ -25,6 +25,7 @@ import { HomeNavButton } from '@/src/components/ui/molecules/home-nav-button';
 import { useAudio } from '@/src/hooks/use-audio';
 import { GameIntroScreen } from '@/src/components/ui/organisms/onboarding/game-intro-screen';
 import { BlendingTutorial } from '@/src/types/blending-tutorial';
+import { SegmentingTutorial } from '@/src/types/segmenting-tutorial';
 
 const ErrorScreen = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
   <div className="min-h-screen flex items-center justify-center bg-rose-600">
@@ -40,6 +41,8 @@ const ErrorScreen = ({ message, onRetry }: { message: string; onRetry: () => voi
   </div>
 );
 
+type Problem = BlendingProblem | SegmentingProblem | BlendingTutorial | SegmentingTutorial;
+
 const ProblemRenderer = ({
   problemType,
   problem,
@@ -47,7 +50,7 @@ const ProblemRenderer = ({
   onError,
 }: {
   problemType: Problems | null;
-  problem: BlendingProblem | SegmentingProblem | BlendingTutorial | null;
+  problem: Problem | null;
   onSubmit: (answer: string) => void;
   onError: (error: string) => void;
 }) => {
@@ -61,7 +64,22 @@ const ProblemRenderer = ({
 
   switch (problemType) {
     case Problems.TUTORIAL_SEGMENTING:
-      return <TutorialSegmentingPage problem={problem as SegmentingProblem} onSubmit={onSubmit} onError={onError} />;
+      if (problem instanceof SegmentingTutorial) {
+        return (
+          <TutorialSegmentingPage
+            tutorial={problem}
+            onTutorialComplete={() => {
+              console.log('GamePage - Tutorial segmenting complete, submitting to advance game state');
+              onSubmit('tutorial_segmenting_complete');
+            }}
+            onError={onError}
+          />
+        );
+      } else {
+        console.error('Invalid problem type for TUTORIAL_SEGMENTING', problem);
+        onError('Invalid tutorial data.');
+        return null;
+      }
     case Problems.TUTORIAL_BLENDING:
       if (problem instanceof BlendingTutorial) {
         return (
@@ -148,6 +166,13 @@ export default function GamePage() {
     },
     [dispatch]
   );
+
+  // Skip the intro screen for dev: set introShown to true as soon as gameStarted is true
+  useEffect(() => {
+    if (gameStarted && !introShown) {
+      setIntroShown(true);
+    }
+  }, [gameStarted, introShown]);
 
   // Handler for answer submission
   const handleSubmit = useCallback(
@@ -258,9 +283,10 @@ export default function GamePage() {
             <StartScreen onStart={startGameHandler} showHeader={false} />
           </FadeIn>
         ) : !introShown ? (
-          <FadeIn key="intro-screen" className="relative z-10">
-            <GameIntroScreen onContinue={handleIntroComplete} />
-          </FadeIn>
+          // <FadeIn key="intro-screen" className="relative z-10">
+          //   <GameIntroScreen onContinue={handleIntroComplete} />
+          // </FadeIn>
+          <></>
         ) : (
           <FadeIn key={`problem-${currentProblemIndex}`} className="relative z-10">
             {currentProblem ? (
