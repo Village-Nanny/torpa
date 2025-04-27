@@ -66,7 +66,6 @@ export function SegmentingGameTemplate({
     }
   }, [isTutorialProblem, tutorialStep, onInternalTutorialComplete]);
 
-  // Audio sequence logic
   const regularAudioSequence = React.useMemo(() => {
     if (isTutorialProblem) return [];
     const sequence: AudioSequenceItem[] = [];
@@ -101,7 +100,6 @@ export function SegmentingGameTemplate({
         if (tutorialProblem.tapCharacterNarration) sequence.push({ path: tutorialProblem.tapCharacterNarration });
         break;
       case 'character':
-        // Play audio for the most recently clicked character, if any
         if (charactersClicked.length > 0) {
           const last = charactersClicked[charactersClicked.length - 1];
           const audioPath = last === Character.LULU ? tutorialProblem.correctAudioPath : tutorialProblem.wrongAudioPath;
@@ -146,6 +144,7 @@ export function SegmentingGameTemplate({
             break;
           case 'choice':
             setCanSelect(true);
+            setCharactersClicked([]);
             break;
           case 'feedback':
             if (feedback === 'success') {
@@ -236,15 +235,12 @@ export function SegmentingGameTemplate({
   );
 
   useEffect(() => {
-    console.log('fuck');
     if (isTutorialProblem) {
-      console.log('fuck2');
       console.log(tutorialStep);
       if (tutorialStep === 'intro' || tutorialStep === 'choice' || tutorialStep === 'feedback') {
         play();
       }
     } else {
-      console.log('fuck3');
       if (nonTutorialStep === 'intro' || nonTutorialStep === 'choice') {
         stop();
       }
@@ -255,7 +251,6 @@ export function SegmentingGameTemplate({
     };
   }, [stop, isTutorialProblem, tutorialStep, nonTutorialStep]);
 
-  // Update character animation effect to match blending behavior
   useEffect(() => {
     if (isTutorialProblem) {
       setActiveCharacter(
@@ -268,6 +263,13 @@ export function SegmentingGameTemplate({
     }
   }, [status, activeCharacter, tutorialStep, nonTutorialStep, isTutorialProblem]);
 
+  useEffect(() => {
+    if (isTutorialProblem && tutorialStep === 'character' && charactersClicked.length > 0) {
+      play();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [charactersClicked, isTutorialProblem, tutorialStep]);
+
   return (
     <div className="relative min-h-screen flex flex-col font-sans items-center justify-center overflow-hidden">
       <div className="z-10 max-w-3xl px-4 mx-auto">
@@ -279,27 +281,6 @@ export function SegmentingGameTemplate({
               className="relative w-40 h-40 md:w-48 md:h-48 mx-auto">
               <Image src={problem.imagePath} alt="Problem Image" fill className="object-contain" priority />
             </motion.div>
-
-            {feedback && (
-              <motion.div
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className={`text-center p-6 rounded-xl ${
-                  feedback === 'success' ? 'bg-green-500/30' : 'bg-yellow-500/30'
-                }`}>
-                {feedback === 'success' ? (
-                  <div className="space-y-2">
-                    <p className="text-3xl md:text-4xl text-white font-bold">Wonderful! 🌟</p>
-                    <p className="text-2xl md:text-3xl text-white">You got it right! ⭐️</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-3xl md:text-4xl text-white font-bold">Let&apos;s Try Again! 🎯</p>
-                    <p className="text-2xl md:text-3xl text-white">Listen carefully! 👂</p>
-                  </div>
-                )}
-              </motion.div>
-            )}
 
             <div className="flex justify-center gap-20 md:gap-32 mt-8">
               <CharacterChoice
@@ -333,28 +314,6 @@ export function SegmentingGameTemplate({
                 shouldAnimate={shouldAnimateFrancine}
               />
             </div>
-
-            {(canSelect || (isTutorialProblem && tutorialStep === 'choice')) && !feedback && (
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="mt-8">
-                <p className="text-2xl md:text-4xl text-white font-bold mb-4">Who said it the right way?</p>
-                {!isTutorialProblem && (
-                  <Button
-                    variant="ghost"
-                    size="lg"
-                    onClick={() => {
-                      setCanSelect(false);
-                      stop();
-                    }}
-                    className="bg-white/20 px-6 py-3 text-white font-bold text-xl hover:bg-white/30">
-                    Listen Again! 🔄
-                  </Button>
-                )}
-              </motion.div>
-            )}
           </div>
         )}
 

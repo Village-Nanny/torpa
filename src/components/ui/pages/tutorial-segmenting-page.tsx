@@ -47,6 +47,7 @@ export default function TutorialSegmentingPage({ tutorial, onTutorialComplete, o
             isTutorial={true}
             showNavigation={false}
             onPrev={handlePrev}
+            onInternalTutorialComplete={handleNext}
           />
         );
       case 3:
@@ -62,6 +63,7 @@ export default function TutorialSegmentingPage({ tutorial, onTutorialComplete, o
             isTutorial={true}
             showNavigation={false}
             onPrev={handlePrev}
+            onInternalTutorialComplete={onTutorialComplete}
           />
         );
       default:
