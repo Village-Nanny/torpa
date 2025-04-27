@@ -47,9 +47,9 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingTap Luluthen tap Francine.m4a',
     },
     {
-      imagePath: '/assets/images/watch.png',
-      correctAudioPath: '/assets/audio/watch.wav',
-      wrongAudioPath: '/assets/audio/gum.wav',
+      imagePath: '/assets/images/pot.png',
+      correctAudioPath: '/assets/audio/pot.wav',
+      wrongAudioPath: '/assets/audio/door.wav',
       correctChoiceNarration:
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGood Job! Francine said it the right way.m4a',
       imageNarration:

@@ -41,6 +41,8 @@ export function SegmentingGameTemplate({
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [animatedImage, setAnimatedImage] = useState<'correct' | 'wrong' | null>(null);
   const [charactersClicked, setCharactersClicked] = useState<Character[]>([]);
+  const [nonTutorialActiveCharacter, setNonTutorialActiveCharacter] = useState<Character | null>(null);
+  const [nonTutorialCanSelect, setNonTutorialCanSelect] = useState(false);
 
   const isTutorialProblem = isTutorial && problem instanceof TutorialSegmentingProblem;
 
@@ -55,8 +57,9 @@ export function SegmentingGameTemplate({
       setCharactersClicked([]);
     } else {
       setNonTutorialStep('intro');
-      setActiveCharacter(null);
-      setCanSelect(false);
+      setNonTutorialActiveCharacter(null);
+      setNonTutorialCanSelect(false);
+      setCharactersClicked([]);
     }
   }, [problem, isTutorialProblem]);
 
@@ -66,29 +69,28 @@ export function SegmentingGameTemplate({
     }
   }, [isTutorialProblem, tutorialStep, onInternalTutorialComplete]);
 
-  const regularAudioSequence = React.useMemo(() => {
+  const regularAudioSequence = useMemo(() => {
     if (isTutorialProblem) return [];
     const sequence: AudioSequenceItem[] = [];
     switch (nonTutorialStep) {
       case 'intro': {
-        const tutorialProblem = problem as TutorialSegmentingProblem;
-        sequence.push({ path: tutorialProblem.wrongInstructUserNarration });
+        const tapInstruction =
+          '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingTap Luluthen tap Francine.m4a';
+        sequence.push({ path: tapInstruction });
         break;
       }
       case 'character': {
-        // Play only the correct audio path in the sequence, similar to blending
-        sequence.push({ path: problem.correctAudioPath });
         break;
       }
       case 'choice': {
-        // Use instructUserNarration from TutorialSegmentingProblem for choice instruction
-        const tutorialProblem = problem as TutorialSegmentingProblem;
-        sequence.push({ path: tutorialProblem.instructUserNarration });
+        const instructAudio =
+          '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingWho said it the right way.m4a';
+        sequence.push({ path: instructAudio });
         break;
       }
     }
     return sequence;
-  }, [isTutorialProblem, nonTutorialStep, problem]);
+  }, [isTutorialProblem, nonTutorialStep]);
 
   const tutorialAudioSequence = useMemo(() => {
     if (!isTutorialProblem) return [];
@@ -163,22 +165,14 @@ export function SegmentingGameTemplate({
             setNonTutorialStep('character');
             break;
           case 'character':
-            setNonTutorialStep('choice');
-            setActiveCharacter(null);
             break;
           case 'choice':
-            setCanSelect(true);
+            setNonTutorialCanSelect(true);
             break;
         }
       }
     },
-    onAudioStart: item => {
-      if (isTutorialProblem) {
-        const tutorialProblem = problem as TutorialSegmentingProblem;
-        if (item.path === tutorialProblem.imageNarration) setAnimatedImage('correct');
-        else setAnimatedImage(null);
-      }
-    },
+    onAudioStart: () => {},
     onError: onError,
     loop: false,
     autoPlay: isTutorialProblem ? tutorialStep !== 'character' : nonTutorialStep !== 'character',
@@ -192,21 +186,49 @@ export function SegmentingGameTemplate({
   );
 
   const shouldAnimateLulu = useMemo(() => {
-    return !!(isTutorialProblem && tutorialStep === 'character' && !charactersClicked.includes(Character.LULU));
-  }, [isTutorialProblem, tutorialStep, charactersClicked]);
+    if (isTutorialProblem) {
+      return tutorialStep === 'character' && !charactersClicked.includes(Character.LULU);
+    } else {
+      return nonTutorialStep === 'character' && !charactersClicked.includes(Character.LULU);
+    }
+  }, [isTutorialProblem, tutorialStep, nonTutorialStep, charactersClicked]);
 
   const shouldAnimateFrancine = useMemo(() => {
-    return !!(isTutorialProblem && tutorialStep === 'character' && !charactersClicked.includes(Character.FRANCINE));
-  }, [isTutorialProblem, tutorialStep, charactersClicked]);
+    if (isTutorialProblem) {
+      return tutorialStep === 'character' && !charactersClicked.includes(Character.FRANCINE);
+    } else {
+      return nonTutorialStep === 'character' && !charactersClicked.includes(Character.FRANCINE);
+    }
+  }, [isTutorialProblem, tutorialStep, nonTutorialStep, charactersClicked]);
 
-  const handleCharacterClick = useCallback(
+  const handleCharacterTap = useCallback(
     (character: Character) => {
-      if (!isTutorialProblem || tutorialStep !== 'character') return;
-      if (charactersClicked.includes(character)) return;
-      setActiveCharacter(character);
-      setCharactersClicked(prev => [...prev, character]);
+      if (isTutorialProblem) {
+        if (tutorialStep !== 'character') return;
+        if (charactersClicked.includes(character)) return;
+        setActiveCharacter(character);
+        setCharactersClicked(prev => [...prev, character]);
+      } else {
+        if (nonTutorialStep !== 'character') return;
+        if (charactersClicked.includes(character)) return;
+        setNonTutorialActiveCharacter(character);
+        setCharactersClicked(prev => [...prev, character]);
+        const audioPath = character === Character.LULU ? problem.correctAudioPath : problem.wrongAudioPath;
+        const audio = new Audio(audioPath);
+        audio.play();
+        audio.onended = () => {
+          setCharactersClicked(prev => {
+            const updated = prev;
+            if (updated.length === 2) {
+              setNonTutorialStep('choice');
+            }
+            setNonTutorialActiveCharacter(null);
+            return updated;
+          });
+        };
+      }
     },
-    [isTutorialProblem, tutorialStep, charactersClicked]
+    [isTutorialProblem, tutorialStep, nonTutorialStep, charactersClicked, problem]
   );
 
   const handleChoice = useCallback(
@@ -234,15 +256,22 @@ export function SegmentingGameTemplate({
     [canSelect, isTutorialProblem, problem, stop, onSubmit]
   );
 
+  const handleNonTutorialChoice = useCallback(
+    (character: Character) => {
+      if (!nonTutorialCanSelect) return;
+      onSubmit(character === Character.LULU ? problem.correctAudioPath : problem.wrongAudioPath);
+    },
+    [nonTutorialCanSelect, onSubmit, problem]
+  );
+
   useEffect(() => {
     if (isTutorialProblem) {
-      console.log(tutorialStep);
       if (tutorialStep === 'intro' || tutorialStep === 'choice' || tutorialStep === 'feedback') {
         play();
       }
     } else {
       if (nonTutorialStep === 'intro' || nonTutorialStep === 'choice') {
-        stop();
+        play();
       }
     }
 
@@ -270,6 +299,12 @@ export function SegmentingGameTemplate({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [charactersClicked, isTutorialProblem, tutorialStep]);
 
+  useEffect(() => {
+    if ((isTutorialProblem && tutorialStep === 'choice') || (!isTutorialProblem && nonTutorialStep === 'choice')) {
+      setCharactersClicked([]);
+    }
+  }, [isTutorialProblem, tutorialStep, nonTutorialStep]);
+
   return (
     <div className="relative min-h-screen flex flex-col font-sans items-center justify-center overflow-hidden">
       <div className="z-10 max-w-3xl px-4 mx-auto">
@@ -285,30 +320,32 @@ export function SegmentingGameTemplate({
             <div className="flex justify-center gap-20 md:gap-32 mt-8">
               <CharacterChoice
                 character={Character.LULU}
-                isActive={activeCharacter === Character.LULU}
-                canReplay={canSelect}
+                isActive={
+                  isTutorialProblem ? activeCharacter === Character.LULU : nonTutorialActiveCharacter === Character.LULU
+                }
+                canReplay={isTutorialProblem ? canSelect : nonTutorialCanSelect}
                 feedback={feedback}
                 onClick={() => {
-                  if (isTutorialProblem && tutorialStep === 'character') {
-                    handleCharacterClick(Character.LULU);
-                  } else if (canSelect) {
-                    handleChoice(Character.LULU);
-                  }
+                  handleCharacterTap(Character.LULU);
+                  if (!isTutorialProblem && nonTutorialStep === 'choice') handleNonTutorialChoice(Character.LULU);
+                  if (isTutorialProblem && canSelect) handleChoice(Character.LULU);
                 }}
                 isClicked={charactersClicked.includes(Character.LULU)}
                 shouldAnimate={shouldAnimateLulu}
               />
               <CharacterChoice
                 character={Character.FRANCINE}
-                isActive={activeCharacter === Character.FRANCINE}
-                canReplay={canSelect}
+                isActive={
+                  isTutorialProblem
+                    ? activeCharacter === Character.FRANCINE
+                    : nonTutorialActiveCharacter === Character.FRANCINE
+                }
+                canReplay={isTutorialProblem ? canSelect : nonTutorialCanSelect}
                 feedback={feedback}
                 onClick={() => {
-                  if (isTutorialProblem && tutorialStep === 'character') {
-                    handleCharacterClick(Character.FRANCINE);
-                  } else if (canSelect) {
-                    handleChoice(Character.FRANCINE);
-                  }
+                  handleCharacterTap(Character.FRANCINE);
+                  if (!isTutorialProblem && nonTutorialStep === 'choice') handleNonTutorialChoice(Character.FRANCINE);
+                  if (isTutorialProblem && canSelect) handleChoice(Character.FRANCINE);
                 }}
                 isClicked={charactersClicked.includes(Character.FRANCINE)}
                 shouldAnimate={shouldAnimateFrancine}
