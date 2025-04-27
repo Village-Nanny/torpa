@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Character } from '@/src/types/enums/characters.enum';
 import { CharacterAvatar } from '@/src/components/ui/atoms/character-avatar';
 import { Button } from '@/src/components/ui/atoms/button';
@@ -104,7 +104,10 @@ export function SegmentingGameTemplate({
       case 'character':
         if (charactersClicked.length > 0) {
           const last = charactersClicked[charactersClicked.length - 1];
-          const audioPath = last === Character.LULU ? tutorialProblem.correctAudioPath : tutorialProblem.wrongAudioPath;
+          const audioPath =
+            last === tutorialProblem.correctCharacter
+              ? tutorialProblem.correctAudioPath
+              : tutorialProblem.wrongAudioPath;
           sequence.push({ path: audioPath });
         }
         break;
@@ -213,7 +216,7 @@ export function SegmentingGameTemplate({
         if (charactersClicked.includes(character)) return;
         setNonTutorialActiveCharacter(character);
         setCharactersClicked(prev => [...prev, character]);
-        const audioPath = character === Character.LULU ? problem.correctAudioPath : problem.wrongAudioPath;
+        const audioPath = character === problem.correctCharacter ? problem.correctAudioPath : problem.wrongAudioPath;
         const audio = new Audio(audioPath);
         audio.play();
         audio.onended = () => {
@@ -237,9 +240,11 @@ export function SegmentingGameTemplate({
       if (isTutorialProblem) {
         stop();
         const tutorialProblem = problem as TutorialSegmentingProblem;
-        const isCorrect = tutorialProblem.isCorrect(
-          character === Character.LULU ? tutorialProblem.correctAudioPath : tutorialProblem.wrongAudioPath
-        );
+        const selectedAudio =
+          character === tutorialProblem.correctCharacter
+            ? tutorialProblem.correctAudioPath
+            : tutorialProblem.wrongAudioPath;
+        const isCorrect = tutorialProblem.isCorrect(selectedAudio);
         if (isCorrect) {
           setFeedback('success');
           setWrongAttempts(0);
@@ -250,7 +255,9 @@ export function SegmentingGameTemplate({
         setTutorialStep('feedback');
         setCanSelect(false);
       } else {
-        onSubmit(character === Character.LULU ? problem.correctAudioPath : problem.wrongAudioPath);
+        const selectedAudio =
+          character === problem.correctCharacter ? problem.correctAudioPath : problem.wrongAudioPath;
+        onSubmit(selectedAudio);
       }
     },
     [canSelect, isTutorialProblem, problem, stop, onSubmit]
@@ -259,7 +266,8 @@ export function SegmentingGameTemplate({
   const handleNonTutorialChoice = useCallback(
     (character: Character) => {
       if (!nonTutorialCanSelect) return;
-      onSubmit(character === Character.LULU ? problem.correctAudioPath : problem.wrongAudioPath);
+      const selectedAudio = character === problem.correctCharacter ? problem.correctAudioPath : problem.wrongAudioPath;
+      onSubmit(selectedAudio);
     },
     [nonTutorialCanSelect, onSubmit, problem]
   );

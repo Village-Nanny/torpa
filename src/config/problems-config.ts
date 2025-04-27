@@ -45,6 +45,7 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingNow tap Lulu and Francine.m4a',
       wrongInstructUserNarration:
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingTap Luluthen tap Francine.m4a',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/pot.png',
@@ -55,7 +56,7 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       imageNarration:
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingThis is a pot.m4a',
       correctChoiceNextNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGreatNow let’s try one more.m4a',
+        '/assets/audio/segmenting/TORPA Segmenting Task /TORPA Segmenting Task TransitionGreatNow lets keep playing.m4a',
       instructUserNarration:
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting Training Who said it the right way.m4a',
       retryNarration:
@@ -64,6 +65,7 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingNow tap Lulu and Francine.m4a',
       wrongInstructUserNarration:
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingTap Luluthen tap Francine.m4a',
+      correctCharacter: Character.FRANCINE,
     },
   ],
   [Problems.TUTORIAL_BLENDING]: [
@@ -118,81 +120,97 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       imagePath: '/assets/images/hose.png',
       correctAudioPath: '/assets/audio/hose.wav',
       wrongAudioPath: '/assets/audio/nose.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/nose.png',
       correctAudioPath: '/assets/audio/nose.wav',
       wrongAudioPath: '/assets/audio/hose.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/one.png',
       correctAudioPath: '/assets/audio/one.wav',
       wrongAudioPath: '/assets/audio/sun.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/sun.png',
       correctAudioPath: '/assets/audio/sun.wav',
       wrongAudioPath: '/assets/audio/one.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/cat.png',
       correctAudioPath: '/assets/audio/cat.wav',
       wrongAudioPath: '/assets/audio/bat.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/bat.png',
       correctAudioPath: '/assets/audio/bat.wav',
       wrongAudioPath: '/assets/audio/cat.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/goose.png',
       correctAudioPath: '/assets/audio/goose.wav',
       wrongAudioPath: '/assets/audio/juice.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/juice.png',
       correctAudioPath: '/assets/audio/juice.wav',
       wrongAudioPath: '/assets/audio/goose.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/can.png',
       correctAudioPath: '/assets/audio/can.wav',
       wrongAudioPath: '/assets/audio/fan.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/fan.png',
       correctAudioPath: '/assets/audio/fan.wav',
       wrongAudioPath: '/assets/audio/can.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/fish.png',
       correctAudioPath: '/assets/audio/fish.wav',
       wrongAudioPath: '/assets/audio/dish.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/dish.png',
       correctAudioPath: '/assets/audio/dish.wav',
       wrongAudioPath: '/assets/audio/fish.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/lock.png',
       correctAudioPath: '/assets/audio/lock.wav',
       wrongAudioPath: '/assets/audio/sock.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/sock.png',
       correctAudioPath: '/assets/audio/sock.wav',
       wrongAudioPath: '/assets/audio/lock.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/wheel.png',
       correctAudioPath: '/assets/audio/wheel.wav',
       wrongAudioPath: '/assets/audio/seal.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/seal.png',
       correctAudioPath: '/assets/audio/seal.wav',
       wrongAudioPath: '/assets/audio/wheel.wav',
+      correctCharacter: Character.LULU,
     },
   ],
 
@@ -201,81 +219,97 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       imagePath: '/assets/images/comb.png',
       correctAudioPath: '/assets/audio/comb.wav',
       wrongAudioPath: '/assets/audio/coat.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/coat.png',
       correctAudioPath: '/assets/audio/coat.wav',
       wrongAudioPath: '/assets/audio/comb.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/bus.png',
       correctAudioPath: '/assets/audio/bus.wav',
       wrongAudioPath: '/assets/audio/bug.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/bug.png',
       correctAudioPath: '/assets/audio/bug.wav',
       wrongAudioPath: '/assets/audio/bus.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/boat.png',
       correctAudioPath: '/assets/audio/boat.wav',
       wrongAudioPath: '/assets/audio/bowl.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/bowl.png',
       correctAudioPath: '/assets/audio/bowl.wav',
       wrongAudioPath: '/assets/audio/boat.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/mail.png',
       correctAudioPath: '/assets/audio/mail.wav',
       wrongAudioPath: '/assets/audio/man.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/man.png',
       correctAudioPath: '/assets/audio/man.wav',
       wrongAudioPath: '/assets/audio/mail.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/dog.png',
       correctAudioPath: '/assets/audio/dog.wav',
       wrongAudioPath: '/assets/audio/doll.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/doll.png',
       correctAudioPath: '/assets/audio/doll.wav',
       wrongAudioPath: '/assets/audio/dog.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/couch.png',
       correctAudioPath: '/assets/audio/couch.wav',
       wrongAudioPath: '/assets/audio/cows.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/cows.png',
       correctAudioPath: '/assets/audio/cows.wav',
       wrongAudioPath: '/assets/audio/couch.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/beach.png',
       correctAudioPath: '/assets/audio/beach.wav',
       wrongAudioPath: '/assets/audio/beak.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/beak.png',
       correctAudioPath: '/assets/audio/beak.wav',
       wrongAudioPath: '/assets/audio/beach.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/cake.png',
       correctAudioPath: '/assets/audio/cake.wav',
       wrongAudioPath: '/assets/audio/cage.wav',
+      correctCharacter: Character.LULU,
     },
     {
       imagePath: '/assets/images/cage.png',
       correctAudioPath: '/assets/audio/cage.wav',
       wrongAudioPath: '/assets/audio/cake.wav',
+      correctCharacter: Character.LULU,
     },
   ],
 

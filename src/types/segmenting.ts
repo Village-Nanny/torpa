@@ -1,18 +1,23 @@
+import { Character } from './enums/characters.enum';
+
 export interface SegmentingProblemProps {
   imagePath: string;
   correctAudioPath: string;
   wrongAudioPath: string;
+  correctCharacter: Character;
 }
 
 export class SegmentingProblem {
   public imagePath: string;
   public correctAudioPath: string;
   public wrongAudioPath: string;
+  public correctCharacter: Character;
 
   constructor(props: SegmentingProblemProps) {
     this.imagePath = props.imagePath;
     this.correctAudioPath = props.correctAudioPath;
     this.wrongAudioPath = props.wrongAudioPath;
+    this.correctCharacter = props.correctCharacter;
   }
 
   isCorrect = (audioPath: string): boolean => {
