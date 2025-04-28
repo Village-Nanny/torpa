@@ -46,7 +46,7 @@ export function useAudioSequence({
   const hasAutoPlayedRef = useRef(false);
 
   // Debug logging helper
-  const debugLog = useCallback((message: string, ...args: any[]) => {
+  const debugLog = useCallback((message: string, ...args: unknown[]) => {
     console.log(`[useAudioSequence DEBUG] ${message}`, ...args);
   }, []);
 

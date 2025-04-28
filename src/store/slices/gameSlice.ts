@@ -38,11 +38,9 @@ interface ProblemEntry {
 }
 
 const startGame = (wantedTypes: Problems[]) => async (dispatch: AppDispatch) => {
-  // 1. Keep only the map’s keys that we want, in definition order
   const allTypesInOrder = Object.keys(PROBLEMS_CONFIG) as Problems[];
   const orderedTypes = allTypesInOrder.filter(t => wantedTypes.includes(t));
 
-  // 2. Build a list of { type, inst } entries
   const tuples: ProblemEntry[] = orderedTypes.reduce<ProblemEntry[]>((acc, type) => {
     const entry = PROBLEMS[type];
     if (!entry) {
@@ -51,27 +49,22 @@ const startGame = (wantedTypes: Problems[]) => async (dispatch: AppDispatch) => 
     }
 
     if (Array.isArray(entry)) {
-      // multiple problems → push each one
       entry.forEach(inst => acc.push({ type, inst }));
     } else {
-      // single tutorial instance
       acc.push({ type, inst: entry });
     }
 
     return acc;
   }, []);
 
-  // 3. Split into parallel arrays
   const problems = tuples.map(t => t.inst);
   const configPerProblem = tuples.map(t => t.type);
 
-  // 4. Compute how many of each got pulled in
   const blendingTypes = [Problems.INITIAL_BLENDING, Problems.FINAL_BLENDING];
   const segmentingTypes = [Problems.INITIAL_SEGMENTING, Problems.FINAL_SEGMENTING];
   const totalBlendingProblems = configPerProblem.filter(t => blendingTypes.includes(t)).length;
   const totalSegmentingProblems = configPerProblem.filter(t => segmentingTypes.includes(t)).length;
 
-  // 5. Initialize the slice
   dispatch(
     setGameState({
       config: configPerProblem,

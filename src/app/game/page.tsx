@@ -283,10 +283,9 @@ export default function GamePage() {
             <StartScreen onStart={startGameHandler} showHeader={false} />
           </FadeIn>
         ) : !introShown ? (
-          // <FadeIn key="intro-screen" className="relative z-10">
-          //   <GameIntroScreen onContinue={handleIntroComplete} />
-          // </FadeIn>
-          <></>
+          <FadeIn key="intro-screen" className="relative z-10">
+            <GameIntroScreen onContinue={handleIntroComplete} />
+          </FadeIn>
         ) : (
           <FadeIn key={`problem-${currentProblemIndex}`} className="relative z-10">
             {currentProblem ? (

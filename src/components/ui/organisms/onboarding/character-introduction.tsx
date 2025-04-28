@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Character } from '@/src/types/enums/characters.enum';
 import { CharacterAvatar } from '@/src/components/ui/atoms/character-avatar';

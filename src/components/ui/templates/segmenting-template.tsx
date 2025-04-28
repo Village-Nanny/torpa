@@ -38,7 +38,7 @@ export function SegmentingGameTemplate({
   const [feedback, setFeedback] = useState<'success' | 'retry' | null>(null);
   const [tutorialStep, setTutorialStep] = useState<'intro' | 'character' | 'choice' | 'feedback' | 'complete'>('intro');
   const [nonTutorialStep, setNonTutorialStep] = useState<'intro' | 'character' | 'choice'>('intro');
-  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [, setWrongAttempts] = useState(0);
   const [animatedImage, setAnimatedImage] = useState<'correct' | 'wrong' | null>(null);
   const [charactersClicked, setCharactersClicked] = useState<Character[]>([]);
   const [nonTutorialActiveCharacter, setNonTutorialActiveCharacter] = useState<Character | null>(null);
@@ -181,13 +181,6 @@ export function SegmentingGameTemplate({
     autoPlay: isTutorialProblem ? tutorialStep !== 'character' : nonTutorialStep !== 'character',
   });
 
-  const handleAudioError = useCallback(
-    (error: string) => {
-      onError?.(error);
-    },
-    [onError]
-  );
-
   const shouldAnimateLulu = useMemo(() => {
     if (isTutorialProblem) {
       return tutorialStep === 'character' && !charactersClicked.includes(Character.LULU);
@@ -286,7 +279,7 @@ export function SegmentingGameTemplate({
     return () => {
       stop();
     };
-  }, [stop, isTutorialProblem, tutorialStep, nonTutorialStep]);
+  }, [stop, isTutorialProblem, tutorialStep, nonTutorialStep]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (isTutorialProblem) {
@@ -331,8 +324,6 @@ export function SegmentingGameTemplate({
                 isActive={
                   isTutorialProblem ? activeCharacter === Character.LULU : nonTutorialActiveCharacter === Character.LULU
                 }
-                canReplay={isTutorialProblem ? canSelect : nonTutorialCanSelect}
-                feedback={feedback}
                 onClick={() => {
                   handleCharacterTap(Character.LULU);
                   if (!isTutorialProblem && nonTutorialStep === 'choice') handleNonTutorialChoice(Character.LULU);
@@ -348,8 +339,6 @@ export function SegmentingGameTemplate({
                     ? activeCharacter === Character.FRANCINE
                     : nonTutorialActiveCharacter === Character.FRANCINE
                 }
-                canReplay={isTutorialProblem ? canSelect : nonTutorialCanSelect}
-                feedback={feedback}
                 onClick={() => {
                   handleCharacterTap(Character.FRANCINE);
                   if (!isTutorialProblem && nonTutorialStep === 'choice') handleNonTutorialChoice(Character.FRANCINE);
@@ -392,8 +381,6 @@ export function SegmentingGameTemplate({
 interface CharacterChoiceProps {
   character: Character;
   isActive: boolean;
-  canReplay: boolean;
-  feedback: 'success' | 'retry' | null;
   onClick: () => void;
   shouldAnimate: boolean;
   isClicked?: boolean;
@@ -402,8 +389,7 @@ interface CharacterChoiceProps {
 function CharacterChoice({
   character,
   isActive,
-  canReplay,
-  feedback,
+
   onClick,
   shouldAnimate,
   isClicked,

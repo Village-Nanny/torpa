@@ -1,4 +1,4 @@
-import { BlendingProblem, TutorialBlendingProblem } from './blending';
+import { TutorialBlendingProblem } from './blending';
 
 export interface BlendingTutorialProps {
   problem1: TutorialBlendingProblem;
