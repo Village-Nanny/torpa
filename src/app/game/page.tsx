@@ -167,13 +167,6 @@ export default function GamePage() {
     [dispatch]
   );
 
-  // Skip the intro screen for dev: set introShown to true as soon as gameStarted is true
-  useEffect(() => {
-    if (gameStarted && !introShown) {
-      setIntroShown(true);
-    }
-  }, [gameStarted, introShown]);
-
   // Handler for answer submission
   const handleSubmit = useCallback(
     (answer: string) => {

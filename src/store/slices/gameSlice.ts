@@ -1,3 +1,4 @@
+import { PROBLEMS_LIST } from '@/src/config/problems-config';
 import { Problems } from '@/src/types/enums/problems.enum';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BlendingProblem } from '@/src/types/blending';
@@ -7,7 +8,6 @@ import { SegmentingTutorial } from '@/src/types/segmenting-tutorial';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '@/src/services/firebase';
 import { AppDispatch, RootState } from '@/src/store';
-import { PROBLEMS, PROBLEMS_CONFIG } from '@/src/config/problems-config';
 
 type Problem = BlendingProblem | SegmentingProblem | BlendingTutorial | SegmentingTutorial;
 interface GameState {
@@ -30,35 +30,11 @@ const initialState: GameState = {
   totalSegmentingProblems: 0,
 };
 
-type GameProblem = BlendingProblem | SegmentingProblem | BlendingTutorial | SegmentingTutorial;
-
-interface ProblemEntry {
-  type: Problems;
-  inst: GameProblem;
-}
-
 const startGame = (wantedTypes: Problems[]) => async (dispatch: AppDispatch) => {
-  const allTypesInOrder = Object.keys(PROBLEMS_CONFIG) as Problems[];
-  const orderedTypes = allTypesInOrder.filter(t => wantedTypes.includes(t));
+  const filteredProblems = PROBLEMS_LIST.filter(p => wantedTypes.includes(p.type));
 
-  const tuples: ProblemEntry[] = orderedTypes.reduce<ProblemEntry[]>((acc, type) => {
-    const entry = PROBLEMS[type];
-    if (!entry) {
-      console.warn(`No PROBLEMS entry for ${type}`);
-      return acc;
-    }
-
-    if (Array.isArray(entry)) {
-      entry.forEach(inst => acc.push({ type, inst }));
-    } else {
-      acc.push({ type, inst: entry });
-    }
-
-    return acc;
-  }, []);
-
-  const problems = tuples.map(t => t.inst);
-  const configPerProblem = tuples.map(t => t.type);
+  const configPerProblem = filteredProblems.map(p => p.type);
+  const problems = filteredProblems.map(p => p.inst);
 
   const blendingTypes = [Problems.INITIAL_BLENDING, Problems.FINAL_BLENDING];
   const segmentingTypes = [Problems.INITIAL_SEGMENTING, Problems.FINAL_SEGMENTING];
@@ -89,12 +65,9 @@ const gameSlice = createSlice({
 
       if (!currentProblem || !currentProblemType) return;
 
-      // Check if the current problem is a Tutorial
       if (currentProblem instanceof BlendingTutorial || currentProblem instanceof SegmentingTutorial) {
-        // For tutorials, submitting means completion, just advance index
         console.log('Tutorial completed, advancing...');
       } else {
-        // For regular problems, check correctness and score
         if ('isCorrect' in currentProblem && typeof currentProblem.isCorrect === 'function') {
           const isCorrect = currentProblem.isCorrect(action.payload);
 
@@ -113,15 +86,7 @@ const gameSlice = createSlice({
         }
       }
 
-      // Advance to the next problem index
       state.currentProblemIndex += 1;
-
-      // Check if the game run is complete
-      if (state.currentProblemIndex >= state.problems.length) {
-        state.config = null;
-        state.problems = [];
-        state.currentProblemIndex = 0;
-      }
     },
     endGame: state => {
       state.config = null;
@@ -141,12 +106,12 @@ export { startGame };
 export const submitAnswerAndRecord =
   (answer: string, uid: string) => async (dispatch: AppDispatch, getState: () => RootState) => {
     dispatch(submitAnswer(answer));
-    const state: GameState = getState().game;
+    const state = getState().game;
     const auth = getState().auth;
 
-    if (state.config === null && state.problems.length === 0 && state.currentProblemIndex === 0) {
+    if (state.problems.length > 0 && state.currentProblemIndex >= state.problems.length) {
+      console.log('Attempting to record game run...');
       try {
-        // Record to Firebase
         await addDoc(collection(db, 'gameRuns'), {
           blendingScore: {
             correct: state.blendingScore,
@@ -159,9 +124,10 @@ export const submitAnswerAndRecord =
           uid,
           createdAt: new Date().toISOString(),
         });
+        console.log('Game run recorded.');
 
-        // Send email
         if (auth.user?.email) {
+          console.log('Attempting to send email...');
           await fetch('/api/send-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -177,9 +143,17 @@ export const submitAnswerAndRecord =
               },
             }),
           });
+          console.log('Email request sent.');
         }
+
+        dispatch(endGame());
       } catch (error) {
-        console.error('Error recording game run:', error);
+        console.error('Error recording game run or sending email:', error);
+        dispatch(endGame());
+      }
+    } else {
+      if (state.problems.length > 0) {
+        console.log('Game not finished yet, index:', state.currentProblemIndex, 'length:', state.problems.length);
       }
     }
   };
@@ -187,11 +161,10 @@ export const submitAnswerAndRecord =
 export default gameSlice.reducer;
 
 export const getCurrentProblem = (state: { game: GameState }): Problem | null =>
-  state.game.problems[state.game.currentProblemIndex] || null;
+  state.game.problems?.[state.game.currentProblemIndex] || null;
 
-// Helper selectors for getting the scores
 export const getBlendingScore = (state: RootState): string =>
-  `${state.game.blendingScore}/${state.game.totalBlendingProblems}`;
+  `${state.game.totalBlendingProblems > 0 ? state.game.blendingScore : '-'}/${state.game.totalBlendingProblems > 0 ? state.game.totalBlendingProblems : '-'}`;
 
 export const getSegmentingScore = (state: RootState): string =>
-  `${state.game.segmentingScore}/${state.game.totalSegmentingProblems}`;
+  `${state.game.totalSegmentingProblems > 0 ? state.game.segmentingScore : '-'}/${state.game.totalSegmentingProblems > 0 ? state.game.totalSegmentingProblems : '-'}`;
