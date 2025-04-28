@@ -1,4 +1,3 @@
-import { GAME_CONFIG } from '@/src/config/gameConfig';
 import { Problems } from '@/src/types/enums/problems.enum';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BlendingProblem } from '@/src/types/blending';
@@ -8,7 +7,7 @@ import { SegmentingTutorial } from '@/src/types/segmenting-tutorial';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '@/src/services/firebase';
 import { AppDispatch, RootState } from '@/src/store';
-import { PROBLEMS } from '@/src/config/problems-config';
+import { PROBLEMS, PROBLEMS_CONFIG } from '@/src/config/problems-config';
 
 type Problem = BlendingProblem | SegmentingProblem | BlendingTutorial | SegmentingTutorial;
 interface GameState {
@@ -31,57 +30,59 @@ const initialState: GameState = {
   totalSegmentingProblems: 0,
 };
 
-const startGame = (config: Problems[]) => async (dispatch: AppDispatch) => {
-  try {
-    const validProblemTypes = config.filter(type => GAME_CONFIG.includes(type));
+type GameProblem = BlendingProblem | SegmentingProblem | BlendingTutorial | SegmentingTutorial;
 
-    const problems = validProblemTypes
-      .map(type => {
-        const availableProblemsOrTutorial = PROBLEMS[type];
-        if (!availableProblemsOrTutorial) {
-          console.error(`No problems defined or available for type: ${type}`);
-          return null;
-        }
-        if (type === Problems.TUTORIAL_BLENDING) {
-          return availableProblemsOrTutorial as BlendingTutorial;
-        }
-        if (type === Problems.TUTORIAL_SEGMENTING) {
-          return availableProblemsOrTutorial as SegmentingTutorial;
-        }
-        if (Array.isArray(availableProblemsOrTutorial)) {
-          if (availableProblemsOrTutorial.length === 0) {
-            console.error(`Empty problem array for type: ${type}`);
-            return null;
-          }
-          const randomIndex = Math.floor(Math.random() * availableProblemsOrTutorial.length);
-          return availableProblemsOrTutorial[randomIndex];
-        } else {
-          console.error(`Unexpected problem structure for type: ${type}`);
-          return null;
-        }
-      })
-      .filter((problem): problem is Problem => problem !== null);
+interface ProblemEntry {
+  type: Problems;
+  inst: GameProblem;
+}
 
-    const blendingTypes = [Problems.INITIAL_BLENDING, Problems.FINAL_BLENDING];
-    const totalBlendingProblems = validProblemTypes.filter(type => blendingTypes.includes(type)).length;
+const startGame = (wantedTypes: Problems[]) => async (dispatch: AppDispatch) => {
+  // 1. Keep only the map’s keys that we want, in definition order
+  const allTypesInOrder = Object.keys(PROBLEMS_CONFIG) as Problems[];
+  const orderedTypes = allTypesInOrder.filter(t => wantedTypes.includes(t));
 
-    const segmentingTypes = [Problems.INITIAL_SEGMENTING, Problems.FINAL_SEGMENTING];
-    const totalSegmentingProblems = validProblemTypes.filter(type => segmentingTypes.includes(type)).length;
+  // 2. Build a list of { type, inst } entries
+  const tuples: ProblemEntry[] = orderedTypes.reduce<ProblemEntry[]>((acc, type) => {
+    const entry = PROBLEMS[type];
+    if (!entry) {
+      console.warn(`No PROBLEMS entry for ${type}`);
+      return acc;
+    }
 
-    dispatch(
-      setGameState({
-        config: validProblemTypes,
-        problems,
-        currentProblemIndex: 0,
-        blendingScore: 0,
-        segmentingScore: 0,
-        totalBlendingProblems,
-        totalSegmentingProblems,
-      })
-    );
-  } catch (error) {
-    console.error('Error starting game:', error);
-  }
+    if (Array.isArray(entry)) {
+      // multiple problems → push each one
+      entry.forEach(inst => acc.push({ type, inst }));
+    } else {
+      // single tutorial instance
+      acc.push({ type, inst: entry });
+    }
+
+    return acc;
+  }, []);
+
+  // 3. Split into parallel arrays
+  const problems = tuples.map(t => t.inst);
+  const configPerProblem = tuples.map(t => t.type);
+
+  // 4. Compute how many of each got pulled in
+  const blendingTypes = [Problems.INITIAL_BLENDING, Problems.FINAL_BLENDING];
+  const segmentingTypes = [Problems.INITIAL_SEGMENTING, Problems.FINAL_SEGMENTING];
+  const totalBlendingProblems = configPerProblem.filter(t => blendingTypes.includes(t)).length;
+  const totalSegmentingProblems = configPerProblem.filter(t => segmentingTypes.includes(t)).length;
+
+  // 5. Initialize the slice
+  dispatch(
+    setGameState({
+      config: configPerProblem,
+      problems,
+      currentProblemIndex: 0,
+      blendingScore: 0,
+      segmentingScore: 0,
+      totalBlendingProblems,
+      totalSegmentingProblems,
+    })
+  );
 };
 
 const gameSlice = createSlice({

@@ -26,48 +26,6 @@ type ProblemsConfigType = {
 };
 
 export const PROBLEMS_CONFIG: ProblemsConfigType = {
-  [Problems.TUTORIAL_SEGMENTING]: [
-    {
-      imagePath: '/assets/images/gum.png',
-      correctAudioPath: '/assets/audio/gum.wav',
-      wrongAudioPath: '/assets/audio/watch.wav',
-      correctChoiceNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGood jobLulu said it the right way.m4a',
-      imageNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingThis is gum.m4a',
-      correctChoiceNextNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGreatNow let’s try one more.m4a',
-      instructUserNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting Training Who said it the right way.m4a',
-      retryNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingLet’s listen again.m4a',
-      tapCharacterNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingNow tap Lulu and Francine.m4a',
-      wrongInstructUserNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingTap Luluthen tap Francine.m4a',
-      correctCharacter: Character.LULU,
-    },
-    {
-      imagePath: '/assets/images/pot.png',
-      correctAudioPath: '/assets/audio/pot.wav',
-      wrongAudioPath: '/assets/audio/door.wav',
-      correctChoiceNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGood Job! Francine said it the right way.m4a',
-      imageNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingThis is a pot.m4a',
-      correctChoiceNextNarration:
-        '/assets/audio/segmenting/TORPA Segmenting Task /TORPA Segmenting Task TransitionGreatNow lets keep playing.m4a',
-      instructUserNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting Training Who said it the right way.m4a',
-      retryNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingLet’s listen again.m4a',
-      tapCharacterNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingNow tap Lulu and Francine.m4a',
-      wrongInstructUserNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingTap Luluthen tap Francine.m4a',
-      correctCharacter: Character.FRANCINE,
-    },
-  ],
   [Problems.TUTORIAL_BLENDING]: [
     {
       correctImagePath: '/assets/images/watch.png',
@@ -112,6 +70,48 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       wrongNextNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Let’s Try Another One”.m4a',
       narrationOrder: ['wrong', 'correct'],
+    },
+  ],
+  [Problems.TUTORIAL_SEGMENTING]: [
+    {
+      imagePath: '/assets/images/gum.png',
+      correctAudioPath: '/assets/audio/gum.wav',
+      wrongAudioPath: '/assets/audio/watch.wav',
+      correctChoiceNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGood jobLulu said it the right way.m4a',
+      imageNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingThis is gum.m4a',
+      correctChoiceNextNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGreatNow let’s try one more.m4a',
+      instructUserNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting Training Who said it the right way.m4a',
+      retryNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingLet’s listen again.m4a',
+      tapCharacterNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingNow tap Lulu and Francine.m4a',
+      wrongInstructUserNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingTap Luluthen tap Francine.m4a',
+      correctCharacter: Character.LULU,
+    },
+    {
+      imagePath: '/assets/images/pot.png',
+      correctAudioPath: '/assets/audio/pot.wav',
+      wrongAudioPath: '/assets/audio/door.wav',
+      correctChoiceNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGood Job! Francine said it the right way.m4a',
+      imageNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingThis is a pot.m4a',
+      correctChoiceNextNarration:
+        '/assets/audio/segmenting/TORPA Segmenting Task /TORPA Segmenting Task TransitionGreatNow lets keep playing.m4a',
+      instructUserNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting Training Who said it the right way.m4a',
+      retryNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingLet’s listen again.m4a',
+      tapCharacterNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingNow tap Lulu and Francine.m4a',
+      wrongInstructUserNarration:
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingTap Luluthen tap Francine.m4a',
+      correctCharacter: Character.FRANCINE,
     },
   ],
 
