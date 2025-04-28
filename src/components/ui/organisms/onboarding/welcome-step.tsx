@@ -10,11 +10,11 @@ interface WelcomeStepProps {
 
 const welcomeAudioSequence = [
   {
-    path: '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Let’s Play a Game. Lulu or Francine will say a word”.m4a',
+    path: '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training Let Play a GameLulu or Francine will say a word.m4a',
     postDelay: 500,
   },
   {
-    path: '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Ready, Let’s Try One”.m4a',
+    path: '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending TrainingReady Let Try One.m4a',
   },
 ];
 

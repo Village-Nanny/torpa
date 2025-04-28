@@ -35,7 +35,7 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       correctImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_watch.mp3',
       wrongImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_gum.mp3',
       correctImageNarration:
-        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - Correct watch: “Good Job!”.m4a',
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending TrainingCorrect watchGood Job.m4a',
       wrongImageNarration: '/assets/audio/blending_training/TORPA Blending Training/lets_listen_again.mp3',
       tapCharacterNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending TrainingTap Francine to listen to her.m4a',
@@ -44,9 +44,9 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
 
       retryAudioPath: '/assets/audio/blending_training/TORPA Blending Training/lets_listen_again.mp3',
       correctNextNarration:
-        '/assets/audio/blending/TORPA Blending Task /TORPA Blending Task Transition - “Now let’s keep playing”.m4a',
+        '/assets/audio/blending/TORPA Blending Task /TORPA Blending Task TransitionNow letkeep playing.m4a',
       wrongNextNarration:
-        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Let’s Try Another One”.m4a',
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending TrainingLet Try Another One.m4a',
       narrationOrder: ['correct', 'wrong'],
     },
     {
@@ -57,18 +57,18 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       correctImageAudio: '/assets/audio/blending_training/TORPA Blending Training/and_door.mp3',
       wrongImageAudio: '/assets/audio/blending_training/TORPA Blending Training/this_is_a_pot.mp3',
       correctImageNarration:
-        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - correct answer door “Good job. You chose pic of door”.m4a',
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training Good jobYou chose pic of door.m4a',
       wrongImageNarration:
-        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Let’s Try Another One”.m4a',
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending TrainingLet Try Another One.m4a',
       tapCharacterNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA  Blending TrainingTap Lulu to Listen to Her.m4a',
       instructUserNarration:
         '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - Which one did she sayTap the right picture.m4a',
       retryAudioPath: '/assets/audio/blending_training/TORPA Blending Training/lets_listen_again.mp3',
       correctNextNarration:
-        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Good job. Now let’s try one more”.m4a',
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending TrainingGood jobNow let’s try one more.m4a',
       wrongNextNarration:
-        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending Training - “Let’s Try Another One”.m4a',
+        '/assets/audio/blending_training/TORPA Blending Training/TORPA Blending TrainingLet Try Another One.m4a',
       narrationOrder: ['wrong', 'correct'],
     },
   ],
@@ -82,11 +82,11 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       imageNarration:
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingThis is gum.m4a',
       correctChoiceNextNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGreatNow let’s try one more.m4a',
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGreatNow lets try one more.m4a',
       instructUserNarration:
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting Training Who said it the right way.m4a',
       retryNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingLet’s listen again.m4a',
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingLets listen again.m4a',
       tapCharacterNarration:
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingNow tap Lulu and Francine.m4a',
       wrongInstructUserNarration:
@@ -98,7 +98,7 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       correctAudioPath: '/assets/audio/pot.wav',
       wrongAudioPath: '/assets/audio/door.wav',
       correctChoiceNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGood Job! Francine said it the right way.m4a',
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGood JobFrancine said it the right way.m4a',
       imageNarration:
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingThis is a pot.m4a',
       correctChoiceNextNarration:
@@ -106,7 +106,7 @@ export const PROBLEMS_CONFIG: ProblemsConfigType = {
       instructUserNarration:
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting Training Who said it the right way.m4a',
       retryNarration:
-        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingLet’s listen again.m4a',
+        '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingLets listen again.m4a',
       tapCharacterNarration:
         '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingNow tap Lulu and Francine.m4a',
       wrongInstructUserNarration:
