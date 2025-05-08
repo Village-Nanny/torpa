@@ -109,8 +109,9 @@ export const PROBLEMS_LIST: {
           '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGood jobLulu said it the right way.m4a',
         imageNarration:
           '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingThis is gum.m4a',
+
         correctChoiceNextNarration:
-          '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGreatNow lets try one more.m4a',
+          '/assets/audio/segmenting/TORPA Segmenting Task /TORPA Segmenting Task TransitionGreatNow lets keep playing.m4a',
         instructUserNarration:
           '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting Training Who said it the right way.m4a',
         retryNarration:
@@ -130,7 +131,7 @@ export const PROBLEMS_LIST: {
         imageNarration:
           '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingThis is a pot.m4a',
         correctChoiceNextNarration:
-          '/assets/audio/segmenting/TORPA Segmenting Task /TORPA Segmenting Task TransitionGreatNow lets keep playing.m4a',
+          '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting TrainingGreatNow lets try one more.m4a',
         instructUserNarration:
           '/assets/audio/segmenting_training/TORPA Segmenting Training/TORPA Segmenting Training Who said it the right way.m4a',
         retryNarration:

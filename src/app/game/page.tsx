@@ -26,6 +26,7 @@ import { useAudio } from '@/src/hooks/use-audio';
 import { GameIntroScreen } from '@/src/components/ui/organisms/onboarding/game-intro-screen';
 import { BlendingTutorial } from '@/src/types/blending-tutorial';
 import { SegmentingTutorial } from '@/src/types/segmenting-tutorial';
+import { ProgressIndicator } from '@/src/components/ui/atoms/progress-indicator';
 
 const ErrorScreen = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
   <div className="min-h-screen flex items-center justify-center bg-rose-600">
@@ -117,13 +118,26 @@ export default function GamePage() {
   const router = useRouter();
   const { stopAllAudio } = useAudio();
 
-  // Redux state
   const currentProblem = useSelector((state: RootState) => getCurrentProblem(state));
   const currentProblemType = useSelector((state: RootState) => state.game.config?.[state.game.currentProblemIndex]);
   const currentProblemIndex = useSelector((state: RootState) => state.game.currentProblemIndex);
   const { user, loading: authLoading } = useSelector((state: RootState) => state.auth);
 
-  // Local state
+  // Calculate non-tutorial problems total for progress indicator
+  const totalNonTutorialProblems = useSelector((state: RootState) => {
+    if (!state.game.config) return 0;
+    return state.game.config.filter(
+      type => type !== Problems.TUTORIAL_BLENDING && type !== Problems.TUTORIAL_SEGMENTING
+    ).length;
+  });
+
+  const adjustedProblemIndex = useSelector((state: RootState) => {
+    if (!state.game.config) return 0;
+    return state.game.config
+      .slice(0, state.game.currentProblemIndex)
+      .filter(type => type !== Problems.TUTORIAL_BLENDING && type !== Problems.TUTORIAL_SEGMENTING).length;
+  });
+
   const [introShown, setIntroShown] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -269,6 +283,14 @@ export default function GamePage() {
       <DotPattern
         className={`absolute inset-0 transition-colors duration-700 ease-in-out ${!gameStarted ? 'bg-blue-600' : getBackgroundColor()} text-gray-200`}
       />
+
+      {gameStarted && introShown && currentProblem && (
+        <ProgressIndicator
+          currentIndex={adjustedProblemIndex}
+          totalProblems={totalNonTutorialProblems}
+          problemType={currentProblemType || null}
+        />
+      )}
 
       <AnimatePresence mode="wait">
         {!gameStarted ? (
