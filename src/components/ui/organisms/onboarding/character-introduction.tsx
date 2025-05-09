@@ -24,22 +24,23 @@ const AUDIO_SEQUENCE: CharacterAudioItem[] = [
   {
     path: '/assets/audio/intro/TORPA Intro/meet_lulu.mp3',
     character: Character.LULU,
-    postDelay: 0, // shorter delay after Lulu's introduction
+    postDelay: 100,
   },
   {
     path: '/assets/audio/intro/TORPA Intro/and_francince.mp3',
     character: Character.FRANCINE,
-    postDelay: 0, // slightly longer delay after Francine's introduction
+    postDelay: 100,
   },
   {
     path: '/assets/audio/intro/TORPA Intro/play_games.mp3',
     character: null,
-    postDelay: 0, // longer pause before the final message
+    postDelay: 100,
   },
+
   {
-    path: '/assets/audio/intro/TORPA Intro/TORPA Intro - “Wave Hello to Lulu and Francine”.m4a',
+    path: '/assets/audio/intro/TORPA Intro/TORPA Intro Wave Hello to Lulu and Francine.m4a',
     character: null,
-    postDelay: 0, // shorter delay at the end
+    postDelay: 200,
   },
 ];
 
