@@ -4,10 +4,11 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Character } from '@/src/types/enums/characters.enum';
 import { CharacterAvatar } from '@/src/components/ui/atoms/character-avatar';
 import { Button } from '@/src/components/ui/atoms/button';
+import { ReplayButton } from '@/src/components/ui/atoms/replay-button';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { BlendingProblem, TutorialBlendingProblem } from '@/src/types/blending';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RotateCw } from 'lucide-react';
 import { useAudioSequence, AudioSequenceItem } from '@/src/hooks/useAudioSequence';
 
 interface BlendingGameTemplateProps {
@@ -38,6 +39,7 @@ export function BlendingGameTemplate({
   const [nonTutorialStep, setNonTutorialStep] = useState<'intro' | 'character' | 'choice'>('intro');
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [animatedImage, setAnimatedImage] = useState<'correct' | 'wrong' | null>(null);
+  const [isPlayingReplay, setIsPlayingReplay] = useState(false);
 
   const currentCharacter = problem.visibleCharacter;
 
@@ -180,7 +182,6 @@ export function BlendingGameTemplate({
           setCanSelect(true);
           break;
         case 'choice':
-          // Wait for user selection
           break;
         case 'feedback':
           if (feedback === 'success') {
@@ -259,6 +260,19 @@ export function BlendingGameTemplate({
       }
     }
   }, [play, currentCharacter, isTutorialProblem, tutorialStep, nonTutorialStep]);
+
+  const handleReplayAudio = useCallback(() => {
+    if (problem.audioPath) {
+      setIsPlayingReplay(true);
+      const audio = new Audio(problem.audioPath);
+      audio.onended = () => setIsPlayingReplay(false);
+      audio.play().catch(err => {
+        console.error('Error playing audio:', err);
+        setIsPlayingReplay(false);
+        onError?.('Failed to play audio');
+      });
+    }
+  }, [problem.audioPath, onError]);
 
   const handleCharacterClick = useCallback(() => {
     if (
@@ -387,6 +401,14 @@ export function BlendingGameTemplate({
             className="h-[80px] mt-8"
             animate={{ height: canSelect && !feedback ? 'auto' : '0px' }}
             transition={{ duration: 0.3 }}></motion.div>
+
+          {/* Replay button */}
+          {((!isTutorialProblem && nonTutorialStep === 'choice') ||
+            (isTutorialProblem && (tutorialStep === 'choice' || tutorialStep === 'feedback'))) && (
+            <div className="mt-4">
+              <ReplayButton isPlaying={isPlayingReplay} onClick={handleReplayAudio} />
+            </div>
+          )}
         </div>
 
         {showNavigation && (

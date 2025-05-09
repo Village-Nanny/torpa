@@ -4,6 +4,7 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Character } from '@/src/types/enums/characters.enum';
 import { CharacterAvatar } from '@/src/components/ui/atoms/character-avatar';
 import { Button } from '@/src/components/ui/atoms/button';
+import { ReplayButton } from '@/src/components/ui/atoms/replay-button';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -43,6 +44,8 @@ export function SegmentingGameTemplate({
   const [charactersClicked, setCharactersClicked] = useState<Character[]>([]);
   const [nonTutorialActiveCharacter, setNonTutorialActiveCharacter] = useState<Character | null>(null);
   const [nonTutorialCanSelect, setNonTutorialCanSelect] = useState(false);
+  const [isPlayingLuluAudio, setIsPlayingLuluAudio] = useState(false);
+  const [isPlayingFrancineAudio, setIsPlayingFrancineAudio] = useState(false);
 
   const isTutorialProblem = isTutorial && problem instanceof TutorialSegmentingProblem;
 
@@ -265,6 +268,35 @@ export function SegmentingGameTemplate({
     [nonTutorialCanSelect, onSubmit, problem]
   );
 
+  const handleReplayAudio = useCallback(
+    (character: Character) => {
+      const audioPath = character === problem.correctCharacter ? problem.correctAudioPath : problem.wrongAudioPath;
+
+      if (!audioPath) return;
+
+      if (character === Character.LULU) {
+        setIsPlayingLuluAudio(true);
+        const audio = new Audio(audioPath);
+        audio.onended = () => setIsPlayingLuluAudio(false);
+        audio.play().catch(err => {
+          console.error('Error playing Lulu audio:', err);
+          setIsPlayingLuluAudio(false);
+          onError?.('Failed to play audio');
+        });
+      } else {
+        setIsPlayingFrancineAudio(true);
+        const audio = new Audio(audioPath);
+        audio.onended = () => setIsPlayingFrancineAudio(false);
+        audio.play().catch(err => {
+          console.error('Error playing Francine audio:', err);
+          setIsPlayingFrancineAudio(false);
+          onError?.('Failed to play audio');
+        });
+      }
+    },
+    [problem.correctAudioPath, problem.wrongAudioPath, problem.correctCharacter, onError]
+  );
+
   useEffect(() => {
     if (isTutorialProblem) {
       if (tutorialStep === 'intro' || tutorialStep === 'choice' || tutorialStep === 'feedback') {
@@ -319,34 +351,57 @@ export function SegmentingGameTemplate({
             </motion.div>
 
             <div className="flex justify-center gap-20 md:gap-32 mt-8">
-              <CharacterChoice
-                character={Character.LULU}
-                isActive={
-                  isTutorialProblem ? activeCharacter === Character.LULU : nonTutorialActiveCharacter === Character.LULU
-                }
-                onClick={() => {
-                  handleCharacterTap(Character.LULU);
-                  if (!isTutorialProblem && nonTutorialStep === 'choice') handleNonTutorialChoice(Character.LULU);
-                  if (isTutorialProblem && canSelect) handleChoice(Character.LULU);
-                }}
-                isClicked={charactersClicked.includes(Character.LULU)}
-                shouldAnimate={shouldAnimateLulu}
-              />
-              <CharacterChoice
-                character={Character.FRANCINE}
-                isActive={
-                  isTutorialProblem
-                    ? activeCharacter === Character.FRANCINE
-                    : nonTutorialActiveCharacter === Character.FRANCINE
-                }
-                onClick={() => {
-                  handleCharacterTap(Character.FRANCINE);
-                  if (!isTutorialProblem && nonTutorialStep === 'choice') handleNonTutorialChoice(Character.FRANCINE);
-                  if (isTutorialProblem && canSelect) handleChoice(Character.FRANCINE);
-                }}
-                isClicked={charactersClicked.includes(Character.FRANCINE)}
-                shouldAnimate={shouldAnimateFrancine}
-              />
+              <div className="flex flex-col items-center gap-3">
+                <CharacterChoice
+                  character={Character.LULU}
+                  isActive={
+                    isTutorialProblem
+                      ? activeCharacter === Character.LULU
+                      : nonTutorialActiveCharacter === Character.LULU
+                  }
+                  onClick={() => {
+                    handleCharacterTap(Character.LULU);
+                    if (!isTutorialProblem && nonTutorialStep === 'choice') handleNonTutorialChoice(Character.LULU);
+                    if (isTutorialProblem && canSelect) handleChoice(Character.LULU);
+                  }}
+                  isClicked={charactersClicked.includes(Character.LULU)}
+                  shouldAnimate={shouldAnimateLulu}
+                />
+                {((!isTutorialProblem && nonTutorialStep === 'choice') ||
+                  (isTutorialProblem && (tutorialStep === 'choice' || tutorialStep === 'feedback'))) && (
+                  <ReplayButton
+                    isPlaying={isPlayingLuluAudio}
+                    onClick={() => handleReplayAudio(Character.LULU)}
+                    className="scale-75 mt-2"
+                  />
+                )}
+              </div>
+
+              <div className="flex flex-col items-center gap-3">
+                <CharacterChoice
+                  character={Character.FRANCINE}
+                  isActive={
+                    isTutorialProblem
+                      ? activeCharacter === Character.FRANCINE
+                      : nonTutorialActiveCharacter === Character.FRANCINE
+                  }
+                  onClick={() => {
+                    handleCharacterTap(Character.FRANCINE);
+                    if (!isTutorialProblem && nonTutorialStep === 'choice') handleNonTutorialChoice(Character.FRANCINE);
+                    if (isTutorialProblem && canSelect) handleChoice(Character.FRANCINE);
+                  }}
+                  isClicked={charactersClicked.includes(Character.FRANCINE)}
+                  shouldAnimate={shouldAnimateFrancine}
+                />
+                {((!isTutorialProblem && nonTutorialStep === 'choice') ||
+                  (isTutorialProblem && (tutorialStep === 'choice' || tutorialStep === 'feedback'))) && (
+                  <ReplayButton
+                    isPlaying={isPlayingFrancineAudio}
+                    onClick={() => handleReplayAudio(Character.FRANCINE)}
+                    className="scale-75 mt-2"
+                  />
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -386,14 +441,7 @@ interface CharacterChoiceProps {
   isClicked?: boolean;
 }
 
-function CharacterChoice({
-  character,
-  isActive,
-
-  onClick,
-  shouldAnimate,
-  isClicked,
-}: CharacterChoiceProps) {
+function CharacterChoice({ character, isActive, onClick, shouldAnimate, isClicked }: CharacterChoiceProps) {
   const isLulu = character === Character.LULU;
 
   return (
