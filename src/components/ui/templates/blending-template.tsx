@@ -8,7 +8,7 @@ import { ReplayButton } from '@/src/components/ui/atoms/replay-button';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { BlendingProblem, TutorialBlendingProblem } from '@/src/types/blending';
-import { ChevronLeft, ChevronRight, RotateCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAudioSequence, AudioSequenceItem } from '@/src/hooks/useAudioSequence';
 
 interface BlendingGameTemplateProps {

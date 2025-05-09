@@ -60,43 +60,43 @@ export const PROBLEMS_LIST: {
     }),
   },
 
-  // {
-  //   type: Problems.INITIAL_BLENDING,
-  //   inst: new BlendingProblem({
-  //     correctImagePath: '/assets/images/can.png',
-  //     wrongImagePath: '/assets/images/fan.png',
-  //     audioPath: '/assets/audio/can.wav',
-  //     visibleCharacter: Character.LULU,
-  //   }),
-  // },
-  // {
-  //   type: Problems.INITIAL_BLENDING,
-  //   inst: new BlendingProblem({
-  //     correctImagePath: '/assets/images/fish.png',
-  //     wrongImagePath: '/assets/images/dish.png',
-  //     audioPath: '/assets/audio/fish.wav',
-  //     visibleCharacter: Character.FRANCINE,
-  //   }),
-  // },
+  {
+    type: Problems.INITIAL_BLENDING,
+    inst: new BlendingProblem({
+      correctImagePath: '/assets/images/can.png',
+      wrongImagePath: '/assets/images/fan.png',
+      audioPath: '/assets/audio/can.wav',
+      visibleCharacter: Character.LULU,
+    }),
+  },
+  {
+    type: Problems.INITIAL_BLENDING,
+    inst: new BlendingProblem({
+      correctImagePath: '/assets/images/fish.png',
+      wrongImagePath: '/assets/images/dish.png',
+      audioPath: '/assets/audio/fish.wav',
+      visibleCharacter: Character.FRANCINE,
+    }),
+  },
 
-  // {
-  //   type: Problems.FINAL_BLENDING,
-  //   inst: new BlendingProblem({
-  //     correctImagePath: '/assets/images/doll.png',
-  //     wrongImagePath: '/assets/images/dog.png',
-  //     audioPath: '/assets/audio/doll.wav',
-  //     visibleCharacter: Character.FRANCINE,
-  //   }),
-  // },
-  // {
-  //   type: Problems.FINAL_BLENDING,
-  //   inst: new BlendingProblem({
-  //     correctImagePath: '/assets/images/comb.png',
-  //     wrongImagePath: '/assets/images/coat.png',
-  //     audioPath: '/assets/audio/comb.wav',
-  //     visibleCharacter: Character.LULU,
-  //   }),
-  // },
+  {
+    type: Problems.FINAL_BLENDING,
+    inst: new BlendingProblem({
+      correctImagePath: '/assets/images/doll.png',
+      wrongImagePath: '/assets/images/dog.png',
+      audioPath: '/assets/audio/doll.wav',
+      visibleCharacter: Character.FRANCINE,
+    }),
+  },
+  {
+    type: Problems.FINAL_BLENDING,
+    inst: new BlendingProblem({
+      correctImagePath: '/assets/images/comb.png',
+      wrongImagePath: '/assets/images/coat.png',
+      audioPath: '/assets/audio/comb.wav',
+      visibleCharacter: Character.LULU,
+    }),
+  },
 
   {
     type: Problems.TUTORIAL_SEGMENTING,
