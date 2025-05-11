@@ -1,43 +1,75 @@
 'use client';
 
 import React, { useState } from 'react';
-import { WelcomeStep } from '@/src/components/ui/organisms/onboarding/welcome-step';
-import { GameExplanationStep } from '@/src/components/ui/organisms/onboarding/game-explanation-step';
-import { PracticeStep } from '@/src/components/ui/organisms/onboarding/practice-step';
+import { WelcomeSegmentingStep } from '@/src/components/ui/organisms/onboarding/welcome-segmenting-step';
 import { SegmentingGameTemplate } from '../templates/segmenting-template';
-import { SegmentingProblem } from '@/src/types/segmenting';
+import { SegmentingTutorial } from '@/src/types/segmenting-tutorial';
+
 interface TutorialSegmentingPageProps {
-  problem: SegmentingProblem;
-  onSubmit: (answer: string) => void;
+  tutorial: SegmentingTutorial;
+  onTutorialComplete: () => void;
+  onError?: (error: string) => void;
 }
 
-export default function TutorialSegmentingPage({ problem, onSubmit }: TutorialSegmentingPageProps) {
-  const [step, setStep] = useState(1);
+export default function TutorialSegmentingPage({ tutorial, onTutorialComplete, onError }: TutorialSegmentingPageProps) {
+  const [currentStep, setCurrentStep] = useState(1);
 
-  const renderTutorialContent = () => {
-    switch (step) {
+  const handleNext = () => {
+    console.log(`TutorialSegmentingPage - handleNext called (current step: ${currentStep})`);
+    if (currentStep < 3) {
+      console.log(`TutorialSegmentingPage - Advancing to step ${currentStep + 1}`);
+      setCurrentStep(currentStep + 1);
+    } else {
+      console.log('TutorialSegmentingPage - All steps complete, calling onTutorialComplete');
+      onTutorialComplete();
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const renderStep = () => {
+    switch (currentStep) {
       case 1:
-        return <WelcomeStep />;
+        return <WelcomeSegmentingStep onNext={handleNext} />;
       case 2:
-        return <GameExplanationStep />;
+        return (
+          <SegmentingGameTemplate
+            key="tutorial-problem-1"
+            problem={tutorial.problem1}
+            onSubmit={() => {
+              handleNext();
+            }}
+            onError={onError}
+            isTutorial={true}
+            showNavigation={false}
+            onPrev={handlePrev}
+            onInternalTutorialComplete={handleNext}
+          />
+        );
       case 3:
-        return <PracticeStep problem={problem} />;
-      case 4:
-        return null;
+        return (
+          <SegmentingGameTemplate
+            key="tutorial-problem-2"
+            problem={tutorial.problem2}
+            onSubmit={() => {
+              console.log('Tutorial problem2 completed, calling onTutorialComplete');
+              handleNext();
+            }}
+            onError={onError}
+            isTutorial={true}
+            showNavigation={false}
+            onPrev={handlePrev}
+            onInternalTutorialComplete={onTutorialComplete}
+          />
+        );
       default:
         return null;
     }
   };
 
-  return (
-    <SegmentingGameTemplate
-      problem={problem}
-      onSubmit={onSubmit}
-      tutorialStep={step}
-      tutorialContent={step < 4 ? renderTutorialContent() : undefined}
-      showNavigation={step < 4}
-      onNext={step < 4 ? () => setStep(step + 1) : undefined}
-      onPrev={step > 1 ? () => setStep(step - 1) : undefined}
-    />
-  );
+  return renderStep();
 }
